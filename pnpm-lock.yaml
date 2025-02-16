@@ -59,6 +59,9 @@ importers:
       next:
         specifier: 15.1.6
         version: 15.1.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      next-safe-action:
+        specifier: ^7.10.4
+        version: 7.10.4(next@15.1.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(zod@3.24.2)
       permissionless:
         specifier: ^0.2.34
         version: 0.2.34(viem@2.23.2(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))(webauthn-p256@0.0.10)
@@ -83,6 +86,9 @@ importers:
       wagmi:
         specifier: ^2.14.11
         version: 2.14.11(@tanstack/query-core@5.66.0)(@tanstack/react-query@5.66.0(react@19.0.0))(@types/react@19.0.8)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.0.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.23.2(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))(zod@3.24.2)
+      zod:
+        specifier: ^3.24.2
+        version: 3.24.2
       zustand:
         specifier: ^5.0.3
         version: 5.0.3(@types/react@19.0.8)(react@19.0.0)(use-sync-external-store@1.4.0(react@19.0.0))
@@ -2795,6 +2801,27 @@ packages:
 
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
+
+  next-safe-action@7.10.4:
+    resolution: {integrity: sha512-rZE89DTNgiTJ8oPQBOZm+jd0Uf/pLkN+GE3PndER6vWqHGYGN7HMLvhpggkbE8W4TGp+qM7CPyrXye1wCjZLVg==}
+    engines: {node: '>=18.17'}
+    peerDependencies:
+      '@sinclair/typebox': '>= 0.33.3'
+      next: '>= 14.0.0'
+      react: '>= 18.2.0'
+      react-dom: '>= 18.2.0'
+      valibot: '>= 0.36.0'
+      yup: '>= 1.0.0'
+      zod: '>= 3.0.0'
+    peerDependenciesMeta:
+      '@sinclair/typebox':
+        optional: true
+      valibot:
+        optional: true
+      yup:
+        optional: true
+      zod:
+        optional: true
 
   next@15.1.6:
     resolution: {integrity: sha512-Hch4wzbaX0vKQtalpXvUiw5sYivBy4cm5rzUKrBnUB/y436LGrvOUqYvlSeNVCWFO/770gDlltR9gqZH62ct4Q==}
@@ -7680,6 +7707,14 @@ snapshots:
   nanoid@3.3.8: {}
 
   natural-compare@1.4.0: {}
+
+  next-safe-action@7.10.4(next@15.1.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(zod@3.24.2):
+    dependencies:
+      next: 15.1.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+    optionalDependencies:
+      zod: 3.24.2
 
   next@15.1.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:

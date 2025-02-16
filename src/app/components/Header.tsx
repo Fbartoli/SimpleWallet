@@ -26,7 +26,6 @@ export default function Header() {
           {!authenticated ? (
             <Button
               onClick={login}
-              disabled={!ready}
               className="px-4 py-2"
             >
               Log in

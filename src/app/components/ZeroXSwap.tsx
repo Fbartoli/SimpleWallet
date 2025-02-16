@@ -1,8 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from './Button'
 import { useForm } from 'react-hook-form'
+import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
+import { useToast } from "@/app/components/ui/use-toast"
+import { Token, TOKENS, type TokenSymbol } from '@/app/stores/useTokenStore'
+import { useTokenBalances } from '@/app/hooks/useTokenBalances'
+import { useSwapQuote } from '@/app/hooks/useSwapQuote'
+import { createPublicClient, encodeFunctionData, erc20Abi, http } from 'viem'
+import { base } from 'viem/chains'
+import { ArrowDownUp } from 'lucide-react'
+
+import { Button } from '@/app/components/ui/button'
 import {
   Form,
   FormControl,
@@ -19,34 +28,7 @@ import {
   SelectValue,
 } from "@/app/components/ui/select"
 import { Input } from "@/app/components/ui/input"
-import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
-import { useToast } from "@/app/components/ui/use-toast"
-import { TOKENS, type TokenSymbol } from '@/app/stores/useTokenStore'
-import { useTokenBalances } from '@/app/hooks/useTokenBalances'
-import { Address, createPublicClient, encodeFunctionData, erc20Abi, http, TransactionRequest } from 'viem'
-import { ArrowDownUp } from 'lucide-react'
-import { base } from 'viem/chains'
-
-interface ZeroXQuote {
-  to: string
-  data: string
-  value: string
-  buyAmount: string
-  estimatedGas: string
-  price: string
-  guaranteedPrice: string
-  gas: string
-  transaction: TransactionRequest,
-  sellToken: Address,
-  sellAmount: string,
-  buyToken: Address,
-  issues: {
-    allowance: {
-      spender: Address,
-      actual: string
-    }
-  }
-}
+import { ZeroXQuote } from '../types/quote'
 
 interface SwapFormValues {
   sellToken: TokenSymbol
@@ -58,23 +40,113 @@ interface ZeroXSwapProps {
   userAddress: `0x${string}`
 }
 
-const SWAP_FEE_CONFIG = {
-  swapFeeRecipient: '0xf580ECFD347EDD88f048d694f744C790AF8e20e4' as const,
-  swapFeeBps: '100' as const,
-  tradeSurplusRecipient: '0xf580ECFD347EDD88f048d694f744C790AF8e20e4' as const,
+const publicClient = createPublicClient({
+  chain: base,
+  transport: http('https://base.gateway.tenderly.co/28rOk2uI3CVMnyinm9c3yn'),
+})
+
+function TokenSelect({ name, label }: { name: 'sellToken' | 'buyToken', label: string }) {
+  return (
+    <FormField
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>{label}</FormLabel>
+          <Select onValueChange={field.onChange} value={field.value}>
+            <FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder={`Select token to ${name === 'sellToken' ? 'sell' : 'buy'}`} />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent className="bg-background border rounded-md shadow-md">
+              {Object.entries(TOKENS).map(([symbol, token]) => (
+                <SelectItem key={symbol} value={symbol} className="hover:bg-muted">
+                  {token.symbol}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  )
+}
+
+function AmountInput({ 
+  isLoading,
+  onMaxClick,
+  isBalanceLoading,
+  balance,
+}: { 
+  isLoading: boolean
+  onMaxClick: () => void
+  isBalanceLoading: boolean
+  balance?: string
+}) {
+  return (
+    <FormField
+      name="amount"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Amount</FormLabel>
+          <FormControl>
+            <div className="flex gap-2 items-center">
+              <Input
+                type="number"
+                step="0.000000000000000001"
+                {...field}
+                disabled={isLoading}
+                className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onMaxClick}
+                disabled={isLoading}
+                className="shrink-0"
+              >
+                Max
+              </Button>
+            </div>
+          </FormControl>
+          <div className="flex justify-between text-sm text-muted-foreground">
+            <span>
+              Balance: {isBalanceLoading ? (
+                <span className="animate-pulse">Loading...</span>
+              ) : (
+                balance || '0.00'
+              )}
+            </span>
+          </div>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  )
+}
+
+function QuoteDetails({ quote, buyTokenInfo }: { quote: ZeroXQuote, buyTokenInfo: Token }) {
+  if (!quote) return null
+  
+  return (
+    <div className="p-4 bg-muted rounded-lg space-y-2">
+      <p className="text-sm font-medium">
+        Estimated output: {(Number(quote.buyAmount) / 10 ** buyTokenInfo.decimals).toFixed(6)} {buyTokenInfo.symbol}
+      </p>
+      <p className="text-sm text-muted-foreground">
+        Price impact: {((Number(quote.price) / Number(quote.guaranteedPrice) - 1) * 100).toFixed(2)}%
+      </p>
+    </div>
+  )
 }
 
 export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   const { client } = useSmartWallets()
   const { toast } = useToast()
-  const [quote, setQuote] = useState<ZeroXQuote | null>(null)
-  const [isQuoteLoading, setIsQuoteLoading] = useState(false)
   const [isSwapLoading, setIsSwapLoading] = useState(false)
   const { balances, refresh, isLoading: isBalanceLoading } = useTokenBalances()
-  const publicClient = createPublicClient({
-    chain: base,
-    transport: http('https://base.gateway.tenderly.co/28rOk2uI3CVMnyinm9c3yn'),
-  })
 
   const form = useForm<SwapFormValues>({
     defaultValues: {
@@ -84,83 +156,40 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
     }
   })
 
-  const selectedToken = form.watch('sellToken')
-  const selectedTokenBalance = balances[selectedToken]
+  const { watch, setValue, getValues } = form
+  const sellToken = watch('sellToken')
+  const buyToken = watch('buyToken')
+  const amount = watch('amount')
+  
+  const selectedTokenBalance = balances[sellToken]
+
+  const { data: quote, isLoading: isQuoteLoading } = useSwapQuote({
+    sellToken,
+    buyToken,
+    sellAmount: amount,
+    userAddress,
+    enabled: Boolean(sellToken && buyToken && amount && Number(amount) > 0 && sellToken !== buyToken)
+  })
 
   const handleMaxClick = () => {
     if (selectedTokenBalance) {
-      form.setValue('amount', selectedTokenBalance.formatted)
+      setValue('amount', selectedTokenBalance.formatted)
     }
   }
 
-  async function getQuote(values: SwapFormValues) {
-    if (values.sellToken === values.buyToken) {
-      toast({
-        variant: "destructive",
-        title: "Invalid token selection",
-        description: "Sell and buy tokens must be different"
-      })
-      return
-    }
-
-    if (isNaN(Number(values.amount)) || Number(values.amount) <= 0) {
-      toast({
-        variant: "destructive",
-        title: "Invalid amount",
-        description: "Amount must be greater than 0"
-      })
-      return
-    }
-
-    setIsQuoteLoading(true)
-    setQuote(null)
-
-    try {
-      const sellToken = TOKENS[values.sellToken]
-      const buyToken = TOKENS[values.buyToken]
-
-      const sellAmount = (BigInt(Math.floor(Number(values.amount) * 10 ** sellToken.decimals))).toString()
-
-      const priceParams = new URLSearchParams({
-        chainId: '8453',
-        sellToken: sellToken.address,
-        buyToken: buyToken.address,
-        sellAmount,
-        taker: userAddress,
-        ...SWAP_FEE_CONFIG,
-        swapFeeToken: sellToken.address,
-      })
-
-      const response = await fetch('/api/quote?' + priceParams.toString())
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to fetch quote')
-      }
-
-      const data = await response.json()
-      setQuote(data as ZeroXQuote)
-      console.log('quote', data)
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to fetch quote'
-      toast({
-        variant: "destructive",
-        title: "Error getting quote",
-        description: message
-      })
-      console.error('Quote error:', error)
-    } finally {
-      setIsQuoteLoading(false)
-    }
+  const handleSwapTokens = () => {
+    const currentSellToken = getValues('sellToken')
+    const currentBuyToken = getValues('buyToken')
+    setValue('sellToken', currentBuyToken, { shouldValidate: true })
+    setValue('buyToken', currentSellToken, { shouldValidate: true })
   }
 
   async function executeSwap() {
     if (!client || !quote) return
-    console.log('Executing swap with quote:', quote)
     setIsSwapLoading(true)
     try {
       const calls = []
-      if (quote.issues && quote.issues.allowance) {
-        console.log('Adding allowance call')
+      if (quote.issues?.allowance) {
         calls.push({
           to: quote.sellToken as `0x${string}`,
           data: encodeFunctionData({
@@ -176,19 +205,14 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
         data: quote.transaction.data as `0x${string}`,
         value: BigInt(quote.transaction.value || 0),
       })
-      const tx = await client.sendTransaction({
-        calls
-      })
+      const tx = await client.sendTransaction({ calls })
 
       toast({
         title: "Swap initiated",
         description: "Your swap transaction has been sent to the network"
       })
 
-      // Wait for transaction to be mined
       await publicClient.waitForTransactionReceipt({ hash: tx as `0x${string}` })
-
-      // Refresh balances after transaction is confirmed
       refresh()
 
       toast({
@@ -208,100 +232,21 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
     }
   }
 
-  const handleSwapTokens = () => {
-    const sellToken = form.getValues('sellToken')
-    const buyToken = form.getValues('buyToken')
-    
-    // Update both fields and trigger form updates
-    form.setValue('sellToken', buyToken, { shouldValidate: true })
-    form.setValue('buyToken', sellToken, { shouldValidate: true })
-    
-    // Clear the quote when tokens are swapped
-    setQuote(null)
-  }
-
   const isLoading = isQuoteLoading || isSwapLoading
-  const buyTokenInfo = TOKENS[form.watch('buyToken') as TokenSymbol]
+  const buyTokenInfo = TOKENS[buyToken]
 
   return (
     <div className="space-y-6 p-4 border rounded-lg bg-card">
       <h2 className="text-lg font-semibold">Swap Tokens</h2>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(getQuote)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="sellToken"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Sell Token</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select token to sell" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="bg-background border rounded-md shadow-md">
-                    {Object.entries(TOKENS).map(([symbol, token]) => (
-                      <SelectItem key={symbol} value={symbol} className="hover:bg-muted">
-                        {token.symbol}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>
-                    Balance: {isBalanceLoading ? (
-                      <span className="animate-pulse">Loading...</span>
-                    ) : (
-                      selectedTokenBalance?.formatted || '0.00'
-                    )}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleMaxClick}
-                    disabled={isLoading || isBalanceLoading}
-                    className="h-auto py-0 px-2"
-                  >
-                    Max
-                  </Button>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="amount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Amount</FormLabel>
-                <FormControl>
-                  <div className="flex gap-2 items-center">
-                    <Input
-                      type="number"
-                      step="0.000000000000000001"
-                      {...field}
-                      disabled={isLoading}
-                      className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleMaxClick}
-                      disabled={isLoading}
-                      className="shrink-0"
-                    >
-                      Max
-                    </Button>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+        <form className="space-y-4">
+          <TokenSelect name="sellToken" label="Sell Token" />
+          
+          <AmountInput
+            isLoading={isLoading}
+            onMaxClick={handleMaxClick}
+            isBalanceLoading={isBalanceLoading}
+            balance={selectedTokenBalance?.formatted}
           />
 
           <div className="flex justify-center -my-2">
@@ -318,46 +263,13 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
             </Button>
           </div>
 
-          <FormField
-            control={form.control}
-            name="buyToken"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Buy Token</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select token to buy" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="bg-background border rounded-md shadow-md">
-                    {Object.entries(TOKENS).map(([symbol, token]) => (
-                      <SelectItem key={symbol} value={symbol} className="hover:bg-muted">
-                        {token.symbol}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <TokenSelect name="buyToken" label="Buy Token" />
 
           {quote && (
-            <div className="p-4 bg-muted rounded-lg space-y-2">
-              <p className="text-sm font-medium">
-                Estimated output: {(Number(quote.buyAmount) / 10 ** buyTokenInfo.decimals).toFixed(6)} {buyTokenInfo.symbol}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Price impact: {((Number(quote.price) / Number(quote.guaranteedPrice) - 1) * 100).toFixed(2)}%
-              </p>
-            </div>
+            <QuoteDetails quote={quote} buyTokenInfo={buyTokenInfo} />
           )}
 
           <div className="flex flex-col gap-4">
-            <Button type="submit" disabled={isLoading}>
-              {isQuoteLoading ? 'Getting Quote...' : 'Get Quote'}
-            </Button>
             {quote && (
               <Button
                 type="button"

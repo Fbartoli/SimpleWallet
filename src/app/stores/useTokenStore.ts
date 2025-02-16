@@ -1,7 +1,18 @@
 import { create } from 'zustand'
 import { formatUnits } from 'viem'
+import { Address } from 'viem'
 
-export const TOKENS = {
+export interface Token {
+  address: Address
+  decimals: number
+  symbol: string
+}
+
+type TokenList = {
+  readonly [K in 'USDC' | 'EURC' | 'WETH' | 'WBTC']: Token
+}
+
+export const TOKENS: TokenList = {
   USDC: {
     address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     decimals: 6,

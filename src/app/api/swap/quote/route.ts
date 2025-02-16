@@ -1,0 +1,71 @@
+import { NextResponse } from 'next/server'
+import { TOKENS } from '@/app/stores/useTokenStore'
+import { type TokenSymbol } from '@/app/stores/useTokenStore'
+
+const SWAP_FEE_CONFIG = {
+  swapFeeRecipient: '0xf580ECFD347EDD88f048d694f744C790AF8e20e4' as const,
+  swapFeeBps: '100' as const,
+  tradeSurplusRecipient: '0xf580ECFD347EDD88f048d694f744C790AF8e20e4' as const,
+}
+
+export async function GET(request: Request) {
+  if (!process.env.NEXT_PUBLIC_0X_API_KEY) {
+    return NextResponse.json({ error: '0x API key is not set' }, { status: 500 })
+  }
+
+  const { searchParams } = new URL(request.url)
+  const sellToken = searchParams.get('sellToken') as TokenSymbol
+  const buyToken = searchParams.get('buyToken') as TokenSymbol
+  const sellAmount = searchParams.get('sellAmount')
+  const userAddress = searchParams.get('userAddress')
+
+  if (!sellToken || !buyToken || !sellAmount || !userAddress) {
+    return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 })
+  }
+
+  const headers = {
+    "Content-Type": "application/json",
+    "0x-api-key": process.env.NEXT_PUBLIC_0X_API_KEY,
+    "0x-version": "v2",
+  }
+
+  try {
+    const sellTokenInfo = TOKENS[sellToken]
+    const buyTokenInfo = TOKENS[buyToken]
+
+    if (!sellTokenInfo || !buyTokenInfo) {
+      return NextResponse.json({ error: 'Invalid token selection' }, { status: 400 })
+    }
+
+    const sellAmountInBaseUnits = (BigInt(Math.floor(Number(sellAmount) * 10 ** sellTokenInfo.decimals))).toString()
+
+    const priceParams = new URLSearchParams({
+      chainId: '8453',
+      sellToken: sellTokenInfo.address,
+      buyToken: buyTokenInfo.address,
+      sellAmount: sellAmountInBaseUnits,
+      taker: userAddress,
+      ...SWAP_FEE_CONFIG,
+      swapFeeToken: sellTokenInfo.address,
+    })
+
+    const response = await fetch(
+      `https://api.0x.org/swap/allowance-holder/quote?${priceParams.toString()}`,
+      { headers }
+    )
+
+    if (!response.ok) {
+      const error = await response.json()
+      return NextResponse.json({ error: error.error || 'Failed to fetch quote' }, { status: response.status })
+    }
+
+    const data = await response.json()
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('Quote fetch error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to fetch quote' },
+      { status: 500 }
+    )
+  }
+} 
