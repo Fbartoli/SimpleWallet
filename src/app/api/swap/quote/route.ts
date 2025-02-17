@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
 import { TOKENS } from '@/app/stores/useTokenStore'
 import { type TokenSymbol } from '@/app/stores/useTokenStore'
+import { FEE_RECIPIENT } from '@/app/config/constants'
 
 const SWAP_FEE_CONFIG = {
-  swapFeeRecipient: '0xf580ECFD347EDD88f048d694f744C790AF8e20e4' as const,
-  swapFeeBps: '100' as const,
-  tradeSurplusRecipient: '0xf580ECFD347EDD88f048d694f744C790AF8e20e4' as const,
+  swapFeeRecipient: FEE_RECIPIENT,
+  tradeSurplusRecipient: FEE_RECIPIENT
 }
 
 export async function GET(request: Request) {
@@ -17,9 +17,9 @@ export async function GET(request: Request) {
   const sellToken = searchParams.get('sellToken') as TokenSymbol
   const buyToken = searchParams.get('buyToken') as TokenSymbol
   const sellAmount = searchParams.get('sellAmount')
-  const userAddress = searchParams.get('userAddress')
-
-  if (!sellToken || !buyToken || !sellAmount || !userAddress) {
+  const taker = searchParams.get('taker')
+  const swapFeeBps = searchParams.get('swapFeeBps')
+  if (!sellToken || !buyToken || !sellAmount || !taker || !swapFeeBps) {
     return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 })
   }
 
@@ -44,9 +44,10 @@ export async function GET(request: Request) {
       sellToken: sellTokenInfo.address,
       buyToken: buyTokenInfo.address,
       sellAmount: sellAmountInBaseUnits,
-      taker: userAddress,
-      ...SWAP_FEE_CONFIG,
+      taker,
+      swapFeeBps,
       swapFeeToken: sellTokenInfo.address,
+      ...SWAP_FEE_CONFIG,
     })
 
     const response = await fetch(

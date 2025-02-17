@@ -1,0 +1,294 @@
+---
+description: 0x api
+globs: 
+---
+---
+
+## How to Use the 0x API
+You can interact with the 0x API in two primary ways:
+
+### 1️. Developer Assistant Mode
+When a developer asks for help with building queries, UI components, or making API calls:
+- Use the provided schema to construct valid API requests.
+- Assist in building TypeScript-based UI components for displaying onchain data.
+- Ensure API queries are structured correctly with required parameters.
+- Include best practices for authentication, error handling, and caching.
+
+### 2. Autonomous Agent Mode
+For AI agents making direct API calls programmatically.
+
+#### API Base URL:
+https://api.0x.org
+
+---
+
+## Developer Assistant Mode
+
+When assisting developers in query generation or UI integration, follow these steps:
+
+### Fetching a Swap Price Using 0x REST API
+
+Example query to retrieve a swap price:
+
+typescript
+const fetchSwapPrice = async (
+  chainId: number,
+  buyToken: string,
+  sellToken: string,
+  sellAmount: string,
+  apiKey: string
+) => {
+  const url = `https://api.0x.org/swap/permit2/price?chainId=${chainId}&buyToken=${buyToken}&sellToken=${sellToken}&sellAmount=${sellAmount}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "0x-api-key": apiKey,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error fetching swap price: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data;
+};
+
+// Example usage:
+const chainId = 1; // Ethereum Mainnet
+const buyToken = "0xdac17f958d2ee523a2206206994597c13d831ec7"; // USDT
+const sellToken = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"; // USDC
+const sellAmount = "100000000"; // 100 USDC in base units
+const apiKey = "your-0x-api-key"; // Replace with your 0x API key
+
+fetchSwapPrice(chainId, buyToken, sellToken, sellAmount, apiKey)
+  .then((priceData) => console.log("Swap Price Data:", priceData))
+  .catch((error) => console.error(error));
+
+
+---
+
+## UI Component Examples for 0x API Integration
+
+### Swap API Price Component
+
+The following example demonstrates how to integrate the 0x Swap API into a price component using TypeScript and Viem:
+
+typescript
+import { createWalletClient, http, getContract, erc20Abi, parseUnits, maxUint256, publicActions } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { base } from "viem/chains";
+
+const qs = require("qs");
+const headers = new Headers({
+  "Content-Type": "application/json",
+  "0x-api-key": process.env.ZERO_EX_API_KEY,
+  "0x-version": "v2",
+});
+
+const client = createWalletClient({
+  account: privateKeyToAccount(`0x${process.env.PRIVATE_KEY}` as `0x${string}`),
+  chain: base,
+  transport: http(process.env.ALCHEMY_HTTP_TRANSPORT_URL),
+}).extend(publicActions);
+
+const executeSwap = async (sellToken: string, buyToken: string, amount: string) => {
+  const priceParams = new URLSearchParams({
+    chainId: client.chain.id.toString(),
+    sellToken,
+    buyToken,
+    sellAmount: parseUnits(amount, 18).toString(),
+  });
+
+  const priceResponse = await fetch(`https://api.0x.org/swap/permit2/price?${priceParams.toString()}`, { headers });
+  const price = await priceResponse.json();
+  console.log("Price Response:", price);
+
+  const quoteResponse = await fetch(`https://api.0x.org/swap/permit2/quote?${priceParams.toString()}`, { headers });
+  const quote = await quoteResponse.json();
+  console.log("Quote Response:", quote);
+};
+
+executeSwap("ETH", "USDC", "0.0001");
+
+
+### Swap API Quote Component
+
+The following example demonstrates how to integrate the 0x Swap API Quote endpoint into a UI component:
+
+typescript
+import { useEffect } from "react";
+import { useSignTypedData, useSendTransaction, useWaitForTransactionReceipt, useWalletClient } from "wagmi";
+import { Address } from "viem";
+import qs from "qs";
+
+export default function QuoteView({ taker, price, quote, setQuote, chainId }) {
+  useEffect(() => {
+    const params = { chainId, sellToken: price.sellToken, buyToken: price.buyToken, sellAmount: price.sellAmount, taker };
+    async function fetchQuote() {
+      const response = await fetch(`/api/quote?${qs.stringify(params)}`);
+      const data = await response.json();
+      setQuote(data);
+    }
+    fetchQuote();
+  }, [chainId, price, taker, setQuote]);
+
+  return <div>{quote ? `Best Quote: ${quote.buyAmount}` : "Fetching best quote..."}</div>;
+}
+
+
+
+---
+
+## Autonomous Agent Mode
+
+For agents making direct API calls to retrieve pricing, execute swaps, and interact with the onchain data.
+
+### 🚀 Authentication
+
+API calls require an API key. Include it in the headers:
+
+typescript
+const headers = {
+    'Content-Type': 'application/json',
+    '0x-api-key': API_KEY,
+};
+
+
+---
+
+## 🔗 Key API Endpoints
+
+
+## 📜 API Schema Overview
+
+0x API provides access to the following data:
+
+-   Swap Pricing & Quotes – Get token swap rates with gas estimates.
+-   Trade Execution – Generate transactions for direct swap execution.
+
+### Example: Fetch Supported Chains
+
+Endpoint:
+GET /swap/getChains
+
+json
+{
+    "chains": [
+        { "chainName": "Ethereum", "chainId": 1 },
+        { "chainName": "Polygon", "chainId": 137 },
+        { "chainName": "Optimism", "chainId": 10 }
+    ]
+}
+
+---
+
+### Get Swap Price
+
+_Get an indicative price for a swap._
+
+Endpoint:
+GET /swap/permit2/price
+
+Query Parameters:
+
+-   chainId (integer, required): Blockchain ID.
+-   buyToken (string, required): Token contract address to buy.
+-   sellToken (string, required): Token contract address to sell.
+-   sellAmount (string, required): Amount of sellToken (in base units).
+-   taker (string, optional): Address executing the trade.
+
+Example Request:
+
+GET https://api.0x.org/swap/permit2/price?chainId=1&buyToken=0xdac17f958d2ee523a2206206994597c13d831ec7&sellToken=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&sellAmount=100000000
+
+
+---
+
+### Get Firm Swap Quote
+
+_Get a firm quote for a swap transaction._
+
+Endpoint:
+GET /swap/permit2/quote
+
+Example Request (with taker address):
+
+typescript
+const response = await fetch(
+    'https://api.0x.org/swap/permit2/quote?chainId=1&buyToken=0x6B175474E89094C44Da98b954EedeAC495271d0F&sellToken=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2&sellAmount=1000000000000000000&taker=0xYourAddress',
+    {
+        method: 'GET',
+        headers,
+    },
+);
+
+const data = await response.json();
+console.log(data);
+
+
+---
+
+### Execute a Swap
+
+_Sends a transaction to execute a swap using a signed quote._
+
+Example Request:
+
+typescript
+const tx = {
+    from: '0xYourAddress',
+    to: data.to,
+    value: '0',
+    data: data.data,
+    gasLimit: data.estimatedGas,
+};
+
+await signer.sendTransaction(tx);
+
+
+---
+
+## Best Practices for Autonomous Agents
+
+When making API calls:
+1️. Validate Addresses: Ensure token contract addresses are correct before querying.
+2️. Rate Limit Handling: Respect API rate limits to avoid getting banned.
+3. Error Handling: Implement robust error handling for missing parameters and failed transactions.
+4. Caching Responses: Store frequent responses to optimize performance.
+5. Monitor Query Complexity: Use efficient queries to minimize API calls.
+6. Retries: Implement exponential backoff when retrying failed requests.
+7. Slippage Management: Use slippageBps to prevent excessive price impact.
+
+
+---
+
+## Response Handling
+
+### TypeScript Interface for Swap Quotes
+
+typescript
+interface SwapQuoteResponse {
+    price: string;
+    estimatedGas: number;
+    to: string;
+    data: string;
+}
+
+try {
+    const response = await fetch(SWAP_API_URL, { headers });
+    const result: SwapQuoteResponse = await response.json();
+    console.log(result.price);
+} catch (error) {
+    console.error('Error fetching quote:', error);
+}
+
+
+---
+
+## Final Notes
+
+-   Always store your API key securely and never expose it in client-side code.
+-   Refer to @0x API Docs for full schema details.

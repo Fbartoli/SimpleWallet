@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Don8 - Web3 Token Swapping Platform
+
+Don8 is a modern web3 application built on Base that enables seamless token swapping using the 0x Protocol. The platform features a clean, user-friendly interface built with Next.js 14 and integrates with various tokens including USDC, EURC, WETH, and WBTC.
+
+## Features
+
+- 🔄 Token Swapping via 0x Protocol
+- 💰 Support for multiple tokens (USDC, EURC, WETH, WBTC)
+- 🔒 Secure wallet integration with Wagmi v2
+- 🎨 Modern UI with Shadcn UI components
+- 📱 Responsive design with Tailwind CSS
+- ⚡ Built on Base for fast and low-cost transactions
+- 🛡️ Type-safe development with strict TypeScript configuration
+
+## Tech Stack
+
+- **Framework:** Next.js 14 (App Router)
+- **Smart Contract Integration:** Viem v2, Wagmi v2
+- **DEX Integration:** 0x Protocol
+- **UI Components:** Shadcn UI, Radix UI
+- **Styling:** Tailwind CSS
+- **State Management:** Zustand
+- **Type Safety:** TypeScript with strict configuration
+- **Network:** Base
 
 ## Getting Started
 
-First, run the development server:
-
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/don8.git
+cd don8
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+pnpm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+Create a `.env.local` file with the following variables:
+```
+NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id
+NEXT_PUBLIC_0X_API_KEY=your_0x_api_key
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run the development server:
+```bash
+pnpm dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-To learn more about Next.js, take a look at the following resources:
+## Development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The project uses a strict TypeScript configuration for maximum type safety. Key features include:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- No implicit any types
+- Strict null checks
+- Explicit return types
+- Comprehensive error catching
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+  ├── app/                # Next.js app directory
+  │   ├── components/     # React components
+  │   ├── hooks/         # Custom React hooks
+  │   ├── providers/     # React context providers
+  │   ├── stores/        # Zustand stores
+  │   └── types/         # TypeScript types
+  ├── config/            # Configuration files
+  └── styles/            # Global styles
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

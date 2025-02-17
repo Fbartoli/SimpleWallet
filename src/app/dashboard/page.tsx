@@ -8,11 +8,14 @@ import { VAULT_ADDRESSES, VAULT_INFO } from '@/app/config/vaults';
 import { OnrampForm } from '@/app/components/OnrampForm';
 import { ZeroXSwap } from '@/app/components/ZeroXSwap';
 import { TokenBalances } from '@/app/components/TokenBalances'
+import { UserFeeDisplay } from '@/app/components/UserFeeDisplay'
 
 export default function App() {
   const { user } = usePrivy();
   const { client } = useSmartWallets();
   const projectId = process.env.NEXT_PUBLIC_CDP_PROJECT_ID;
+
+  console.log(user?.id)
 
   if (!projectId) {
     console.error('Missing NEXT_PUBLIC_COINBASE_PROJECT_ID environment variable');
@@ -22,23 +25,15 @@ export default function App() {
   const smartWalletAddress = user?.smartWallet?.address;
   if (!smartWalletAddress) return <Header />;
 
-  const handleDeploy = async () => {
-    if(!client) return;
-    const transactionRequest = {
-      to: smartWalletAddress as `0x${string}`,
-      value: 0n,
-      data: "0x" as `0x${string}`,
-    }
-    const txHash = await client.sendTransaction(transactionRequest);
-    console.log(txHash)
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold tracking-tight mb-8">Your Vault Dashboard</h1>
+          <div className="flex justify-between items-start mb-8">
+            <h1 className="text-4xl font-bold tracking-tight">Your Vault Dashboard</h1>
+            <UserFeeDisplay />
+          </div>
           
           <div className="grid gap-6 mb-8">
             <OnrampForm 

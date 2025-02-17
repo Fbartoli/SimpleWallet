@@ -29,6 +29,8 @@ import {
 } from "@/app/components/ui/select"
 import { Input } from "@/app/components/ui/input"
 import { ZeroXQuote } from '../types/quote'
+import { useUserFee } from '../hooks/useUserFee'
+import { DEFAULT_FEE_BPS } from '../config/constants'
 
 interface SwapFormValues {
   sellToken: TokenSymbol
@@ -147,6 +149,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   const { toast } = useToast()
   const [isSwapLoading, setIsSwapLoading] = useState(false)
   const { balances, refresh, isLoading: isBalanceLoading } = useTokenBalances()
+  const { data: feeBps } = useUserFee()
 
   const form = useForm<SwapFormValues>({
     defaultValues: {
@@ -164,10 +167,11 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   const selectedTokenBalance = balances[sellToken]
 
   const { data: quote, isLoading: isQuoteLoading } = useSwapQuote({
-    sellToken,
-    buyToken,
+    sellToken: sellToken,
+    buyToken: buyToken,
     sellAmount: amount,
     userAddress,
+    feeBps: feeBps?.toString() || DEFAULT_FEE_BPS,
     enabled: Boolean(sellToken && buyToken && amount && Number(amount) > 0 && sellToken !== buyToken)
   })
 

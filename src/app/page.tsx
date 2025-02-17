@@ -42,7 +42,7 @@ export default function Home() {
                 </p>
               </div>
               <div className="space-x-4">
-                <Link href="/app">
+                <Link href="/dashboard">
                   <Button>
                     Get Started <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -126,7 +126,7 @@ export default function Home() {
               <p className="mx-auto max-w-[600px] text-primary-foreground/90 md:text-xl">
                 Join thousands of users who are already enjoying the benefits of our all-in-one financial platform.
               </p>
-              <Link href="/app">
+              <Link href="/dashboard">
                 <Button variant="secondary" size="lg">
                   Get Started Now <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
