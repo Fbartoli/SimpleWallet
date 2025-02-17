@@ -1,15 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
 import { useToast } from "@/app/components/ui/use-toast"
 import { Token, TOKENS, type TokenSymbol } from '@/app/stores/useTokenStore'
 import { useTokenBalances } from '@/app/hooks/useTokenBalances'
 import { useSwapQuote } from '@/app/hooks/useSwapQuote'
-import { createPublicClient, encodeFunctionData, erc20Abi, http } from 'viem'
+import { createPublicClient, encodeFunctionData, erc20Abi, formatUnits, http, parseUnits } from 'viem'
 import { base } from 'viem/chains'
-import { ArrowDownUp } from 'lucide-react'
+import { ArrowDownUp, Loader2 } from 'lucide-react'
+import { useUserFee } from '../hooks/useUserFee'
+import { DEFAULT_FEE_BPS } from '../config/constants'
 
 import { Button } from '@/app/components/ui/button'
 import {
@@ -29,8 +31,6 @@ import {
 } from "@/app/components/ui/select"
 import { Input } from "@/app/components/ui/input"
 import { ZeroXQuote } from '../types/quote'
-import { useUserFee } from '../hooks/useUserFee'
-import { DEFAULT_FEE_BPS } from '../config/constants'
 
 interface SwapFormValues {
   sellToken: TokenSymbol
@@ -75,13 +75,13 @@ function TokenSelect({ name, label }: { name: 'sellToken' | 'buyToken', label: s
   )
 }
 
-function AmountInput({ 
-  isLoading,
+function AmountInput({
+  onBlur,
   onMaxClick,
   isBalanceLoading,
   balance,
-}: { 
-  isLoading: boolean
+}: {
+  onBlur: () => void
   onMaxClick: () => void
   isBalanceLoading: boolean
   balance?: string
@@ -98,7 +98,10 @@ function AmountInput({
                 type="number"
                 step="0.000000000000000001"
                 {...field}
-                disabled={isLoading}
+                onBlur={() => {
+                  field.onBlur()
+                  onBlur()
+                }}
                 className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <Button
@@ -106,7 +109,6 @@ function AmountInput({
                 variant="outline"
                 size="sm"
                 onClick={onMaxClick}
-                disabled={isLoading}
                 className="shrink-0"
               >
                 Max
@@ -129,18 +131,9 @@ function AmountInput({
   )
 }
 
-function QuoteDetails({ quote, buyTokenInfo }: { quote: ZeroXQuote, buyTokenInfo: Token }) {
-  if (!quote) return null
-  
-  return (
-    <div className="p-4 bg-muted rounded-lg space-y-2">
-      <p className="text-sm font-medium">
-        Estimated output: {(Number(quote.buyAmount) / 10 ** buyTokenInfo.decimals).toFixed(6)} {buyTokenInfo.symbol}
-      </p>
-      <p className="text-sm text-muted-foreground">
-        Price impact: {((Number(quote.price) / Number(quote.guaranteedPrice) - 1) * 100).toFixed(2)}%
-      </p>
-    </div>
+function findTokenByAddress(address: string): Token | undefined {
+  return Object.values(TOKENS).find(token => 
+    token.address.toLowerCase() === address.toLowerCase()
   )
 }
 
@@ -148,6 +141,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   const { client } = useSmartWallets()
   const { toast } = useToast()
   const [isSwapLoading, setIsSwapLoading] = useState(false)
+  const [shouldFetchQuote, setShouldFetchQuote] = useState(false)
   const { balances, refresh, isLoading: isBalanceLoading } = useTokenBalances()
   const { data: feeBps } = useUserFee()
 
@@ -163,7 +157,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   const sellToken = watch('sellToken')
   const buyToken = watch('buyToken')
   const amount = watch('amount')
-  
+
   const selectedTokenBalance = balances[sellToken]
 
   const { data: quote, isLoading: isQuoteLoading } = useSwapQuote({
@@ -172,12 +166,14 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
     sellAmount: amount,
     userAddress,
     feeBps: feeBps?.toString() || DEFAULT_FEE_BPS,
+    shouldFetch: shouldFetchQuote,
     enabled: Boolean(sellToken && buyToken && amount && Number(amount) > 0 && sellToken !== buyToken)
   })
 
   const handleMaxClick = () => {
     if (selectedTokenBalance) {
       setValue('amount', selectedTokenBalance.formatted)
+      setShouldFetchQuote(true)
     }
   }
 
@@ -186,7 +182,19 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
     const currentBuyToken = getValues('buyToken')
     setValue('sellToken', currentBuyToken, { shouldValidate: true })
     setValue('buyToken', currentSellToken, { shouldValidate: true })
+    setShouldFetchQuote(true)
   }
+
+  const handleAmountBlur = () => {
+    setShouldFetchQuote(true)
+  }
+
+  // Reset quote fetch flag after quote is loaded
+  useEffect(() => {
+    if (quote) {
+      setShouldFetchQuote(false)
+    }
+  }, [quote])
 
   async function executeSwap() {
     if (!client || !quote) return
@@ -216,7 +224,32 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
         description: "Your swap transaction has been sent to the network"
       })
 
-      await publicClient.waitForTransactionReceipt({ hash: tx as `0x${string}` })
+      const receipt = await publicClient.waitForTransactionReceipt({ hash: tx as `0x${string}` })
+      
+      // Record the fee if present
+      if (quote.fees?.integratorFee) {
+        const feeToken = findTokenByAddress(quote.fees.integratorFee.token)
+        if (feeToken) {
+          const response = await fetch('/api/fees', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: userAddress,
+              amount: quote.fees.integratorFee.amount,
+              token: quote.fees.integratorFee.token,
+              tokenSymbol: feeToken.symbol,
+              transactionHash: receipt.transactionHash,
+            }),
+          })
+
+          if (!response.ok) {
+            console.error('Failed to record fee:', await response.json())
+          }
+        }
+      }
+
       refresh()
 
       toast({
@@ -245,9 +278,9 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
       <Form {...form}>
         <form className="space-y-4">
           <TokenSelect name="sellToken" label="Sell Token" />
-          
+
           <AmountInput
-            isLoading={isLoading}
+            onBlur={handleAmountBlur}
             onMaxClick={handleMaxClick}
             isBalanceLoading={isBalanceLoading}
             balance={selectedTokenBalance?.formatted}
@@ -260,7 +293,6 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
               size="icon"
               className="h-8 w-8 rounded-full bg-muted"
               onClick={handleSwapTokens}
-              disabled={isLoading}
             >
               <ArrowDownUp className="h-4 w-4" />
               <span className="sr-only">Swap tokens</span>
@@ -269,9 +301,29 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
 
           <TokenSelect name="buyToken" label="Buy Token" />
 
-          {quote && (
-            <QuoteDetails quote={quote} buyTokenInfo={buyTokenInfo} />
-          )}
+          <div className="p-4 bg-muted rounded-lg space-y-2">
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <p className="text-sm font-medium">Fetching latest quote...</p>
+              </div>
+            ) : quote ? (
+              <div className="space-y-1">
+                <p className="text-sm font-medium">
+                  Estimated output: {(Number(quote.buyAmount) / 10 ** buyTokenInfo.decimals).toFixed(6)} {buyTokenInfo.symbol}
+                </p>
+                {quote.fees?.integratorFee && (() => {
+                  const feeToken = findTokenByAddress(quote.fees.integratorFee.token)
+                  if (!feeToken) return null
+                  return (
+                    <p className="text-sm text-muted-foreground">
+                      Platform fee: {formatUnits(BigInt(quote.fees.integratorFee.amount), feeToken.decimals).toString()} {feeToken.symbol}
+                    </p>
+                  )
+                })()}
+              </div>
+            ) : null}
+          </div>
 
           <div className="flex flex-col gap-4">
             {quote && (
@@ -281,8 +333,16 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
                 disabled={isLoading || !client}
                 variant={!client ? "secondary" : "default"}
               >
-                {!client ? 'Wallet Not Connected' :
-                  isSwapLoading ? 'Executing Swap...' : 'Execute Swap'}
+                {!client ? 'Wallet Not Connected' : (
+                  isSwapLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Executing Swap...</span>
+                    </div>
+                  ) : (
+                    'Execute Swap'
+                  )
+                )}
               </Button>
             )}
           </div>

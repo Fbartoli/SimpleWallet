@@ -13,6 +13,12 @@ export interface ZeroXQuote {
   sellToken: Address
   sellAmount: string
   buyToken: Address
+  fees: {
+    integratorFee?: {
+      amount: string
+      token: Address
+    }
+  }
   issues?: {
     allowance?: {
       spender: Address
