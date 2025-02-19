@@ -13,7 +13,6 @@
     "@0x/0x-parser": "^2.8.0",
     "@coinbase/onchainkit": "^0.37.0",
     "@cowprotocol/widget-react": "^0.13.0",
-    "@lit-labs/nextjs": "^0.2.2",
     "@prisma/client": "^6.3.1",
     "@privy-io/react-auth": "^2.4.3",
     "@privy-io/wagmi": "^1.0.3",
