@@ -11,7 +11,7 @@ import { createPublicClient, encodeFunctionData, erc20Abi, formatUnits, http } f
 import { base } from 'viem/chains'
 import { ArrowDownUp, Loader2 } from 'lucide-react'
 import { useUserFee } from '../hooks/useUserFee'
-import { DEFAULT_FEE_BPS } from '../config/constants'
+import { DEFAULT_FEE_BPS } from '../api/tiers/config'
 
 import { Button } from '@/app/components/ui/button'
 import {
@@ -164,7 +164,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
     buyToken: buyToken,
     sellAmount: amount,
     userAddress,
-    feeBps: feeBps?.toString() || DEFAULT_FEE_BPS,
+    feeBps: feeBps?.toString() || DEFAULT_FEE_BPS.toString(),
     shouldFetch: shouldFetchQuote,
     enabled: Boolean(sellToken && buyToken && amount && Number(amount) > 0 && sellToken !== buyToken)
   })

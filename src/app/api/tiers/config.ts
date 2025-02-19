@@ -1,4 +1,4 @@
-export const DEFAULT_FEE_BPS = 100
+export const DEFAULT_FEE_BPS = 25
 export const EARLY_USER_FEE_BPS = 10
 
 export const TIER_CONFIGS = {

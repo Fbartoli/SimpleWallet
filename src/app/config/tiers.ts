@@ -1,6 +1,6 @@
+import { DEFAULT_FEE_BPS } from '../api/tiers/config'
 import { TierConfig, TierType } from '../types/tiers'
 
-export const DEFAULT_FEE_BPS = 100
 export const EARLY_USER_FEE_BPS = 10
 
 export const TIER_CONFIGS: Record<TierType, TierConfig> = {

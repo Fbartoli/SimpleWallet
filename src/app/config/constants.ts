@@ -13,5 +13,4 @@ if (!process.env.NEXT_PUBLIC_FEE_RECIPIENT) {
 
 export const MAINNET_TOKENS_BY_SYMBOL = {};
 export const MAX_ALLOWANCE = "0xffffffffffffffffffffffffffffffffffffffff";
-export const DEFAULT_FEE_BPS = '100';
 export const FEE_RECIPIENT = process.env.NEXT_PUBLIC_FEE_RECIPIENT
