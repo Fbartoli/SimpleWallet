@@ -198,6 +198,23 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   async function executeSwap() {
     if (!client || !quote) return
     setIsSwapLoading(true)
+
+    try {
+      if (! await client.account.isDeployed()) {
+        const tx = await client.sendTransaction({
+          to: userAddress,
+          data: '0x',
+          value: 0n
+        })
+        await publicClient.waitForTransactionReceipt({ hash: tx as `0x${string}` })
+      }
+    } catch (error) {
+      console.error('Failed to deploy account:', error)
+      toast({
+        title: "Error deploying account",
+        description: "Please try again"
+      })
+    }
     try {
       const calls = []
       if (quote.issues?.allowance) {
