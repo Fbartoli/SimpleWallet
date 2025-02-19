@@ -7,7 +7,7 @@ import { useToast } from "@/app/components/ui/use-toast"
 import { Token, TOKENS, type TokenSymbol } from '@/app/stores/useTokenStore'
 import { useTokenBalances } from '@/app/hooks/useTokenBalances'
 import { useSwapQuote } from '@/app/hooks/useSwapQuote'
-import { createPublicClient, encodeFunctionData, erc20Abi, formatUnits, http, parseUnits } from 'viem'
+import { createPublicClient, encodeFunctionData, erc20Abi, formatUnits, http } from 'viem'
 import { base } from 'viem/chains'
 import { ArrowDownUp, Loader2 } from 'lucide-react'
 import { useUserFee } from '../hooks/useUserFee'
@@ -30,7 +30,6 @@ import {
   SelectValue,
 } from "@/app/components/ui/select"
 import { Input } from "@/app/components/ui/input"
-import { ZeroXQuote } from '../types/quote'
 
 interface SwapFormValues {
   sellToken: TokenSymbol
@@ -132,7 +131,7 @@ function AmountInput({
 }
 
 function findTokenByAddress(address: string): Token | undefined {
-  return Object.values(TOKENS).find(token => 
+  return Object.values(TOKENS).find(token =>
     token.address.toLowerCase() === address.toLowerCase()
   )
 }
@@ -225,7 +224,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
       })
 
       const receipt = await publicClient.waitForTransactionReceipt({ hash: tx as `0x${string}` })
-      
+
       // Record the fee if present
       if (quote.fees?.integratorFee) {
         const feeToken = findTokenByAddress(quote.fees.integratorFee.token)

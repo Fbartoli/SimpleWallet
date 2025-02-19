@@ -1,8 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { type ZeroXQuote } from '@/app/types/quote'
-import { FEE_RECIPIENT } from '../config/constants'
-import { base } from 'viem/chains'
-import { Address } from 'viem'
 import { TokenSymbol } from '../stores/useTokenStore'
 
 interface UseSwapQuoteParams {
