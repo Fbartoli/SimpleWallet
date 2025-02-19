@@ -7,7 +7,6 @@ import { VAULT_ADDRESSES, VAULT_INFO } from '@/app/config/vaults';
 import { OnrampForm } from '@/app/components/OnrampForm';
 import { ZeroXSwap } from '@/app/components/ZeroXSwap';
 import { TokenBalances } from '@/app/components/TokenBalances'
-import { UserFeeDisplay } from '@/app/components/UserFeeDisplay'
 
 export default function App() {
   const { user } = usePrivy();
@@ -24,21 +23,21 @@ export default function App() {
             <h1 className="text-4xl font-bold tracking-tight">Your Vault Dashboard</h1>
             {/* <UserFeeDisplay /> */}
           </div>
-          
-          <div className="grid gap-6 mb-8">
-          <TokenBalances />
 
-            <OnrampForm 
+          <div className="grid gap-6 mb-8">
+            <TokenBalances />
+
+            <OnrampForm
               userAddress={smartWalletAddress as `0x${string}`}
               projectId={process.env.NEXT_PUBLIC_CDP_PROJECT_ID!}
             />
-            <ZeroXSwap 
+            <ZeroXSwap
               userAddress={smartWalletAddress as `0x${string}`}
             />
           </div>
 
           <div className="grid gap-6">
-      <p>Soon you will be able to earn a yield on your deposits.</p>
+            <p>Soon you will be able to earn a yield on your deposits.</p>
 
             {VAULT_ADDRESSES.map((vaultAddress) => {
               const vaultInfo = VAULT_INFO[vaultAddress];

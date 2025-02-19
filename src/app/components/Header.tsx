@@ -6,9 +6,9 @@ import { Button } from './Button';
 import { Menu } from 'lucide-react';
 
 export default function Header() {
-  const { ready, authenticated, logout } = usePrivy();
-  const {login} = useLogin({
-    onComplete: ({user, isNewUser, wasAlreadyAuthenticated, loginMethod}) => {
+  const { authenticated, logout } = usePrivy();
+  const { login } = useLogin({
+    onComplete: ({ }) => {
     },
     onError: (error) => {
       console.log(error);

@@ -46,7 +46,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <SmartWalletsProvider>
         <OnchainKitProvider
           apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY!}
-          //@ts-ignore
+
           chain={base} // add baseSepolia for testing 
         >
           <QueryClientProvider client={queryClient}>

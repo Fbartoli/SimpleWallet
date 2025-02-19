@@ -20,8 +20,6 @@ import {
     SelectValue,
 } from "@/app/components/ui/select"
 import { Input } from "@/app/components/ui/input"
-import { useFundWallet } from '@privy-io/react-auth';
-import { base } from 'viem/chains'
 
 type FormValues = {
     asset: string
@@ -36,10 +34,6 @@ const SUPPORTED_ASSETS = [
     { value: 'WBTC', label: 'Wrapped Bitcoin' }
 ] as const
 
-const SUPPORTED_CURRENCIES = [
-    { value: 'USD', label: 'US Dollar' },
-    { value: 'EUR', label: 'Euro' },
-] as const
 
 interface OnrampFormProps {
     userAddress: `0x${string}`
@@ -47,8 +41,8 @@ interface OnrampFormProps {
 }
 
 export function OnrampForm({ userAddress, projectId }: OnrampFormProps) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [onrampUrl, setOnrampUrl] = useState<string | null>(null)
-    const { fundWallet } = useFundWallet();
 
     const form = useForm<FormValues>({
         defaultValues: {
