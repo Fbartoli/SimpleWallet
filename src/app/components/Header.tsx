@@ -34,7 +34,7 @@ export default function Header() {
                 onClick={login}
                 className="px-4 py-2"
               >
-                Log in
+                Connect
               </Button>
             ) : (
               <>
