@@ -62,7 +62,7 @@ function TokenSelect({ name, label }: { name: 'sellToken' | 'buyToken', label: s
             <SelectContent className="bg-background border rounded-md shadow-md">
               {Object.entries(TOKENS).map(([symbol, token]) => (
                 <SelectItem key={symbol} value={symbol} className="hover:bg-muted">
-                  {token.symbol}
+                  {token.displaySymbol}
                 </SelectItem>
               ))}
             </SelectContent>
