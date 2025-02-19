@@ -1,5 +1,6 @@
 // app/layout.tsx
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react"
 import '@coinbase/onchainkit/styles.css';
 import './globals.css';
 
@@ -20,6 +21,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
+        <Analytics />
         <Providers>
           {children}
         </Providers>

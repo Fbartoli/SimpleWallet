@@ -25,6 +25,7 @@
     "@tanstack/react-query": "^5.66.0",
     "@trpc/next": "^10.45.2",
     "@types/better-sqlite3": "^7.6.12",
+    "@vercel/analytics": "^1.5.0",
     "@wagmi/core": "^2.16.4",
     "better-sqlite3": "^11.8.1",
     "class-variance-authority": "^0.7.1",
