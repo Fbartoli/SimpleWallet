@@ -211,6 +211,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
     } catch (error) {
       console.error('Failed to deploy account:', error)
       toast({
+        variant: "destructive",
         title: "Error deploying account",
         description: "Please try again"
       })
@@ -279,7 +280,6 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
         title: "Error executing swap",
         description: message
       })
-      console.error('Swap error:', error)
     } finally {
       setIsSwapLoading(false)
     }
