@@ -31,7 +31,6 @@ const SUPPORTED_ASSETS = [
     { value: 'USDC', label: 'USD' },
     { value: 'EURC', label: 'EUR' },
     { value: 'ETH', label: 'Ethereum' },
-    { value: 'WBTC', label: 'Wrapped Bitcoin' }
 ] as const
 
 
