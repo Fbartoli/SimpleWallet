@@ -21,7 +21,7 @@ export function TokenBalances() {
           return (
             <div key={symbol} className="flex justify-between items-center">
               <span className="font-medium">{token.displaySymbol}</span>
-              <span className="text-muted-foreground">{balance.formatted}</span>
+              <span className="text-muted-foreground">{balance.formatted.slice(0, 8)}</span>
             </div>
           )
         })}
