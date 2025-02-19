@@ -20,7 +20,7 @@ export function TokenBalances() {
           const balance = balances[symbol as TokenSymbol]
           return (
             <div key={symbol} className="flex justify-between items-center">
-              <span className="font-medium">{token.symbol}</span>
+              <span className="font-medium">{token.displaySymbol}</span>
               <span className="text-muted-foreground">{balance.formatted}</span>
             </div>
           )

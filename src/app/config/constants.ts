@@ -10,6 +10,7 @@ export const MAINNET_TOKENS = [
 if (!process.env.NEXT_PUBLIC_FEE_RECIPIENT) {
   throw new Error("NEXT_PUBLIC_FEE_RECIPIENT is not set");
 }
+
 export const MAINNET_TOKENS_BY_SYMBOL = {};
 export const MAX_ALLOWANCE = "0xffffffffffffffffffffffffffffffffffffffff";
 export const DEFAULT_FEE_BPS = '100';

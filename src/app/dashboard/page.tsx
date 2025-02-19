@@ -2,7 +2,6 @@
 
 import Header from '@/app/components/Header';
 import { usePrivy } from '@privy-io/react-auth';
-import { useSmartWallets } from '@privy-io/react-auth/smart-wallets';
 import { VaultDetails } from '@/app/components/VaultDetails';
 import { VAULT_ADDRESSES, VAULT_INFO } from '@/app/config/vaults';
 import { OnrampForm } from '@/app/components/OnrampForm';
@@ -12,17 +11,8 @@ import { UserFeeDisplay } from '@/app/components/UserFeeDisplay'
 
 export default function App() {
   const { user } = usePrivy();
-  const { client } = useSmartWallets();
-  const projectId = process.env.NEXT_PUBLIC_CDP_PROJECT_ID;
-
-  console.log(user?.id)
-
-  if (!projectId) {
-    console.error('Missing NEXT_PUBLIC_COINBASE_PROJECT_ID environment variable');
-    return <div>No smart wallet address</div>;
-  }
-
   const smartWalletAddress = user?.smartWallet?.address;
+
   if (!smartWalletAddress) return <Header />;
 
   return (
@@ -32,21 +22,24 @@ export default function App() {
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-start mb-8">
             <h1 className="text-4xl font-bold tracking-tight">Your Vault Dashboard</h1>
-            <UserFeeDisplay />
+            {/* <UserFeeDisplay /> */}
           </div>
           
           <div className="grid gap-6 mb-8">
+          <TokenBalances />
+
             <OnrampForm 
               userAddress={smartWalletAddress as `0x${string}`}
-              projectId={projectId}
+              projectId={process.env.NEXT_PUBLIC_CDP_PROJECT_ID!}
             />
             <ZeroXSwap 
               userAddress={smartWalletAddress as `0x${string}`}
             />
-            {/* <Button onClick={handleDeploy}>Deploy</Button> */}
           </div>
 
           <div className="grid gap-6">
+      <p>Soon you will be able to earn a yield on your deposits.</p>
+
             {VAULT_ADDRESSES.map((vaultAddress) => {
               const vaultInfo = VAULT_INFO[vaultAddress];
               return (
@@ -57,7 +50,7 @@ export default function App() {
                       <p className="text-muted-foreground">{vaultInfo.description}</p>
                     </div>
                     <div className="text-sm font-medium text-muted-foreground">
-                      {vaultInfo.token}
+                      {/* <p>Eligible balance: {vaultInfo.token}</p> */}
                     </div>
                   </div>
                   <VaultDetails
@@ -68,7 +61,6 @@ export default function App() {
               );
             })}
           </div>
-          <TokenBalances />
         </div>
       </main>
     </div>

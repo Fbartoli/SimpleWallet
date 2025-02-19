@@ -53,7 +53,7 @@ export function OnrampForm({ userAddress, projectId }: OnrampFormProps) {
     const form = useForm<FormValues>({
         defaultValues: {
             asset: 'USDC',
-            amount: '20',
+            amount: '0',
             fiatCurrency: 'USD'
         }
     })

@@ -6,7 +6,6 @@ import { SmartWalletsProvider } from '@privy-io/react-auth/smart-wallets';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createConfig, WagmiProvider } from '@privy-io/wagmi';
 import { base } from 'wagmi/chains';
-
 import { http } from 'wagmi';
 
 export const config = createConfig({
@@ -24,11 +23,9 @@ export const config = createConfig({
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient();
-
-
   return (
     <PrivyProvider
-      appId="cm1q4mfkg00wvobwxl0g6nny4"
+      appId={process.env.NEXT_PUBLIC_PROJECT_ID!}
       config={{
         defaultChain: base,
         supportedChains: [base],
@@ -48,7 +45,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     >
       <SmartWalletsProvider>
         <OnchainKitProvider
-          apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
+          apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY!}
           //@ts-ignore
           chain={base} // add baseSepolia for testing 
         >

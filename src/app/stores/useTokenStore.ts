@@ -6,6 +6,7 @@ export interface Token {
   address: Address
   decimals: number
   symbol: string
+  displaySymbol: string
 }
 
 type TokenList = {
@@ -16,22 +17,26 @@ export const TOKENS: TokenList = {
   USDC: {
     address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     decimals: 6,
-    symbol: 'USDC'
+    symbol: 'USDC',
+    displaySymbol: 'USD'
   },
   EURC: {
     address: '0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42',
     decimals: 6,
-    symbol: 'EURC'
+    symbol: 'EURC',
+    displaySymbol: 'EUR'
   },
   WETH: {
     address: '0x4200000000000000000000000000000000000006',
     decimals: 18,
-    symbol: 'WETH'
+    symbol: 'WETH',
+    displaySymbol: 'ETH'
   },
   WBTC: {
     address: '0x0555E30da8f98308EdB960aa94C0Db47230d2B9c',
     decimals: 8,
-    symbol: 'WBTC'
+    symbol: 'WBTC',
+    displaySymbol: 'BTC'
   }
 } as const
 
