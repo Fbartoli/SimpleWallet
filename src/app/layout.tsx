@@ -7,8 +7,8 @@ import Providers from '@/app/providers/providers'
 import { Toaster } from "@/app/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: "AppKit Example App",
-  description: "Powered by WalletConnect"
+  title: "Simple Savings",
+  description: "Crypto made simple"
 };
 
 export default async function RootLayout({
