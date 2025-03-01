@@ -150,6 +150,12 @@ export default function Dashboard() {
                   <h3 className="text-lg font-semibold">Recent Activity</h3>
                 </div>
 
+                <div className="p-4 bg-amber-50 border border-amber-100 rounded-lg mb-4">
+                  <p className="text-amber-800">
+                    <strong>Coming soon!</strong> Activity tracking will be available soon. You&apos;ll be able to monitor all your transactions in one place.
+                  </p>
+                </div>
+
                 <div className="flex flex-col gap-3">
                   {activityItems.map((item, i) => (
                     <div key={i} className="p-3 rounded-md border border-slate-100 flex items-center gap-3 hover:border-green-100 hover:bg-green-50/50 transition-colors">
