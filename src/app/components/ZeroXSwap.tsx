@@ -46,7 +46,24 @@ const publicClient = createPublicClient({
   transport: http('https://base.gateway.tenderly.co/28rOk2uI3CVMnyinm9c3yn'),
 })
 
-function TokenSelect({ name, label }: { name: 'sellToken' | 'buyToken', label: string }) {
+function TokenSelect({
+  name,
+  label,
+  filterPositiveBalance = false,
+  balances = {}
+}: {
+  name: 'sellToken' | 'buyToken',
+  label: string,
+  filterPositiveBalance?: boolean,
+  balances?: Record<string, { value: bigint, formatted: string }>
+}) {
+  // Get tokens to display, filtering by balance if needed
+  const tokensToDisplay = filterPositiveBalance
+    ? Object.entries(TOKENS).filter(([symbol]) =>
+      balances[symbol] && balances[symbol].value > 0n
+    )
+    : Object.entries(TOKENS);
+
   return (
     <FormField
       name={name}
@@ -60,7 +77,7 @@ function TokenSelect({ name, label }: { name: 'sellToken' | 'buyToken', label: s
               </SelectTrigger>
             </FormControl>
             <SelectContent className="bg-background border rounded-md shadow-md">
-              {Object.entries(TOKENS).map(([symbol, token]) => (
+              {tokensToDisplay.map(([symbol, token]) => (
                 <SelectItem key={symbol} value={symbol} className="hover:bg-muted">
                   {token.displaySymbol}
                 </SelectItem>
@@ -293,7 +310,12 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
       <h2 className="text-lg font-semibold">Swap Tokens</h2>
       <Form {...form}>
         <form className="space-y-4">
-          <TokenSelect name="sellToken" label="Sell Token" />
+          <TokenSelect
+            name="sellToken"
+            label="Sell Token"
+            filterPositiveBalance={true}
+            balances={balances}
+          />
 
           <AmountInput
             onBlur={handleAmountBlur}

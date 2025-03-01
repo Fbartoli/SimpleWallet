@@ -50,14 +50,16 @@ export default function App() {
           <div className="grid gap-6 mb-8">
             <TokenBalances />
 
-            <OnrampForm
-              userAddress={smartWalletAddress as `0x${string}`}
-              projectId={process.env.NEXT_PUBLIC_CDP_PROJECT_ID!}
-            />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <OnrampForm
+                userAddress={smartWalletAddress as `0x${string}`}
+                projectId={process.env.NEXT_PUBLIC_CDP_PROJECT_ID!}
+              />
 
-            <ZeroXSwap
-              userAddress={smartWalletAddress as `0x${string}`}
-            />
+              <ZeroXSwap
+                userAddress={smartWalletAddress as `0x${string}`}
+              />
+            </div>
           </div>
 
           <div className="grid gap-6">
