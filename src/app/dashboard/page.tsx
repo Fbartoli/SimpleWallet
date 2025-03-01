@@ -7,6 +7,7 @@ import { VAULT_ADDRESSES, VAULT_INFO } from '@/app/config/vaults';
 import { OnrampForm } from '@/app/components/OnrampForm';
 import { ZeroXSwap } from '@/app/components/ZeroXSwap';
 import { TokenBalances } from '@/app/components/TokenBalances'
+import { UserFeeDisplay } from '../components/UserFeeDisplay';
 
 export default function App() {
   const { user } = usePrivy();
@@ -21,7 +22,7 @@ export default function App() {
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-start mb-8">
             <h1 className="text-4xl font-bold tracking-tight">Your Vault Dashboard</h1>
-            {/* <UserFeeDisplay /> */}
+            <UserFeeDisplay />
           </div>
 
           <div className="grid gap-6 mb-8">

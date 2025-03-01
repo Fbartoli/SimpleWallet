@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { usePrivy, useLogin } from '@privy-io/react-auth';
 import { Button } from './Button';
-import { Menu } from 'lucide-react';
+import { Menu, Wallet } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Header() {
   const { authenticated, logout } = usePrivy();
@@ -16,6 +17,10 @@ export default function Header() {
   });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
     <>
       <div className="w-full bg-yellow-100 border-b border-yellow-200">
@@ -26,7 +31,7 @@ export default function Header() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold">Simple Savings</span>
+            <Link href="/" className="text-xl font-bold">Simple Savings</Link>
           </div>
           <div className="relative">
             {!authenticated ? (
@@ -51,9 +56,21 @@ export default function Header() {
                 {isMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-background border">
                     <div className="py-1" role="menu" aria-orientation="vertical">
+                      <Link
+                        href="/receive"
+                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-muted/50 transition-colors"
+                        role="menuitem"
+                        onClick={closeMenu}
+                      >
+                        <Wallet className="h-4 w-4" />
+                        Receive
+                      </Link>
                       <button
-                        onClick={logout}
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-muted/50 transition-colors"
+                        onClick={() => {
+                          logout();
+                          closeMenu();
+                        }}
+                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-muted/50 transition-colors"
                         role="menuitem"
                       >
                         Disconnect
