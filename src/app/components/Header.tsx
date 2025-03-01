@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { usePrivy, useLogin } from '@privy-io/react-auth';
 import { Button } from './Button';
-import { Menu, Wallet } from 'lucide-react';
+import { Menu, Wallet, LogOut, Home } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Header() {
   const { authenticated, logout } = usePrivy();
@@ -16,6 +17,8 @@ export default function Header() {
     },
   });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isNotDashboard = pathname !== '/dashboard';
 
   const closeMenu = () => {
     setIsMenuOpen(false);
@@ -56,6 +59,17 @@ export default function Header() {
                 {isMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-background border">
                     <div className="py-1" role="menu" aria-orientation="vertical">
+                      {isNotDashboard && (
+                        <Link
+                          href="/dashboard"
+                          className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-muted/50 transition-colors"
+                          role="menuitem"
+                          onClick={closeMenu}
+                        >
+                          <Home className="h-4 w-4" />
+                          Dashboard
+                        </Link>
+                      )}
                       <Link
                         href="/receive"
                         className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-muted/50 transition-colors"
@@ -73,6 +87,7 @@ export default function Header() {
                         className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-muted/50 transition-colors"
                         role="menuitem"
                       >
+                        <LogOut className="h-4 w-4" />
                         Disconnect
                       </button>
                     </div>
