@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePrivy, useFundWallet } from '@privy-io/react-auth';
 import { Button } from './ui/button';
-import { Check, Copy, ExternalLink } from 'lucide-react';
+import { Check, Copy, ExternalLink, QrCode, Wallet, ArrowDownCircle } from 'lucide-react';
 import { useToast } from './ui/use-toast';
 import { base } from 'viem/chains';
 import { TOKENS } from '@/app/stores/useTokenStore';
@@ -66,10 +66,6 @@ export default function Receive() {
                 asset: assetParam
             });
 
-            toast({
-                title: "Request initiated",
-                description: `Requested ${data.amount} ${data.asset} to your wallet`,
-            });
         }
     };
 
@@ -102,28 +98,43 @@ export default function Receive() {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="max-w-md mx-auto">
-                <h1 className="text-3xl font-bold mb-6">Receive Tokens</h1>
+        <div className="max-w-md mx-auto">
+            <header className="mb-6">
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-green-600 to-teal-600 text-transparent bg-clip-text">
+                    Receive Tokens
+                </h1>
+                <p className="text-slate-500">Get tokens sent to your smart wallet</p>
+            </header>
 
-                <div className="p-6 bg-white rounded-lg border shadow-sm">
+            <div className="p-6 border rounded-lg shadow-md bg-card relative overflow-hidden">
+                {/* Background gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-teal-50 opacity-50 pointer-events-none" />
+
+                <div className="relative">
                     <div className="mb-6">
-                        <div className="bg-yellow-100 p-4 rounded-md mb-6 border border-yellow-200">
-                            <p className="text-yellow-800 text-sm font-medium">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="h-8 w-8 bg-green-500/10 text-green-600 rounded-full flex items-center justify-center">
+                                <Wallet className="h-4 w-4" />
+                            </div>
+                            <h3 className="text-lg font-semibold">Your Wallet</h3>
+                        </div>
+
+                        <div className="p-4 bg-amber-50 rounded-lg border border-amber-100 mb-4">
+                            <p className="text-amber-800 text-sm font-medium">
                                 ⚠️ Only Base network is supported. Do not send tokens from other networks.
                             </p>
                         </div>
 
-                        <p className="text-sm font-medium text-gray-500 mb-2">Your Wallet Address</p>
+                        <p className="text-sm font-medium text-green-700 mb-2">Wallet Address</p>
                         <div className="flex items-center space-x-2 w-full">
-                            <div className="flex-1 bg-gray-100 p-3 rounded-md break-all overflow-hidden">
-                                <p className="text-sm font-mono">{walletAddress}</p>
+                            <div className="flex-1 bg-green-50 p-3 rounded-md break-all overflow-hidden border border-green-100">
+                                <p className="text-sm font-mono text-green-800">{walletAddress}</p>
                             </div>
                             <Button
                                 variant="outline"
                                 size="icon"
                                 onClick={handleCopy}
-                                className="h-10 w-10 flex-shrink-0"
+                                className="h-10 w-10 flex-shrink-0 border-green-100 hover:bg-green-50 hover:text-green-700"
                             >
                                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                             </Button>
@@ -131,76 +142,90 @@ export default function Receive() {
                                 variant="outline"
                                 size="icon"
                                 onClick={openExplorer}
-                                className="h-10 w-10 flex-shrink-0"
+                                className="h-10 w-10 flex-shrink-0 border-green-100 hover:bg-green-50 hover:text-green-700"
                             >
                                 <ExternalLink className="h-4 w-4" />
                             </Button>
                         </div>
                     </div>
 
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mb-6">
-                            <FormField
-                                control={form.control}
-                                name="amount"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Amount</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="0.001"
-                                                type="number"
-                                                step="any"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                    <div className="mb-6">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="h-8 w-8 bg-green-500/10 text-green-600 rounded-full flex items-center justify-center">
+                                <ArrowDownCircle className="h-4 w-4" />
+                            </div>
+                            <h3 className="text-lg font-semibold">Request Funds</h3>
+                        </div>
 
-                            <FormField
-                                control={form.control}
-                                name="asset"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Asset</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="amount"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-green-700">Amount</FormLabel>
                                             <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select asset" />
-                                                </SelectTrigger>
+                                                <Input
+                                                    placeholder="0.001"
+                                                    type="number"
+                                                    step="any"
+                                                    {...field}
+                                                    className="border-green-100 focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50"
+                                                />
                                             </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="native-currency">ETH (Native)</SelectItem>
-                                                <SelectItem value="USDC">USDC</SelectItem>
-                                                {/* Add ERC20 tokens from our token list */}
-                                                {Object.entries(TOKENS)
-                                                    .filter(([symbol]) => symbol !== 'USDC') // USDC already included above
-                                                    .map(([symbol, token]) => (
-                                                        <SelectItem key={symbol} value={symbol}>
-                                                            {token.displaySymbol} ({symbol})
-                                                        </SelectItem>
-                                                    ))
-                                                }
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                            <Button type="submit" className="w-full">
-                                Show QR Code & Receive Options
-                            </Button>
-                        </form>
-                    </Form>
+                                <FormField
+                                    control={form.control}
+                                    name="asset"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-green-700">Asset</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger className="border-green-100 focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50">
+                                                        <SelectValue placeholder="Select asset" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="native-currency">ETH (Native)</SelectItem>
+                                                    <SelectItem value="USDC">USDC</SelectItem>
+                                                    {/* Add ERC20 tokens from our token list */}
+                                                    {Object.entries(TOKENS)
+                                                        .filter(([symbol]) => symbol !== 'USDC') // USDC already included above
+                                                        .map(([symbol, token]) => (
+                                                            <SelectItem key={symbol} value={symbol}>
+                                                                {token.displaySymbol} ({symbol})
+                                                            </SelectItem>
+                                                        ))
+                                                    }
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                    <div className="text-sm text-gray-500">
-                        <p className="font-medium mb-1">Instructions:</p>
-                        <ol className="list-decimal list-inside space-y-1">
+                                <Button
+                                    type="submit"
+                                    className="w-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-sm transition-all duration-200"
+                                >
+                                    <QrCode className="mr-2 h-4 w-4" />
+                                    Show QR Code & Receive Options
+                                </Button>
+                            </form>
+                        </Form>
+                    </div>
+
+                    <div className="p-4 bg-green-50/50 rounded-lg border border-green-100">
+                        <p className="font-medium text-green-700 mb-2">Instructions:</p>
+                        <ol className="list-decimal list-inside space-y-1 text-sm text-green-600">
                             <li>Enter the amount and select the asset you want to receive</li>
-                            <li>Click &quot;Show QR Code & Receive Options&quot; to see your QR code</li>
+                            <li>Use the button below to see your QR code</li>
                             <li>Share your address or QR code with the sender</li>
                             <li>Only request tokens on Base network</li>
                             <li>After receiving, tokens will appear in your wallet automatically</li>

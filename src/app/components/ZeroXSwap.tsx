@@ -176,15 +176,59 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
 
   const selectedTokenBalance = balances[sellToken]
 
+  // After the component renders initially, trigger quote fetch
+  useEffect(() => {
+    // We only want this to run once on mount
+    if (sellToken && buyToken && amount && Number(amount) > 0 && sellToken !== buyToken) {
+      console.log('Initial quote fetch triggered');
+      setShouldFetchQuote(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Log whenever shouldFetchQuote changes to debug
+  useEffect(() => {
+    console.log('shouldFetchQuote changed:', shouldFetchQuote);
+  }, [shouldFetchQuote]);
+
+  // Format the amount to ensure it's a valid number
+  const formattedAmount = amount && !isNaN(Number(amount)) ? amount : '0'
+
+  // Debug information
+  useEffect(() => {
+    console.log("Debug info:", {
+      sellToken,
+      buyToken,
+      amount: formattedAmount,
+      shouldFetch: shouldFetchQuote,
+      isEnabled: Boolean(sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken)
+    });
+  }, [sellToken, buyToken, formattedAmount, shouldFetchQuote]);
+
   const { data: quote, isLoading: isQuoteLoading } = useSwapQuote({
-    sellToken: sellToken,
-    buyToken: buyToken,
-    sellAmount: amount,
+    sellToken,
+    buyToken,
+    sellAmount: formattedAmount,
     userAddress,
     feeBps: feeBps?.toString() || DEFAULT_FEE_BPS.toString(),
     shouldFetch: shouldFetchQuote,
-    enabled: Boolean(sellToken && buyToken && amount && Number(amount) > 0 && sellToken !== buyToken)
+    enabled: Boolean(sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken)
   })
+
+  // Log whenever quote data changes
+  useEffect(() => {
+    if (quote) {
+      console.log('Quote received:', quote);
+    }
+  }, [quote]);
+
+  // Watch for changes in tokens or amount to trigger quote updates
+  useEffect(() => {
+    if (sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken) {
+      console.log('Values changed, triggering quote update');
+      setShouldFetchQuote(true);
+    }
+  }, [sellToken, buyToken, formattedAmount]);
 
   const handleMaxClick = () => {
     if (selectedTokenBalance) {
@@ -211,6 +255,21 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
       setShouldFetchQuote(false)
     }
   }, [quote])
+
+  // Manual fetch function for the Get Quote button
+  const fetchQuote = () => {
+    if (sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken) {
+      console.log('Manually fetching quote');
+      setShouldFetchQuote(true);
+    } else {
+      console.log('Cannot fetch quote: invalid parameters');
+      toast({
+        title: "Cannot fetch quote",
+        description: "Please select valid tokens and enter an amount greater than 0",
+        variant: "destructive"
+      });
+    }
+  };
 
   async function executeSwap() {
     if (!client || !quote) return
@@ -306,86 +365,112 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   const buyTokenInfo = TOKENS[buyToken]
 
   return (
-    <div className="space-y-6 p-4 border rounded-lg bg-card">
-      <h2 className="text-lg font-semibold">Swap Tokens</h2>
-      <Form {...form}>
-        <form className="space-y-4">
-          <TokenSelect
-            name="sellToken"
-            label="Sell Token"
-            filterPositiveBalance={true}
-            balances={balances}
-          />
+    <div className="space-y-6 p-6 border rounded-lg bg-card shadow-md relative overflow-hidden">
+      {/* Background gradient element */}
+      <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-teal-50 opacity-50 pointer-events-none" />
 
-          <AmountInput
-            onBlur={handleAmountBlur}
-            onMaxClick={handleMaxClick}
-            isBalanceLoading={isBalanceLoading}
-            balance={selectedTokenBalance?.formatted}
-          />
-
-          <div className="flex justify-center -my-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full bg-muted"
-              onClick={handleSwapTokens}
-            >
-              <ArrowDownUp className="h-4 w-4" />
-              <span className="sr-only">Swap tokens</span>
-            </Button>
+      <div className="relative">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="h-8 w-8 bg-green-500/10 text-green-600 rounded-full flex items-center justify-center">
+            <ArrowDownUp className="h-4 w-4" />
           </div>
+          <h2 className="text-lg font-semibold">Swap Tokens</h2>
+        </div>
 
-          <TokenSelect name="buyToken" label="Buy Token" />
+        <Form {...form}>
+          <form className="space-y-5">
+            <TokenSelect
+              name="sellToken"
+              label="Sell Token"
+              filterPositiveBalance={true}
+              balances={balances}
+            />
 
-          <div className="p-4 bg-muted rounded-lg space-y-2">
-            {isLoading ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <p className="text-sm font-medium">Fetching latest quote...</p>
-              </div>
-            ) : quote ? (
-              <div className="space-y-1">
-                <p className="text-sm font-medium">
-                  Estimated output: {(Number(quote.buyAmount) / 10 ** buyTokenInfo.decimals).toFixed(6)} {buyTokenInfo.symbol}
-                </p>
-                {quote.fees?.integratorFee && (() => {
-                  const feeToken = findTokenByAddress(quote.fees.integratorFee.token)
-                  if (!feeToken) return null
-                  return (
-                    <p className="text-sm text-muted-foreground">
-                      Platform fee: {formatUnits(BigInt(quote.fees.integratorFee.amount), feeToken.decimals).toString()} {feeToken.symbol}
-                    </p>
-                  )
-                })()}
-              </div>
-            ) : null}
-          </div>
+            <AmountInput
+              onBlur={handleAmountBlur}
+              onMaxClick={handleMaxClick}
+              isBalanceLoading={isBalanceLoading}
+              balance={selectedTokenBalance?.formatted}
+            />
 
-          <div className="flex flex-col gap-4">
-            {quote && (
+            <div className="flex justify-center -my-1">
               <Button
                 type="button"
-                onClick={executeSwap}
-                disabled={isLoading || !client}
-                variant={!client ? "secondary" : "default"}
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 rounded-full bg-green-100 hover:bg-green-200 text-green-600 hover:text-green-700 transition-colors shadow-sm"
+                onClick={handleSwapTokens}
               >
-                {!client ? 'Wallet Not Connected' : (
-                  isSwapLoading ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span>Executing Swap...</span>
-                    </div>
-                  ) : (
-                    'Execute Swap'
-                  )
-                )}
+                <ArrowDownUp className="h-5 w-5" />
+                <span className="sr-only">Swap tokens</span>
               </Button>
-            )}
-          </div>
-        </form>
-      </Form>
+            </div>
+
+            <TokenSelect name="buyToken" label="Buy Token" />
+
+            <div className="p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg space-y-2 border border-green-100">
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-green-600" />
+                  <p className="text-sm font-medium text-green-800">Fetching latest quote...</p>
+                </div>
+              ) : quote ? (
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-green-800">
+                    Estimated output: {(Number(quote.buyAmount) / 10 ** buyTokenInfo.decimals).toFixed(6)} {buyTokenInfo.symbol}
+                  </p>
+                  {quote.fees?.integratorFee && (() => {
+                    const feeToken = findTokenByAddress(quote.fees.integratorFee.token)
+                    if (!feeToken) return null
+                    return (
+                      <p className="text-sm text-green-600">
+                        Platform fee: {formatUnits(BigInt(quote.fees.integratorFee.amount), feeToken.decimals).toString()} {feeToken.symbol}
+                      </p>
+                    )
+                  })()}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-sm text-green-600">
+                    Enter an amount and select tokens to get a quote
+                  </p>
+                  <Button
+                    type="button"
+                    onClick={fetchQuote}
+                    className="w-full bg-green-100 hover:bg-green-200 text-green-700 shadow-sm"
+                  >
+                    Get Quote
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-4">
+              {quote && (
+                <Button
+                  type="button"
+                  onClick={executeSwap}
+                  disabled={isLoading || !client}
+                  className={!client
+                    ? "bg-slate-200 text-slate-600"
+                    : "bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all"}
+                >
+                  {!client ? 'Wallet Not Connected' : (
+                    isSwapLoading ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Executing Swap...</span>
+                      </div>
+                    ) : (
+                      'Execute Swap'
+                    )
+                  )}
+                </Button>
+              )}
+            </div>
+          </form>
+        </Form>
+      </div>
     </div>
   )
 } 

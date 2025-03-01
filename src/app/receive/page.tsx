@@ -17,9 +17,15 @@ export default function ReceivePage() {
     }, [authenticated, router]);
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="relative min-h-screen">
+            {/* Background gradient elements */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-b from-green-400/10 to-teal-500/5 rounded-full filter blur-3xl -z-10 transform translate-x-1/3 -translate-y-1/3" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-t from-green-300/10 to-emerald-500/5 rounded-full filter blur-3xl -z-10 transform -translate-x-1/3 translate-y-1/3" />
+
             <Header />
-            <Receive />
+            <main className="container mx-auto p-4 md:p-6 lg:p-8 relative z-10">
+                <Receive />
+            </main>
         </div>
     );
 } 

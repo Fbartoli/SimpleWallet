@@ -268,25 +268,35 @@ export function SendToken() {
     // If no tokens with balance, show message
     if (tokensWithBalance.length === 0) {
         return (
-            <div className="grid gap-4 p-4 border rounded-lg">
-                <h3 className="text-lg font-semibold">Send Tokens</h3>
-                <p className="text-muted-foreground">You don&apos;t have any tokens to send.</p>
+            <div className="grid gap-4 p-6 border rounded-lg bg-gradient-to-br from-green-50 to-teal-50 shadow-md">
+                <h3 className="text-xl font-semibold text-green-800">Send Tokens</h3>
+                <div className="flex items-center justify-center py-8">
+                    <p className="text-muted-foreground text-center">You don&apos;t have any tokens to send. Add funds to your wallet first.</p>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="grid gap-4 p-4 border rounded-lg">
-            <h3 className="text-lg font-semibold">Send Tokens</h3>
+        <div className="grid gap-6 p-6 border rounded-lg bg-gradient-to-br from-green-50 to-teal-50 shadow-md">
+            <div className="flex items-center gap-2">
+                <div className="p-2 rounded-full bg-green-500/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600">
+                        <path d="M19 12H5"></path>
+                        <path d="M12 19l-7-7 7-7"></path>
+                    </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-green-800">Send Tokens</h3>
+            </div>
 
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                     <FormField
                         control={form.control}
                         name="token"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Token</FormLabel>
+                                <FormLabel className="text-green-700">Token</FormLabel>
                                 <Select
                                     onValueChange={(value) => {
                                         field.onChange(value)
@@ -295,7 +305,7 @@ export function SendToken() {
                                     value={field.value}
                                 >
                                     <FormControl>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="border-green-200 focus:ring-green-500">
                                             <SelectValue placeholder="Select token to send" />
                                         </SelectTrigger>
                                     </FormControl>
@@ -317,9 +327,13 @@ export function SendToken() {
                         name="recipient"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Recipient Address</FormLabel>
+                                <FormLabel className="text-green-700">Recipient Address</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="0x..." {...field} />
+                                    <Input
+                                        placeholder="0x..."
+                                        {...field}
+                                        className="border-green-200 focus:ring-green-500"
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -331,9 +345,13 @@ export function SendToken() {
                         name="amount"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Amount</FormLabel>
+                                <FormLabel className="text-green-700">Amount</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="0.0" {...field} />
+                                    <Input
+                                        placeholder="0.0"
+                                        {...field}
+                                        className="border-green-200 focus:ring-green-500"
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -341,11 +359,11 @@ export function SendToken() {
                     />
 
                     {selectedTokenBalance && (
-                        <div className="space-y-3">
+                        <div className="space-y-3 bg-white/50 p-4 rounded-lg border border-green-100">
                             <div className="flex justify-between text-sm">
-                                <span className="font-medium">Select amount: {percentage}%</span>
+                                <span className="font-medium text-green-700">Select amount: {percentage}%</span>
                                 {percentage > 0 && (
-                                    <span className="text-muted-foreground">
+                                    <span className="text-green-600">
                                         {form.watch('amount')} / {selectedTokenBalance.formatted}
                                     </span>
                                 )}
@@ -359,10 +377,10 @@ export function SendToken() {
                                     step={1}
                                     aria-label="Percentage"
                                 >
-                                    <Slider.Track className="bg-secondary relative grow rounded-full h-[5px]">
-                                        <Slider.Range className="absolute bg-primary rounded-full h-full" />
+                                    <Slider.Track className="bg-green-100 relative grow rounded-full h-[5px]">
+                                        <Slider.Range className="absolute bg-green-500 rounded-full h-full" />
                                     </Slider.Track>
-                                    <Slider.Thumb className="block w-6 h-6 bg-primary shadow-md rounded-full hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" />
+                                    <Slider.Thumb className="block w-6 h-6 bg-gradient-to-r from-green-500 to-teal-500 shadow-md rounded-full hover:from-green-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2" />
                                 </Slider.Root>
                             </div>
                             <div className="grid grid-cols-5 gap-2 mt-1">
@@ -373,7 +391,7 @@ export function SendToken() {
                                         size="sm"
                                         type="button"
                                         onClick={() => setPercentage(preset)}
-                                        className="text-xs"
+                                        className="text-xs border-green-200 text-green-700 hover:bg-green-100 hover:text-green-800"
                                     >
                                         {preset}%
                                     </Button>
@@ -385,7 +403,7 @@ export function SendToken() {
                     <Button
                         type="submit"
                         disabled={isTransferring}
-                        className="w-full"
+                        className="w-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-medium"
                     >
                         {isTransferring ? (
                             <>

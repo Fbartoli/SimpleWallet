@@ -17,11 +17,15 @@ export default function SendPage() {
     }, [authenticated, router]);
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background relative overflow-hidden">
+            {/* Background decorative elements */}
+            <div className="absolute top-20 left-5 w-72 h-72 bg-green-200/20 rounded-full filter blur-3xl"></div>
+            <div className="absolute bottom-10 right-10 w-80 h-80 bg-teal-200/20 rounded-full filter blur-3xl"></div>
+
             <Header />
-            <main className="container mx-auto px-4 py-8">
+            <main className="container mx-auto px-4 py-8 relative z-10">
                 <div className="max-w-lg mx-auto">
-                    <h1 className="text-3xl font-bold mb-6">Send Tokens</h1>
+                    <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">Send Tokens</h1>
                     <SendToken />
                 </div>
             </main>
