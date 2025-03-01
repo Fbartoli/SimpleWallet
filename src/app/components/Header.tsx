@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { Button } from './Button';
-import { Menu, Wallet, LogOut, Home, Send } from 'lucide-react';
+import { Menu, Wallet, LogOut, Home, Send, PiggyBank } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -27,7 +27,10 @@ export default function Header() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Link href="/" className="text-xl font-bold">Simple Savings</Link>
+            <Link href="/" className="flex items-center space-x-2">
+              <PiggyBank className="h-6 w-6" />
+              <span className="text-xl font-bold">Simple Savings</span>
+            </Link>
           </div>
           <div className="relative">
             {!authenticated ? (<></>) : (

@@ -20,7 +20,7 @@ export default function App() {
         <Header />
         <main className="container mx-auto px-4 py-16">
           <div className="max-w-md mx-auto text-center space-y-6">
-            <h1 className="text-3xl font-bold tracking-tight">Welcome to Don8</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Welcome to Simple Savings</h1>
             <p className="text-muted-foreground">
               Connect your wallet to access your vault dashboard and start managing your finances.
             </p>
