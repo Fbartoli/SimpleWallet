@@ -1,6 +1,5 @@
 'use client';
 
-import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/app/components/Button"
 import { ArrowRight, PiggyBank, ShoppingBag, TrendingUp } from "lucide-react"
@@ -89,7 +88,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-12">
               How It Works
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-12 items-center">
               <div className="space-y-4">
                 <h3 className="text-2xl font-bold">1. Create Your Account</h3>
                 <p className="text-gray-500 dark:text-gray-400">
@@ -103,15 +102,6 @@ export default function Home() {
                 <p className="text-gray-500 dark:text-gray-400">
                   Access a variety of services and make purchases directly from your account.
                 </p>
-              </div>
-              <div className="relative h-[600px] w-full">
-                <Image
-                  src="/placeholder.svg?height=600&width=400"
-                  alt="App interface mockup"
-                  layout="fill"
-                  objectFit="contain"
-                  className="rounded-2xl shadow-xl"
-                />
               </div>
             </div>
           </div>

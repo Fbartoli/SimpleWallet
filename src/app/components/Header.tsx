@@ -1,21 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { usePrivy, useLogin } from '@privy-io/react-auth';
+import { usePrivy } from '@privy-io/react-auth';
 import { Button } from './Button';
-import { Menu, Wallet, LogOut, Home } from 'lucide-react';
+import { Menu, Wallet, LogOut, Home, Send } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export default function Header() {
   const { authenticated, logout } = usePrivy();
-  const { login } = useLogin({
-    onComplete: ({ }) => {
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const isNotDashboard = pathname !== '/dashboard';
@@ -37,14 +30,7 @@ export default function Header() {
             <Link href="/" className="text-xl font-bold">Simple Savings</Link>
           </div>
           <div className="relative">
-            {!authenticated ? (
-              <Button
-                onClick={login}
-                className="px-4 py-2"
-              >
-                Connect
-              </Button>
-            ) : (
+            {!authenticated ? (<></>) : (
               <>
                 <Button
                   variant="ghost"
@@ -70,6 +56,15 @@ export default function Header() {
                           Dashboard
                         </Link>
                       )}
+                      <Link
+                        href="/send"
+                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-muted/50 transition-colors"
+                        role="menuitem"
+                        onClick={closeMenu}
+                      >
+                        <Send className="h-4 w-4" />
+                        Send Tokens
+                      </Link>
                       <Link
                         href="/receive"
                         className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-muted/50 transition-colors"

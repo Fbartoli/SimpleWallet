@@ -8,12 +8,34 @@ import { OnrampForm } from '@/app/components/OnrampForm';
 import { ZeroXSwap } from '@/app/components/ZeroXSwap';
 import { TokenBalances } from '@/app/components/TokenBalances'
 import { UserFeeDisplay } from '../components/UserFeeDisplay';
+import { Button } from '@/app/components/ui/button';
 
 export default function App() {
-  const { user } = usePrivy();
+  const { user, login } = usePrivy();
   const smartWalletAddress = user?.smartWallet?.address;
 
-  if (!smartWalletAddress) return <Header />;
+  if (!smartWalletAddress) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container mx-auto px-4 py-16">
+          <div className="max-w-md mx-auto text-center space-y-6">
+            <h1 className="text-3xl font-bold tracking-tight">Welcome to Don8</h1>
+            <p className="text-muted-foreground">
+              Connect your wallet to access your vault dashboard and start managing your finances.
+            </p>
+            <Button
+              size="lg"
+              onClick={login}
+              className="animate-pulse bg-primary hover:bg-primary/90"
+            >
+              Connect
+            </Button>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -32,6 +54,7 @@ export default function App() {
               userAddress={smartWalletAddress as `0x${string}`}
               projectId={process.env.NEXT_PUBLIC_CDP_PROJECT_ID!}
             />
+
             <ZeroXSwap
               userAddress={smartWalletAddress as `0x${string}`}
             />
