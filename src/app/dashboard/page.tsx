@@ -50,10 +50,10 @@ export default function Dashboard() {
 
   if (!smartWalletAddress) {
     return (
-      <div className="min-h-screen bg-background relative">
+      <div className="min-h-screen bg-green-50/40 relative">
         {/* Background gradient elements */}
-        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-blue-100/30 to-purple-100/30 rounded-full blur-3xl -z-10 transform translate-x-1/4 -translate-y-1/4" />
-        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-green-100/30 to-cyan-100/30 rounded-full blur-3xl -z-10 transform -translate-x-1/4 translate-y-1/4" />
+        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-green-100/30 to-teal-100/30 rounded-full blur-3xl -z-10 transform translate-x-1/4 -translate-y-1/4" />
+        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-green-100/30 to-teal-100/30 rounded-full blur-3xl -z-10 transform -translate-x-1/4 translate-y-1/4" />
 
         <Header />
         <main className="container mx-auto px-4 py-16">
@@ -65,7 +65,7 @@ export default function Dashboard() {
             <Button
               size="lg"
               onClick={login}
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all animate-pulse"
+              className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all animate-pulse"
             >
               Connect
             </Button>
@@ -76,12 +76,16 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen bg-green-50/40 pb-16 md:pb-0">
       {/* Background gradient elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-b from-green-400/10 to-teal-500/5 rounded-full filter blur-3xl -z-10 transform translate-x-1/3 -translate-y-1/3" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-t from-green-300/10 to-emerald-500/5 rounded-full filter blur-3xl -z-10 transform -translate-x-1/3 translate-y-1/3" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-b from-green-300/15 to-teal-400/10 rounded-full filter blur-3xl -z-10 transform translate-x-1/3 -translate-y-1/3" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-t from-green-400/15 to-teal-300/10 rounded-full filter blur-3xl -z-10 transform -translate-x-1/3 translate-y-1/3" />
 
-      <Header />
+      {/* Hide header on mobile, show on md breakpoint and above */}
+      <div className="hidden md:block">
+        <Header />
+      </div>
+
       <main className="container mx-auto p-4 md:p-6 lg:p-8 relative z-10">
         <header className="mb-8">
           <div className="flex flex-col gap-1 mb-6">

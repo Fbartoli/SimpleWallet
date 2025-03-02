@@ -27,7 +27,7 @@ export function UserFeeDisplay() {
 
   return (
     <div className="p-4 rounded-lg border border-green-100 bg-gradient-to-br from-green-50 to-teal-50 shadow-sm">
-      <p className="font-medium text-green-800">Your Current Trading Fee Tier: <span className="text-green-700">{feePercentage}</span></p>
+      <p className="font-medium text-green-800">Your Current Trading Fee Tier: <span className="text-green-700">{feePercentage}</span> % </p>
     </div>
   )
 } 

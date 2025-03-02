@@ -24,7 +24,7 @@ export default function Header() {
           <p className="text-sm font-medium">⚠️ This is a beta version. Please do not deposit significant amounts of funds.</p>
         </div>
       </div>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b border-green-100 bg-gradient-to-r from-green-50 to-teal-50 backdrop-blur supports-[backdrop-filter]:bg-green-50/90">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Link href="/" className="flex items-center space-x-2">
