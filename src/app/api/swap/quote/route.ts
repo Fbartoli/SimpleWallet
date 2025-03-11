@@ -9,7 +9,7 @@ const SWAP_FEE_CONFIG = {
 }
 
 export async function GET(request: Request) {
-  if (!process.env.NEXT_PUBLIC_0X_API_KEY) {
+  if (!process.env.OX_API_KEY) {
     return NextResponse.json({ error: '0x API key is not set' }, { status: 500 })
   }
 
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
 
   const headers = {
     "Content-Type": "application/json",
-    "0x-api-key": process.env.NEXT_PUBLIC_0X_API_KEY,
+    "0x-api-key": process.env.OX_API_KEY,
     "0x-version": "v2",
   }
 
@@ -49,7 +49,6 @@ export async function GET(request: Request) {
       swapFeeToken: sellTokenInfo.address,
       ...SWAP_FEE_CONFIG,
     })
-
     const response = await fetch(
       `https://api.0x.org/swap/allowance-holder/quote?${priceParams.toString()}`,
       { headers }

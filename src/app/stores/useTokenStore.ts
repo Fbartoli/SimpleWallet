@@ -76,7 +76,6 @@ const initialBalances = Object.entries(TOKENS).reduce((acc, [symbol, token]) => 
 export const useTokenStore = create<TokenStore>((set) => ({
   balances: initialBalances,
   updateBalance: (symbol: TokenSymbol, value: bigint, decimals: number) => {
-    console.log('value', value, symbol)
     set((state) => ({
       ...state,
       balances: {

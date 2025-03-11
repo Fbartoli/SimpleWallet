@@ -180,7 +180,6 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   useEffect(() => {
     // We only want this to run once on mount
     if (sellToken && buyToken && amount && Number(amount) > 0 && sellToken !== buyToken) {
-      console.log('Initial quote fetch triggered');
       setShouldFetchQuote(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -188,23 +187,12 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
 
   // Log whenever shouldFetchQuote changes to debug
   useEffect(() => {
-    console.log('shouldFetchQuote changed:', shouldFetchQuote);
   }, [shouldFetchQuote]);
 
   // Format the amount to ensure it's a valid number
   const formattedAmount = amount && !isNaN(Number(amount)) ? amount : '0'
 
   // Debug information
-  useEffect(() => {
-    console.log("Debug info:", {
-      sellToken,
-      buyToken,
-      amount: formattedAmount,
-      shouldFetch: shouldFetchQuote,
-      isEnabled: Boolean(sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken)
-    });
-  }, [sellToken, buyToken, formattedAmount, shouldFetchQuote]);
-
   const { data: quote, isLoading: isQuoteLoading } = useSwapQuote({
     sellToken,
     buyToken,
@@ -215,17 +203,9 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
     enabled: Boolean(sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken)
   })
 
-  // Log whenever quote data changes
-  useEffect(() => {
-    if (quote) {
-      console.log('Quote received:', quote);
-    }
-  }, [quote]);
-
   // Watch for changes in tokens or amount to trigger quote updates
   useEffect(() => {
     if (sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken) {
-      console.log('Values changed, triggering quote update');
       setShouldFetchQuote(true);
     }
   }, [sellToken, buyToken, formattedAmount]);
@@ -259,10 +239,8 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   // Manual fetch function for the Get Quote button
   const fetchQuote = () => {
     if (sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken) {
-      console.log('Manually fetching quote');
       setShouldFetchQuote(true);
     } else {
-      console.log('Cannot fetch quote: invalid parameters');
       toast({
         title: "Cannot fetch quote",
         description: "Please select valid tokens and enter an amount greater than 0",

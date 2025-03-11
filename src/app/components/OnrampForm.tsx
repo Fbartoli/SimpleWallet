@@ -53,7 +53,6 @@ export function OnrampForm({ userAddress, projectId }: OnrampFormProps) {
     function onSubmit(values: FormValues) {
         setIsSubmitting(true)
         try {
-            console.log(values)
             const url = getOnrampBuyUrl({
                 projectId,
                 addresses: { [userAddress]: ['base'] },
@@ -63,7 +62,6 @@ export function OnrampForm({ userAddress, projectId }: OnrampFormProps) {
             })
             setOnrampUrl(url)
             openPopup({ url, height: 600, width: 400 })
-            console.log(url)
         } catch (error) {
             console.error('Error opening onramp:', error)
         } finally {

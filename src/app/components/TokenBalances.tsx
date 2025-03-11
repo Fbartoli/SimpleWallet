@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { usePrivy } from '@privy-io/react-auth'
 import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
 import { useTokenBalances } from '@/app/hooks/useTokenBalances'
+import { useTokenPrices } from '@/app/hooks/useTokenPrices'
 import { TOKENS, WETH_ABI, type TokenSymbol } from '@/app/stores/useTokenStore'
 import { useBalance } from 'wagmi'
 import { useToast } from '@/app/components/ui/use-toast'
@@ -23,6 +24,7 @@ export function TokenBalances() {
   const { client } = useSmartWallets()
   const { toast } = useToast()
   const { balances, isLoading, isError, refresh } = useTokenBalances()
+  const { prices, isLoading: isPricesLoading } = useTokenPrices()
   const [isDepositingToWeth, setIsDepositingToWeth] = useState(false)
 
   // Get native ETH balance
@@ -165,7 +167,13 @@ export function TokenBalances() {
             {tokensWithBalance.map((symbol) => {
               const token = TOKENS[symbol];
               const balance = balances[symbol];
+              const price = prices?.[symbol];
               const tokenStyle = getTokenStyle(symbol);
+
+              // Calculate the formatted balance value in USDC
+              const balanceInUSDC = price && balance
+                ? (Number(price.price) * Number(balance.formatted)).toFixed(2)
+                : '0.00';
 
               return (
                 <div
@@ -174,9 +182,23 @@ export function TokenBalances() {
                 >
                   <div className="flex items-center gap-2">
                     {tokenIcons[symbol]}
-                    <span className="font-medium">{token.displaySymbol}</span>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{token.displaySymbol}</span>
+                      {price && !isPricesLoading && (
+                        <span className="text-sm text-gray-500">
+                          ${Number(price.price).toFixed(2)} USD
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <span className="font-mono font-medium">{balance.formatted.slice(0, 10)}</span>
+                  <div className="flex flex-col items-end">
+                    <span className="font-mono font-medium">{balance.formatted.slice(0, 10)}</span>
+                    {price && !isPricesLoading && (
+                      <span className="text-sm text-gray-500">
+                        ${balanceInUSDC} USD
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })}

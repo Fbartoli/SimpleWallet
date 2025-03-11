@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { Button } from './Button';
-import { Menu, Wallet, LogOut, Home, Send, PiggyBank } from 'lucide-react';
+import { Menu, Wallet, LogOut, Home, Send, PiggyBank, BanknoteIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -76,6 +76,15 @@ export default function Header() {
                       >
                         <Wallet className="h-4 w-4" />
                         Receive
+                      </Link>
+                      <Link
+                        href="/savings"
+                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-muted/50 transition-colors"
+                        role="menuitem"
+                        onClick={closeMenu}
+                      >
+                        <BanknoteIcon className="h-4 w-4" />
+                        Savings
                       </Link>
                       <button
                         onClick={() => {
