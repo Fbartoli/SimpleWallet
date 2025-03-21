@@ -86,6 +86,15 @@ export default function Header() {
                         <BanknoteIcon className="h-4 w-4" />
                         Savings
                       </Link>
+                      <Link
+                        href="/bank-account"
+                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-muted/50 transition-colors"
+                        role="menuitem"
+                        onClick={closeMenu}
+                      >
+                        <BanknoteIcon className="h-4 w-4" />
+                        Bank Account
+                      </Link>
                       <button
                         onClick={() => {
                           logout();
