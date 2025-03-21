@@ -89,4 +89,29 @@ export interface DuneTokenPriceResponse {
 export interface DuneClientConfig {
   apiKey: string;
   baseUrl?: string;
+}
+
+export interface DuneBalance {
+  address: string;
+  chain_id: number;
+  amount: string;
+  decimals: number;
+  symbol: string;
+  token_metadata?: {
+    logo?: string;
+    url?: string;
+  };
+}
+
+export interface DuneBalanceParams {
+  chain_ids?: string | 'all';
+  limit?: number;
+  offset?: string;
+}
+
+export interface DuneBalanceResponse {
+  balances: DuneBalance[];
+  next_offset: string | null;
+  request_time: string;
+  response_time: string;
 } 

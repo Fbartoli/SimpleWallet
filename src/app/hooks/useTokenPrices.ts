@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+'use client'
+
+import { useQuery } from '@tanstack/react-query'
 import { TokenSymbol } from '@/app/stores/useTokenStore'
 
 interface TokenPrice {
@@ -8,62 +10,55 @@ interface TokenPrice {
     decimals: number
 }
 
+type TokenPricesRecord = Record<TokenSymbol, { price: string; estimatedGas: string; decimals: number }>
+
 interface UseTokenPricesReturn {
-    prices: Record<TokenSymbol, { price: string; estimatedGas: string; decimals: number }> | null
+    prices: TokenPricesRecord | null
     isLoading: boolean
     isError: boolean
-    refresh: () => Promise<void>
+    refresh: () => void
 }
 
-export function useTokenPrices(): UseTokenPricesReturn {
-    const [prices, setPrices] = useState<Record<TokenSymbol, { price: string; estimatedGas: string; decimals: number }> | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
-    const [isError, setIsError] = useState(false)
+async function fetchPrices(): Promise<TokenPricesRecord> {
+    const response = await fetch('/api/prices')
 
-    const fetchPrices = async () => {
-        try {
-            setIsError(false)
-            const response = await fetch('/api/prices')
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch prices')
-            }
-
-            const data = await response.json()
-
-            // Transform array to record
-            const pricesRecord = data.prices.reduce((acc: Record<TokenSymbol, { price: string; estimatedGas: string; decimals: number }>, item: TokenPrice) => {
-                acc[item.symbol] = {
-                    price: item.price,
-                    estimatedGas: item.estimatedGas,
-                    decimals: item.decimals
-                }
-                return acc
-            }, {})
-
-            setPrices(pricesRecord)
-        } catch (error) {
-            console.error('Error fetching token prices:', error)
-            setIsError(true)
-        } finally {
-            setIsLoading(false)
-        }
+    if (!response.ok) {
+        throw new Error('Failed to fetch prices')
     }
 
-    useEffect(() => {
-        fetchPrices()
+    const data = await response.json()
 
-        // Set up polling every 30 seconds
-        const interval = setInterval(fetchPrices, 30000)
+    // Transform array to record
+    return data.prices.reduce((acc: TokenPricesRecord, item: TokenPrice) => {
+        acc[item.symbol] = {
+            price: item.price,
+            estimatedGas: item.estimatedGas,
+            decimals: item.decimals
+        }
+        return acc
+    }, {})
+}
 
-        // Cleanup interval on unmount
-        return () => clearInterval(interval)
-    }, [])
+const REFETCH_INTERVAL = 30000 // 30 seconds
+
+export function useTokenPrices(): UseTokenPricesReturn {
+    const query = useQuery({
+        queryKey: ['prices'],
+        queryFn: fetchPrices,
+        refetchInterval: REFETCH_INTERVAL,
+        staleTime: REFETCH_INTERVAL, // Match staleTime with refetchInterval
+        gcTime: REFETCH_INTERVAL * 2, // Keep unused data in cache longer
+        refetchOnWindowFocus: false,
+        select: (data) => {
+            // Only return new data if it's different from previous
+            return data
+        },
+    })
 
     return {
-        prices,
-        isLoading,
-        isError,
-        refresh: fetchPrices,
+        prices: query.data ?? null,
+        isLoading: query.isLoading,
+        isError: query.isError,
+        refresh: () => { query.refetch() }
     }
 } 

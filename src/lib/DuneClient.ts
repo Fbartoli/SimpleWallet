@@ -5,7 +5,10 @@ import type {
   DuneTransactionResponse,
   DuneTokenPrice,
   DuneTokenPriceParams,
-  DuneTokenPriceResponse
+  DuneTokenPriceResponse,
+  DuneBalanceParams,
+  DuneBalanceResponse,
+  DuneBalance
 } from '@/types/dune';
 
 export class DuneClient {
@@ -134,5 +137,69 @@ export class DuneClient {
     }
 
     return allPrices;
+  }
+
+  /**
+   * Get token balances for a given address across EVM chains
+   * @param address - Wallet address to get balances for
+   * @param params - Optional query parameters
+   * @returns Promise with token balance data
+   */
+  async getTokenBalances(
+    address: string,
+    params?: DuneBalanceParams
+  ): Promise<DuneBalanceResponse> {
+    const queryParams = new URLSearchParams();
+
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+
+    const queryString = queryParams.toString();
+    const url = `${this.baseUrl}v1/balances/evm/${address}${queryString ? `?${queryString}` : ''
+      }`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'X-Dune-Api-Key': this.apiKey,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Helper method to get all token balances for an address by handling pagination
+   * @param address - Wallet address to get balances for
+   * @param params - Optional query parameters (excluding offset)
+   * @returns Promise with all token balances
+   */
+  async getAllTokenBalances(
+    address: string,
+    params?: Omit<DuneBalanceParams, 'offset'>
+  ): Promise<DuneBalance[]> {
+    const allBalances: DuneBalance[] = [];
+    let nextOffset: string | null = null;
+
+    do {
+      const response = await this.getTokenBalances(address, {
+        ...params,
+        offset: nextOffset || undefined,
+      });
+
+      allBalances.push(...response.balances);
+      nextOffset = response.next_offset;
+    } while (nextOffset);
+
+    return allBalances;
   }
 } 
