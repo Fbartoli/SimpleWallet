@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useCallback, memo, useState, useRef } from 'react'
+import { useEffect, useMemo, useCallback, memo, useState } from 'react'
 import { usePrivy } from '@privy-io/react-auth'
 import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
 import { useTokenBalances } from '@/app/hooks/useTokenBalances'
@@ -24,7 +24,7 @@ const tokenIcons: Record<TokenSymbol, React.ReactNode> = {
   'USDC': <CircleDollarSign className="h-5 w-5 text-green-600" />,
   'EURC': <CircleDollarSign className="h-5 w-5 text-blue-600" />,
   'WETH': <Coins className="h-5 w-5 text-purple-600" />,
-  'WBTC': <Bitcoin className="h-5 w-5 text-orange-600" />,
+  'CBBTC': <Bitcoin className="h-5 w-5 text-orange-600" />,
 }
 
 // Get token background styles (memoized outside component)
@@ -33,7 +33,7 @@ const getTokenStyle = (symbol: TokenSymbol) => {
     case 'USDC': return 'bg-green-50 text-green-800 border-green-100';
     case 'EURC': return 'bg-blue-50 text-blue-800 border-blue-100';
     case 'WETH': return 'bg-purple-50 text-purple-800 border-purple-100';
-    case 'WBTC': return 'bg-orange-50 text-orange-800 border-orange-100';
+    case 'CBBTC': return 'bg-orange-50 text-orange-800 border-orange-100';
     default: return 'bg-gray-50 text-gray-800 border-gray-100';
   }
 }
@@ -45,10 +45,6 @@ interface TokenCardProps {
 }
 
 const TokenCard = memo(function TokenCard({ balance, prices, isPricesLoading }: TokenCardProps) {
-  const [isUpdating, setIsUpdating] = useState(false);
-  const prevBalanceRef = useRef(balance.amount);
-  const prevPriceRef = useRef<string | null>(null);
-
   const tokenSymbol = useMemo(() =>
     Object.entries(TOKENS).find(
       (entry) => entry[1].address.toLowerCase() === balance.address.toLowerCase()
@@ -58,19 +54,6 @@ const TokenCard = memo(function TokenCard({ balance, prices, isPricesLoading }: 
 
   const token = tokenSymbol ? TOKENS[tokenSymbol] : null;
   const price = tokenSymbol ? prices?.[tokenSymbol] : null;
-
-  useEffect(() => {
-    if (balance.amount !== prevBalanceRef.current ||
-      (price?.price !== prevPriceRef.current && !isPricesLoading)) {
-      setIsUpdating(true);
-      const timer = setTimeout(() => {
-        prevBalanceRef.current = balance.amount;
-        if (price) prevPriceRef.current = price.price;
-        setIsUpdating(false);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [balance.amount, price?.price, isPricesLoading]);
 
   const balanceInUSD = useMemo(() =>
     price
@@ -84,8 +67,7 @@ const TokenCard = memo(function TokenCard({ balance, prices, isPricesLoading }: 
 
   return (
     <div
-      className={`flex justify-between items-center p-3 rounded-lg border ${tokenStyle} ${isUpdating ? 'opacity-60' : 'opacity-100'
-        } transition-opacity duration-300 ease-in-out`}
+      className={`flex justify-between items-center p-3 rounded-lg border ${tokenStyle} transition-opacity duration-300 ease-in-out`}
     >
       <div className="flex items-center gap-2">
         {tokenSymbol ? tokenIcons[tokenSymbol] : <Coins className="h-5 w-5 text-gray-600" />}

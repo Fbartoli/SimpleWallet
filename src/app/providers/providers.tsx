@@ -8,7 +8,8 @@ import { MoneriumProvider } from '@monerium/sdk-react-provider';
 import { createConfig, WagmiProvider } from '@privy-io/wagmi';
 import { base } from 'wagmi/chains';
 import { http } from 'wagmi';
-
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { useState } from 'react';
 export const config = createConfig({
   batch: {
     multicall: {
@@ -23,10 +24,21 @@ export const config = createConfig({
 });
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  const queryClient = new QueryClient();
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 5000, // Consider data stale after 5 seconds by default
+            gcTime: 1000 * 60 * 60 * 24, // Keep unused data in cache for 24 hours
+            refetchOnWindowFocus: false, // Don't refetch on window focus by default
+            retry: 3, // Retry failed requests 3 times
+          },
+        },
+      })
+  )
   return (
     <QueryClientProvider client={queryClient}>
-
       <PrivyProvider
         appId={process.env.NEXT_PUBLIC_PROJECT_ID!}
         clientId={process.env.NEXT_PUBLIC_CLIENT_ID!}
@@ -60,6 +72,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             >
               <WagmiProvider config={config}>
                 {children}
+                <ReactQueryDevtools initialIsOpen={false} />
               </WagmiProvider>
             </MoneriumProvider>
 

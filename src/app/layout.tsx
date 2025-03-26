@@ -13,12 +13,11 @@ export const metadata: Metadata = {
   description: "Crypto made simple"
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
-
+}) {
   return (
     <html lang="en">
       <body>

@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
             chain_ids: chainIds || undefined,
             limit: limit ? parseInt(limit) : undefined,
         });
-
+        console.log('Balances:', balances);
         return NextResponse.json(balances);
     } catch (error) {
         console.error('Error fetching balances:', error);

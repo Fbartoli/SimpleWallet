@@ -38,7 +38,7 @@ interface SwapFormValues {
 }
 
 interface ZeroXSwapProps {
-  userAddress: `0x${string}`
+  userAddress: string
 }
 
 const publicClient = createPublicClient({
@@ -50,17 +50,20 @@ function TokenSelect({
   name,
   label,
   filterPositiveBalance = false,
-  balances = {}
+  balances = []
 }: {
   name: 'sellToken' | 'buyToken',
   label: string,
   filterPositiveBalance?: boolean,
-  balances?: Record<string, { value: bigint, formatted: string }>
+  balances?: { address: string; amount: string; decimals: number }[]
 }) {
   // Get tokens to display, filtering by balance if needed
   const tokensToDisplay = filterPositiveBalance
-    ? Object.entries(TOKENS).filter(([symbol]) =>
-      balances[symbol] && balances[symbol].value > 0n
+    ? Object.entries(TOKENS).filter(([, token]) =>
+      balances.some(balance =>
+        balance.address.toLowerCase() === token.address.toLowerCase() &&
+        BigInt(balance.amount) > 0n
+      )
     )
     : Object.entries(TOKENS);
 
@@ -77,11 +80,19 @@ function TokenSelect({
               </SelectTrigger>
             </FormControl>
             <SelectContent className="bg-background border rounded-md shadow-md">
-              {tokensToDisplay.map(([symbol, token]) => (
-                <SelectItem key={symbol} value={symbol} className="hover:bg-muted">
-                  {token.displaySymbol}
-                </SelectItem>
-              ))}
+              {tokensToDisplay.map(([symbol, token]) => {
+                const balance = balances.find(b => b.address.toLowerCase() === token.address.toLowerCase())
+                return (
+                  <SelectItem key={symbol} value={symbol} className="hover:bg-muted">
+                    {token.displaySymbol}
+                    {balance && (
+                      <span className="ml-2 text-sm text-gray-500">
+                        {(Number(balance.amount) / 10 ** balance.decimals).toFixed(6)}
+                      </span>
+                    )}
+                  </SelectItem>
+                )
+              })}
             </SelectContent>
           </Select>
           <FormMessage />
@@ -108,37 +119,36 @@ function AmountInput({
       render={({ field }) => (
         <FormItem>
           <FormLabel>Amount</FormLabel>
-          <FormControl>
-            <div className="flex gap-2 items-center">
+          <div className="relative">
+            <FormControl>
               <Input
                 type="number"
-                step="0.000000000000000001"
+                step="any"
+                min="0"
+                placeholder="0.00"
                 {...field}
                 onBlur={() => {
                   field.onBlur()
                   onBlur()
                 }}
-                className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
+            </FormControl>
+            <div className="absolute inset-y-0 right-0 flex items-center">
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
                 size="sm"
+                className="h-full px-3 text-xs font-medium text-green-600 hover:text-green-700 hover:bg-green-50"
                 onClick={onMaxClick}
-                className="shrink-0"
+                disabled={isBalanceLoading || !balance}
               >
-                Max
+                {isBalanceLoading ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  `MAX ${balance || '0.00'}`
+                )}
               </Button>
             </div>
-          </FormControl>
-          <div className="flex justify-between text-sm text-muted-foreground">
-            <span>
-              Balance: {isBalanceLoading ? (
-                <span className="animate-pulse">Loading...</span>
-              ) : (
-                balance || '0.00'
-              )}
-            </span>
           </div>
           <FormMessage />
         </FormItem>
@@ -158,7 +168,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   const { toast } = useToast()
   const [isSwapLoading, setIsSwapLoading] = useState(false)
   const [shouldFetchQuote, setShouldFetchQuote] = useState(false)
-  const { balances, refresh, isLoading: isBalanceLoading } = useTokenBalances()
+  const { balances, refresh, isLoading: isBalanceLoading } = useTokenBalances(userAddress)
   const { data: feeBps } = useUserFee()
 
   const form = useForm<SwapFormValues>({
@@ -174,25 +184,10 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   const buyToken = watch('buyToken')
   const amount = watch('amount')
 
-  const selectedTokenBalance = balances[sellToken]
-
-  // After the component renders initially, trigger quote fetch
-  useEffect(() => {
-    // We only want this to run once on mount
-    if (sellToken && buyToken && amount && Number(amount) > 0 && sellToken !== buyToken) {
-      setShouldFetchQuote(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Log whenever shouldFetchQuote changes to debug
-  useEffect(() => {
-  }, [shouldFetchQuote]);
-
   // Format the amount to ensure it's a valid number
   const formattedAmount = amount && !isNaN(Number(amount)) ? amount : '0'
 
-  // Debug information
+  // Get quote for the swap
   const { data: quote, isLoading: isQuoteLoading } = useSwapQuote({
     sellToken,
     buyToken,
@@ -206,13 +201,16 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   // Watch for changes in tokens or amount to trigger quote updates
   useEffect(() => {
     if (sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken) {
-      setShouldFetchQuote(true);
+      setShouldFetchQuote(true)
     }
-  }, [sellToken, buyToken, formattedAmount]);
+  }, [sellToken, buyToken, formattedAmount])
 
   const handleMaxClick = () => {
-    if (selectedTokenBalance) {
-      setValue('amount', selectedTokenBalance.formatted)
+    const selectedToken = balances.find(b =>
+      b.address.toLowerCase() === TOKENS[sellToken].address.toLowerCase()
+    )
+    if (selectedToken) {
+      setValue('amount', (Number(selectedToken.amount) / 10 ** selectedToken.decimals).toString())
       setShouldFetchQuote(true)
     }
   }
@@ -239,24 +237,24 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   // Manual fetch function for the Get Quote button
   const fetchQuote = () => {
     if (sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken) {
-      setShouldFetchQuote(true);
+      setShouldFetchQuote(true)
     } else {
       toast({
         title: "Cannot fetch quote",
         description: "Please select valid tokens and enter an amount greater than 0",
         variant: "destructive"
-      });
+      })
     }
-  };
+  }
 
   async function executeSwap() {
     if (!client || !quote) return
     setIsSwapLoading(true)
 
     try {
-      if (! await client.account.isDeployed()) {
+      if (!await client.account.isDeployed()) {
         const tx = await client.sendTransaction({
-          to: userAddress,
+          to: userAddress as `0x${string}`,
           data: '0x',
           value: 0n
         })
@@ -270,6 +268,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
         description: "Please try again"
       })
     }
+
     try {
       const calls = []
       if (quote.issues?.allowance) {
@@ -343,11 +342,11 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   const buyTokenInfo = TOKENS[buyToken]
 
   return (
-    <div className="space-y-6 p-6 border rounded-lg bg-card shadow-md relative overflow-hidden">
+    <div className="p-6 border rounded-lg shadow-md bg-card relative overflow-hidden min-h-[500px] flex flex-col">
       {/* Background gradient element */}
       <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-teal-50 opacity-50 pointer-events-none" />
 
-      <div className="relative">
+      <div className="relative flex-1 flex flex-col">
         <div className="flex items-center gap-3 mb-2">
           <div className="h-8 w-8 bg-green-500/10 text-green-600 rounded-full flex items-center justify-center">
             <ArrowDownUp className="h-4 w-4" />
@@ -368,7 +367,9 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
               onBlur={handleAmountBlur}
               onMaxClick={handleMaxClick}
               isBalanceLoading={isBalanceLoading}
-              balance={selectedTokenBalance?.formatted}
+              balance={balances.find(b =>
+                b.address.toLowerCase() === TOKENS[sellToken].address.toLowerCase()
+              )?.amount}
             />
 
             <div className="flex justify-center -my-1">
@@ -430,8 +431,8 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
                   onClick={executeSwap}
                   disabled={isLoading || !client}
                   className={!client
-                    ? "bg-slate-200 text-slate-600"
-                    : "bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all"}
+                    ? "bg-slate-200 text-slate-600 h-10"
+                    : "bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all h-10"}
                 >
                   {!client ? 'Wallet Not Connected' : (
                     isSwapLoading ? (

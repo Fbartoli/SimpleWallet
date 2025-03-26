@@ -28,6 +28,7 @@
     "@safe-global/protocol-kit": "^5.2.4",
     "@safe-global/sdk-starter-kit": "^1.1.7",
     "@tanstack/react-query": "^5.66.0",
+    "@tanstack/react-query-devtools": "^5.69.0",
     "@trpc/next": "^10.45.2",
     "@types/better-sqlite3": "^7.6.12",
     "@vercel/analytics": "^1.5.0",
