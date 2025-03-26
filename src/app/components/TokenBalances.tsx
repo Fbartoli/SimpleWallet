@@ -10,7 +10,7 @@ import { useBalance } from 'wagmi'
 import { useToast } from '@/app/components/ui/use-toast'
 import { encodeFunctionData, createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { Wallet, CircleDollarSign, Bitcoin, Coins } from 'lucide-react'
+import { Wallet, Bitcoin, Coins, Euro, DollarSign } from 'lucide-react'
 import { DuneBalance } from '@/types/dune'
 
 // Initialize a public client for transaction receipt tracking
@@ -21,8 +21,8 @@ const publicClient = createPublicClient({
 
 // Map token symbols to icons (memoized outside component)
 const tokenIcons: Record<TokenSymbol, React.ReactNode> = {
-  'USDC': <CircleDollarSign className="h-5 w-5 text-green-600" />,
-  'EURC': <CircleDollarSign className="h-5 w-5 text-blue-600" />,
+  'USDC': <DollarSign className="h-5 w-5 text-green-600" />,
+  'EURC': <Euro className="h-5 w-5 text-blue-600" />,
   'WETH': <Coins className="h-5 w-5 text-purple-600" />,
   'CBBTC': <Bitcoin className="h-5 w-5 text-orange-600" />,
 }
@@ -101,7 +101,14 @@ const BalancesList = memo(function BalancesList({
   prices: Record<TokenSymbol, { price: string; estimatedGas: string; decimals: number }> | null,
   isPricesLoading: boolean
 }) {
-  const hasTokens = balances.length > 0;
+  // Filter balances to only include whitelisted tokens
+  const whitelistedBalances = balances.filter(balance =>
+    Object.values(TOKENS).some(token =>
+      token.address.toLowerCase() === balance.address.toLowerCase()
+    )
+  );
+
+  const hasTokens = whitelistedBalances.length > 0;
 
   if (!hasTokens) {
     return (
@@ -113,7 +120,7 @@ const BalancesList = memo(function BalancesList({
 
   return (
     <div className="grid gap-3">
-      {balances.map((balance) => (
+      {whitelistedBalances.map((balance) => (
         <TokenCard
           key={balance.address}
           balance={balance}

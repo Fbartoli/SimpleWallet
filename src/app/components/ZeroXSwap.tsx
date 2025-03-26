@@ -131,24 +131,23 @@ function AmountInput({
                   field.onBlur()
                   onBlur()
                 }}
+                className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none pr-16"
               />
             </FormControl>
-            <div className="absolute inset-y-0 right-0 flex items-center">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-full px-3 text-xs font-medium text-green-600 hover:text-green-700 hover:bg-green-50"
-                onClick={onMaxClick}
-                disabled={isBalanceLoading || !balance}
-              >
-                {isBalanceLoading ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                ) : (
-                  `MAX ${balance || '0.00'}`
-                )}
-              </Button>
-            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2.5 text-xs font-medium text-green-600 hover:text-green-700 hover:bg-green-50"
+              onClick={onMaxClick}
+              disabled={isBalanceLoading || !balance}
+            >
+              {isBalanceLoading ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                'Max'
+              )}
+            </Button>
           </div>
           <FormMessage />
         </FormItem>

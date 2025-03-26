@@ -8,13 +8,6 @@ import { CreditCard, Loader2 } from 'lucide-react'
 import {
     Form,
 } from "@/app/components/ui/form"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/app/components/ui/select"
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
 
@@ -23,11 +16,6 @@ type FormValues = {
     amount: string
     fiatCurrency: string
 }
-
-const SUPPORTED_ASSETS = [
-    { value: 'USDC', label: 'USD' },
-] as const
-
 
 interface OnrampFormProps {
     userAddress: `0x${string}`
@@ -54,7 +42,7 @@ export function OnrampForm({ userAddress, projectId }: OnrampFormProps) {
             const url = getOnrampBuyUrl({
                 projectId,
                 addresses: { [userAddress]: ['base'] },
-                assets: [values.asset],
+                assets: ['USDC'],
                 presetCryptoAmount: Number(values.amount),
                 fiatCurrency: 'EUR'
             })
@@ -127,29 +115,6 @@ export function OnrampForm({ userAddress, projectId }: OnrampFormProps) {
                                     <span className="text-sm text-muted-foreground">USD</span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div>
-                            <Label htmlFor="token">Receive</Label>
-                            <Select
-                                value={form.watch("asset")}
-                                onValueChange={(value) => form.setValue("asset", value)}
-                            >
-                                <SelectTrigger id="token" className="w-full border-green-100 focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50">
-                                    <SelectValue placeholder="Select token" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {SUPPORTED_ASSETS.map((asset) => (
-                                        <SelectItem key={asset.value} value={asset.value} className="flex items-center gap-2">
-                                            <div className="flex items-center gap-2">
-                                                {/* Add your token icon here */}
-                                                {/* For example: <img src={asset.icon} alt={asset.label} className="h-4 w-4 mr-2" /> */}
-                                                <span>{asset.label}</span>
-                                            </div>
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
                         </div>
                     </form>
                 </Form>
