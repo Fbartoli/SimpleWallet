@@ -114,4 +114,59 @@ export interface DuneBalanceResponse {
   next_offset: string | null;
   request_time: string;
   response_time: string;
-} 
+}
+
+export interface DuneTokenInfo {
+  chain_id: number;
+  chain: string;
+  price_usd: number;
+  pool_size: number;
+  total_supply: string;
+  fully_diluted_value: number;
+  symbol: string;
+  name: string;
+  decimals: number;
+  logo: string;
+}
+
+export interface DuneTokenInfoResponse {
+  tokens_info: DuneTokenInfo[];
+}
+
+export interface DuneTokenInfoParams {
+  chain_ids?: string | 'all';
+  limit?: number;
+  offset?: string;
+}
+
+// Activity API types
+export interface DuneActivity {
+  chain_id: number;
+  block_number: number;
+  block_time: string;
+  tx_hash: string;
+  type: 'receive' | 'send' | 'mint' | 'burn' | 'swap' | 'approve' | 'call';
+  asset_type: 'native' | 'erc20' | 'erc721';
+  token_address?: string;
+  from: string;
+  to?: string;
+  value: string;
+  value_usd?: number;
+  token_metadata?: {
+    symbol?: string;
+    decimals?: number;
+    price_usd?: number;
+    pool_size?: number;
+  };
+}
+
+export interface DuneActivityResponse {
+  activity: DuneActivity[];
+  next_offset: string | null;
+}
+
+export interface DuneActivityParams {
+  limit?: number;
+  offset?: string;
+  chain_ids?: string | 'all';
+}

@@ -1,9 +1,9 @@
 'use client'
 
-import { DuneBalance } from '@/types/dune'
-import { TokenSymbol } from '@/app/stores/useTokenStore'
+import { DuneBalance, DuneActivity, DuneActivityResponse } from '@/types/dune'
+import { TokenSymbol } from '@/config/constants'
 import { base } from 'viem/chains'
-import { ZeroXQuote } from '@/types/quote'
+import { ZeroXQuote } from '@/app/types/quote'
 
 // Types
 export interface TokenPrice {
@@ -19,26 +19,44 @@ export type TokenPricesRecord = Record<TokenSymbol, {
     decimals: number
 }>
 
+// Enhanced balance response from optimized API
+interface BalanceApiResponse {
+    balances: DuneBalance[]
+    filtered: boolean
+    whitelisted_count: number
+    total_count: number
+    next_offset?: string
+}
+
 // API Functions
 export async function fetchBalances(address: string): Promise<DuneBalance[]> {
     if (!address) return []
 
     const response = await fetch(`/api/balance?address=${address}&chain_ids=${base.id}`)
     if (!response.ok) {
-        throw new Error('Failed to fetch balances')
+        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }))
+        throw new Error(errorData.error || `HTTP ${response.status}`)
     }
 
-    const data = await response.json()
-    return data.balances
+    const data: BalanceApiResponse = await response.json()
+
+    // Return the filtered balances from the optimized API
+    return data.balances || []
 }
 
 export async function fetchPrices(): Promise<TokenPricesRecord> {
     const response = await fetch('/api/prices')
     if (!response.ok) {
-        throw new Error('Failed to fetch prices')
+        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }))
+        throw new Error(errorData.error || `HTTP ${response.status}`)
     }
 
     const data = await response.json()
+
+    if (!data.prices || !Array.isArray(data.prices)) {
+        throw new Error('Invalid prices response format')
+    }
+
     return data.prices.reduce((acc: TokenPricesRecord, item: TokenPrice) => {
         acc[item.symbol] = {
             price: item.price,
@@ -49,41 +67,103 @@ export async function fetchPrices(): Promise<TokenPricesRecord> {
     }, {})
 }
 
-export async function fetchSwapQuote({
-    sellToken,
-    buyToken,
-    sellAmount,
-    userAddress,
-    feeBps,
-}: {
+export async function fetchSwapQuote(params: {
     sellToken: TokenSymbol
     buyToken: TokenSymbol
     sellAmount: string
-    userAddress: string
-    feeBps: string
+    taker: string
 }): Promise<ZeroXQuote> {
-    const params = new URLSearchParams({
-        sellToken,
-        sellAmount,
-        buyToken,
-        taker: userAddress,
-        swapFeeBps: feeBps,
-        swapFeeToken: sellToken,
+    const searchParams = new URLSearchParams({
+        sellToken: params.sellToken,
+        buyToken: params.buyToken,
+        sellAmount: params.sellAmount,
+        taker: params.taker,
     })
 
-    const response = await fetch(`/api/swap/quote?${params.toString()}`)
+    const response = await fetch(`/api/swap/quote?${searchParams}`)
     if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to fetch quote')
+        const errorData = await response.json().catch(() => ({ error: 'Failed to get swap quote' }))
+        throw new Error(errorData.error || `HTTP ${response.status}`)
     }
 
     return response.json()
 }
 
-// Query Keys
+export async function fetchActivity(address: string, params?: {
+    limit?: number
+    offset?: string
+    chain_ids?: string
+}): Promise<DuneActivityResponse> {
+    if (!address) {
+        return { activity: [], next_offset: null }
+    }
+
+    const searchParams = new URLSearchParams({ address })
+
+    if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) {
+                searchParams.append(key, value.toString())
+            }
+        })
+    }
+
+    const response = await fetch(`/api/activity?${searchParams}`)
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }))
+        throw new Error(errorData.error || `HTTP ${response.status}`)
+    }
+
+    return response.json()
+}
+
+export async function fetchAllActivity(address: string, params?: {
+    chain_ids?: string
+}): Promise<DuneActivity[]> {
+    if (!address) {
+        return []
+    }
+
+    const searchParams = new URLSearchParams({
+        address,
+        fetch_all: 'true' // Special flag to indicate we want all activities
+    })
+
+    if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) {
+                searchParams.append(key, value.toString())
+            }
+        })
+    }
+
+    const response = await fetch(`/api/activity?${searchParams}`)
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }))
+        throw new Error(errorData.error || `HTTP ${response.status}`)
+    }
+
+    const data = await response.json()
+    return data.activity || []
+}
+
+// Query Keys for React Query
 export const queryKeys = {
     balances: (address: string) => ['balances', address] as const,
     prices: ['prices'] as const,
-    swapQuote: (params: { sellToken: TokenSymbol; buyToken: TokenSymbol; sellAmount: string; userAddress: string }) =>
-        ['swap-quote', params.sellToken, params.buyToken, params.sellAmount, params.userAddress] as const,
+    activity: (address: string, params?: {
+        limit?: number
+        offset?: string
+        chain_ids?: string
+    }) => ['activity', address, params] as const,
+    allActivity: (address: string, params?: {
+        chain_ids?: string
+    }) => ['allActivity', address, params] as const,
+    swapQuote: (params: {
+        sellToken: TokenSymbol
+        buyToken: TokenSymbol
+        sellAmount: string
+        taker: string
+        feeBps?: string
+    }) => ['swap-quote', params] as const,
 } as const 

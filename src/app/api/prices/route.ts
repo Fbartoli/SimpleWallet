@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { TOKENS, type TokenSymbol } from '@/app/stores/useTokenStore'
+import { TOKENS, type TokenSymbol } from '@/stores/useTokenStore'
 
 interface PriceData {
     prices: Array<{
@@ -50,12 +50,14 @@ export async function GET() {
         const pricePromises = Object.entries(TOKENS)
             .filter(([symbol]) => symbol !== 'USDC') // Skip USDC/USDC pair
             .map(async ([symbol, token]) => {
+                const url = createPriceQueryUrl(
+                    token.address,
+                    TOKENS.USDC.address,
+                    (1 * 10 ** token.decimals).toString() // 1 unit of token in base units
+                )
+                console.log('url', url)
                 const response = await fetch(
-                    createPriceQueryUrl(
-                        token.address,
-                        TOKENS.USDC.address,
-                        (1 * 10 ** token.decimals).toString() // 1 unit of token in base units
-                    ),
+                    url,
                     {
                         headers: {
                             '0x-api-key': process.env.OX_API_KEY || '',

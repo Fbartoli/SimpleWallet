@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link"
-import { Button } from "@/app/components/Button"
+import { Button } from "@/components/Button"
 import { ArrowRight, PiggyBank, ShoppingBag, TrendingUp } from "lucide-react"
 
 export default function Home() {

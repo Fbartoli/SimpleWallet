@@ -1,11 +1,11 @@
 'use client';
 
-import Header from '@/app/components/Header';
+import Header from '@/components/Header';
 import { usePrivy } from '@privy-io/react-auth';
-import { OnrampForm } from '@/app/components/OnrampForm';
-import { ZeroXSwap } from '@/app/components/ZeroXSwap';
-import { TokenBalances } from '@/app/components/TokenBalances'
-import { Button } from '@/app/components/ui/button';
+import { ZeroXSwap } from '@/components/ZeroXSwap';
+import { TokenBalances } from '@/components/TokenBalances'
+import { Activity } from '@/components/Activity';
+import { Button } from '@/components/ui/button';
 
 export default function Dashboard() {
   const { user, login } = usePrivy();
@@ -13,11 +13,6 @@ export default function Dashboard() {
 
   const zeroXProps = {
     userAddress: smartWalletAddress as `0x${string}`
-  };
-
-  const onrampProps = {
-    userAddress: smartWalletAddress as `0x${string}`,
-    projectId: process.env.NEXT_PUBLIC_CDP_PROJECT_ID!
   };
 
   if (!smartWalletAddress) {
@@ -73,7 +68,7 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ZeroXSwap {...zeroXProps} />
-            <OnrampForm {...onrampProps} />
+            <Activity />
           </div>
         </div>
 

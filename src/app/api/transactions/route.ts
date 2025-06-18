@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
             apiKey: process.env.DUNE_API_KEY!, // Note: Remove NEXT_PUBLIC_ prefix
         });
 
-        const response = await client.getTransactions('0x0000000000000039cd5e8aE05257CE51C473ddd1', {
+        const response = await client.getTransactions(address, {
             chain_ids: base.id.toString(),
             limit: limit ? parseInt(limit) : 10,
             decode: true,

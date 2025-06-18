@@ -5,8 +5,8 @@ import '@coinbase/onchainkit/styles.css';
 import './globals.css';
 
 import Providers from '@/app/providers/providers'
-import { Toaster } from "@/app/components/ui/toaster"
-import MobileFooterWrapper from '@/app/components/MobileFooterWrapper'
+import { Toaster } from "@/components/ui/toaster"
+import MobileFooterWrapper from '@/components/MobileFooterWrapper'
 
 export const metadata: Metadata = {
   title: "Simple Savings",

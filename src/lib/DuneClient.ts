@@ -8,7 +8,10 @@ import type {
   DuneTokenPriceResponse,
   DuneBalanceParams,
   DuneBalanceResponse,
-  DuneBalance
+  DuneBalance,
+  DuneActivity,
+  DuneActivityParams,
+  DuneActivityResponse
 } from '@/types/dune';
 
 export class DuneClient {
@@ -17,7 +20,7 @@ export class DuneClient {
 
   constructor(config: DuneClientConfig) {
     this.apiKey = config.apiKey;
-    this.baseUrl = config.baseUrl || 'https://api.dune.com/api/echo/';
+    this.baseUrl = config.baseUrl || 'https://api.sim.dune.com/';
   }
 
   /**
@@ -160,13 +163,15 @@ export class DuneClient {
     }
 
     const queryString = queryParams.toString();
-    const url = `${this.baseUrl}v1/balances/evm/${address}${queryString ? `?${queryString}` : ''
+    const url = `${this.baseUrl}v1/evm/balances/${address}${queryString ? `?${queryString}` : ''
       }`;
+
+    console.log('url', url);
 
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        'X-Dune-Api-Key': this.apiKey,
+        'X-Sim-Api-Key': this.apiKey,
       },
     });
 
@@ -201,5 +206,84 @@ export class DuneClient {
     } while (nextOffset);
 
     return allBalances;
+  }
+
+  async getTokenInfo(address: string, chainId: number) {
+    const url = `${this.baseUrl}v1/evm/token-info/${address}?chain_id=${chainId}`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'X-Sim-Api-Key': this.apiKey,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Get activity for a given address across EVM chains
+   * @param address - Wallet address to get activity for
+   * @param params - Optional query parameters
+   * @returns Promise with activity data
+   */
+  async getActivity(
+    address: string,
+    params?: DuneActivityParams
+  ): Promise<DuneActivityResponse> {
+    const queryParams = new URLSearchParams();
+
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+
+    const queryString = queryParams.toString();
+    const url = `${this.baseUrl}v1/evm/activity/${address}${queryString ? `?${queryString}` : ''}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'X-Sim-Api-Key': this.apiKey,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Helper method to get all activity for an address by handling pagination
+   * @param address - Wallet address to get activity for
+   * @param params - Optional query parameters (excluding offset)
+   * @returns Promise with all activity items
+   */
+  async getAllActivity(
+    address: string,
+    params?: Omit<DuneActivityParams, 'offset'>
+  ): Promise<DuneActivity[]> {
+    const allActivity: DuneActivity[] = [];
+    let nextOffset: string | null = null;
+
+    do {
+      const response = await this.getActivity(address, {
+        ...params,
+        offset: nextOffset || undefined,
+      });
+
+      allActivity.push(...response.activity);
+      nextOffset = response.next_offset;
+    } while (nextOffset);
+
+    return allActivity;
   }
 } 
