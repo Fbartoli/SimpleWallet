@@ -1,28 +1,28 @@
-'use client'
+"use client"
 
-import { useMemo, memo, Suspense } from 'react'
-import { usePrivy } from '@privy-io/react-auth'
-import { useTokenBalances } from '@/hooks/useTokenBalances'
-import { useTokenPrices } from '@/hooks/useTokenPrices'
-import { SUPPORTED_TOKENS, type TokenSymbol } from '@/config/constants'
-import { Wallet, Bitcoin, Coins, Euro, DollarSign, RefreshCw, AlertCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { OnRampUSDCButton } from '@/components/OnRampButton'
+import { Suspense, memo, useMemo } from "react"
+import { usePrivy } from "@privy-io/react-auth"
+import { useTokenBalances } from "@/hooks/useTokenBalances"
+import { useTokenPrices } from "@/hooks/useTokenPrices"
+import { SUPPORTED_TOKENS, type TokenSymbol } from "@/config/constants"
+import { AlertCircle, Bitcoin, Coins, DollarSign, Euro, RefreshCw, Wallet } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { OnRampUSDCButton } from "@/components/OnRampButton"
 
 // Token icon mapping (constant to prevent re-creation)
 const TOKEN_ICONS: Record<TokenSymbol, React.ReactNode> = {
-  'USDC': <DollarSign className="h-5 w-5 text-green-600" />,
-  'EURC': <Euro className="h-5 w-5 text-blue-600" />,
-  'WETH': <Coins className="h-5 w-5 text-purple-600" />,
-  'CBBTC': <Bitcoin className="h-5 w-5 text-orange-600" />,
+  "USDC": <DollarSign className="h-5 w-5 text-green-600" />,
+  "EURC": <Euro className="h-5 w-5 text-blue-600" />,
+  "WETH": <Coins className="h-5 w-5 text-purple-600" />,
+  "CBBTC": <Bitcoin className="h-5 w-5 text-orange-600" />,
 }
 
 // Token styling (constant to prevent re-creation)
 const TOKEN_STYLES: Record<TokenSymbol, string> = {
-  'USDC': 'bg-green-50 text-green-800 border-green-100 hover:bg-green-100',
-  'EURC': 'bg-blue-50 text-blue-800 border-blue-100 hover:bg-blue-100',
-  'WETH': 'bg-purple-50 text-purple-800 border-purple-100 hover:bg-purple-100',
-  'CBBTC': 'bg-orange-50 text-orange-800 border-orange-100 hover:bg-orange-100',
+  "USDC": "bg-green-50 text-green-800 border-green-100 hover:bg-green-100",
+  "EURC": "bg-blue-50 text-blue-800 border-blue-100 hover:bg-blue-100",
+  "WETH": "bg-purple-50 text-purple-800 border-purple-100 hover:bg-purple-100",
+  "CBBTC": "bg-orange-50 text-orange-800 border-orange-100 hover:bg-orange-100",
 }
 
 interface TokenCardProps {
@@ -33,32 +33,32 @@ interface TokenCardProps {
   isLoading: boolean
 }
 
-const TokenCard = memo(function TokenCard({
+const TokenCard = memo(({
   symbol,
   balance,
   usdValue,
   price,
-  isLoading
-}: TokenCardProps) {
+  isLoading,
+}: TokenCardProps) => {
   const token = SUPPORTED_TOKENS[symbol]
   const icon = TOKEN_ICONS[symbol]
-  const style = TOKEN_STYLES[symbol] || 'bg-gray-50 text-gray-800 border-gray-100'
+  const style = TOKEN_STYLES[symbol] || "bg-gray-50 text-gray-800 border-gray-100"
 
   const formattedBalance = useMemo(() => {
     const num = Number(balance)
-    if (num === 0) return '0.00'
-    if (num < 0.001) return '<0.001'
+    if (num === 0) return "0.00"
+    if (num < 0.001) return "<0.001"
     if (num < 1) return num.toFixed(6)
     return num.toFixed(4)
   }, [balance])
 
   const formattedUsdValue = useMemo(() =>
-    usdValue < 0.01 ? '<$0.01' : `$${usdValue.toFixed(2)}`,
+    usdValue < 0.01 ? "<$0.01" : `$${usdValue.toFixed(2)}`,
     [usdValue]
   )
 
   const formattedPrice = useMemo(() =>
-    price < 0.01 ? '<$0.01' : `$${price.toFixed(2)}`,
+    price < 0.01 ? "<$0.01" : `$${price.toFixed(2)}`,
     [price]
   )
 
@@ -107,6 +107,8 @@ const TokenCard = memo(function TokenCard({
   )
 })
 
+TokenCard.displayName = "TokenCard"
+
 interface TokenBalance {
   formatted: string
   usdValue: number
@@ -117,15 +119,15 @@ interface TokenPrice {
   price: number
 }
 
-const TokenGrid = memo(function TokenGrid({
+const TokenGrid = memo(({
   storeBalances,
   storePrices,
-  isLoading
+  isLoading,
 }: {
   storeBalances: Record<TokenSymbol, TokenBalance>
   storePrices: Record<TokenSymbol, TokenPrice>
   isLoading: boolean
-}) {
+}) => {
   const tokenList = useMemo(() => {
     return Object.entries(SUPPORTED_TOKENS).map(([symbol]) => {
       const tokenSymbol = symbol as TokenSymbol
@@ -134,10 +136,10 @@ const TokenGrid = memo(function TokenGrid({
 
       return {
         symbol: tokenSymbol,
-        balance: balance?.formatted || '0.00',
+        balance: balance?.formatted || "0.00",
         usdValue: balance?.usdValue || 0,
         price: price?.price || 0,
-        hasBalance: balance && balance.value > 0n
+        hasBalance: balance && balance.value > 0n,
       }
     })
   }, [storeBalances, storePrices])
@@ -175,13 +177,15 @@ const TokenGrid = memo(function TokenGrid({
   )
 })
 
-const ErrorDisplay = memo(function ErrorDisplay({
+TokenGrid.displayName = "TokenGrid"
+
+const ErrorDisplay = memo(({
   error,
-  onRetry
+  onRetry,
 }: {
   error: string
   onRetry: () => void
-}) {
+}) => {
   return (
     <div className="p-4 bg-red-50 text-red-700 rounded-md border border-red-200">
       <div className="flex items-center gap-2 mb-2">
@@ -202,13 +206,15 @@ const ErrorDisplay = memo(function ErrorDisplay({
   )
 })
 
-const TotalValueDisplay = memo(function TotalValueDisplay({
+ErrorDisplay.displayName = "ErrorDisplay"
+
+const TotalValueDisplay = memo(({
   totalValue,
-  stablecoinValue
+  stablecoinValue,
 }: {
   totalValue: number
   stablecoinValue: number
-}) {
+}) => {
   return (
     <div className="mb-4 p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border border-green-100">
       {totalValue > 0 && (
@@ -240,6 +246,8 @@ const TotalValueDisplay = memo(function TotalValueDisplay({
   )
 })
 
+TotalValueDisplay.displayName = "TotalValueDisplay"
+
 function TokenBalancesContent() {
   const { user } = usePrivy()
   const walletAddress = user?.smartWallet?.address as `0x${string}`
@@ -250,8 +258,8 @@ function TokenBalancesContent() {
     error: balancesError,
     refresh: refreshBalances,
     totalUSDValue,
-    optimisticUpdate
-  } = useTokenBalances(walletAddress || '')
+    optimisticUpdate,
+  } = useTokenBalances(walletAddress || "")
 
   return (
     <>
@@ -279,9 +287,9 @@ function TokenBalancesMainContent({
   balancesLoading,
   balancesError,
   refreshBalances,
-  totalUSDValue
+  totalUSDValue,
 }: {
-  user: ReturnType<typeof usePrivy>['user']
+  user: ReturnType<typeof usePrivy>["user"]
   storeBalances: Record<TokenSymbol, TokenBalance>
   balancesLoading: boolean
   balancesError: string | null
@@ -293,7 +301,7 @@ function TokenBalancesMainContent({
     storePrices,
     isLoading: pricesLoading,
     error: pricesError,
-    refresh: refreshPrices
+    refresh: refreshPrices,
   } = useTokenPrices()
 
   const isLoading = balancesLoading || pricesLoading

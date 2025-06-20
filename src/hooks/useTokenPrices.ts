@@ -1,10 +1,10 @@
-'use client'
+"use client"
 
-import { useCallback, useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { fetchPrices, queryKeys } from '@/app/api/queries'
-import { useTokenStore } from '@/stores/useTokenStore'
-import { PRICE_REFETCH_INTERVAL, PRICE_STALE_TIME } from '@/config/constants'
+import { useCallback, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { fetchPrices, queryKeys } from "@/app/api/queries"
+import { useTokenStore } from "@/stores/useTokenStore"
+import { PRICE_REFETCH_INTERVAL, PRICE_STALE_TIME } from "@/config/constants"
 
 export function useTokenPrices() {
     const {
@@ -13,7 +13,7 @@ export function useTokenPrices() {
         updatePrices,
         setPriceLoading,
         setPriceError,
-        clearErrors
+        clearErrors,
     } = useTokenStore()
 
     // React Query for data fetching
@@ -24,7 +24,7 @@ export function useTokenPrices() {
         staleTime: PRICE_STALE_TIME,
         retry: (failureCount, error) => {
             // Don't retry on client errors (4xx), but retry on server errors
-            if (error instanceof Error && error.message.includes('status: 4')) {
+            if (error instanceof Error && error.message.includes("status: 4")) {
                 return false
             }
             return failureCount < 3
@@ -54,7 +54,7 @@ export function useTokenPrices() {
     const refresh = useCallback(() => {
         clearErrors()
         return query.refetch()
-    }, [query.refetch, clearErrors])
+    }, [query, clearErrors])
 
     // Convert store prices to legacy format for backward compatibility
     const legacyPrices = Object.entries(prices).reduce((acc, [symbol, priceData]) => ({
@@ -62,8 +62,8 @@ export function useTokenPrices() {
         [symbol]: {
             price: priceData.price.toString(),
             estimatedGas: priceData.estimatedGas,
-            decimals: 2 // Default for price display
-        }
+            decimals: 2, // Default for price display
+        },
     }), {})
 
     return {
@@ -83,6 +83,6 @@ export function useTokenPrices() {
         isFetching: query.isFetching,
         isStale: query.isStale,
         lastFetch: priceLoadingState.lastFetch,
-        dataUpdatedAt: query.dataUpdatedAt
+        dataUpdatedAt: query.dataUpdatedAt,
     }
 } 

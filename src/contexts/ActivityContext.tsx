@@ -1,6 +1,6 @@
-'use client'
+"use client"
 
-import { createContext, useContext, useCallback, useState } from 'react'
+import { createContext, useCallback, useContext, useState } from "react"
 
 interface ActivityContextType {
     refreshActivity: () => void
@@ -36,12 +36,12 @@ export function ActivityProvider({ children }: { children: React.ReactNode }) {
                     // Handle both sync and async functions
                     return Promise.resolve(result)
                 } catch (error) {
-                    console.error('Error refreshing activity:', error)
+                    console.error("Error refreshing activity:", error)
                     return Promise.resolve()
                 }
             }))
         } catch (error) {
-            console.error('Error refreshing activity:', error)
+            console.error("Error refreshing activity:", error)
         } finally {
             setIsRefreshing(false)
         }
@@ -52,7 +52,7 @@ export function ActivityProvider({ children }: { children: React.ReactNode }) {
             value={{
                 refreshActivity,
                 registerRefreshFunction,
-                isRefreshing
+                isRefreshing,
             }}
         >
             {children}
@@ -63,7 +63,7 @@ export function ActivityProvider({ children }: { children: React.ReactNode }) {
 export function useActivityRefresh() {
     const context = useContext(ActivityContext)
     if (!context) {
-        throw new Error('useActivityRefresh must be used within an ActivityProvider')
+        throw new Error("useActivityRefresh must be used within an ActivityProvider")
     }
     return context
 } 

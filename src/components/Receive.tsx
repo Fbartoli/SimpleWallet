@@ -1,12 +1,12 @@
-'use client';
+"use client"
 
-import { useState } from 'react';
-import { usePrivy, useFundWallet } from '@privy-io/react-auth';
-import { Button } from './ui/button';
-import { Check, Copy, ExternalLink, QrCode, Wallet, ArrowDownCircle } from 'lucide-react';
-import { useToast } from './ui/use-toast';
-import { base } from 'viem/chains';
-import { TOKENS } from '@/stores/useTokenStore';
+import { useState } from "react"
+import { useFundWallet, usePrivy } from "@privy-io/react-auth"
+import { Button } from "./ui/button"
+import { ArrowDownCircle, Check, Copy, ExternalLink, QrCode, Wallet } from "lucide-react"
+import { useToast } from "./ui/use-toast"
+import { base } from "viem/chains"
+import { TOKENS } from "@/stores/useTokenStore"
 import {
     Form,
     FormControl,
@@ -14,16 +14,16 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "./ui/form";
+} from "./ui/form"
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "./ui/select";
-import { Input } from "./ui/input";
-import { useForm } from 'react-hook-form';
+} from "./ui/select"
+import { Input } from "./ui/input"
+import { useForm } from "react-hook-form"
 
 // Define our form values type
 type FormValues = {
@@ -32,69 +32,72 @@ type FormValues = {
 };
 
 export default function Receive() {
-    const { user } = usePrivy();
-    const { fundWallet } = useFundWallet();
-    const { toast } = useToast();
-    const walletAddress = user?.smartWallet?.address;
-    const [copied, setCopied] = useState(false);
+    const { user } = usePrivy()
+    const { fundWallet } = useFundWallet()
+    const { toast } = useToast()
+    const walletAddress = user?.smartWallet?.address
+    const [copied, setCopied] = useState(false)
 
     // Setup form with react-hook-form without zod
     const form = useForm<FormValues>({
         defaultValues: {
             amount: "0.001",
-            asset: "native-currency"
-        }
-    });
+            asset: "native-currency",
+        },
+    })
 
     const onSubmit = (data: FormValues) => {
         if (walletAddress) {
             // Determine asset format based on selection
-            let assetParam: 'native-currency' | 'USDC' | { erc20: `0x${string}` };
+            let assetParam: "native-currency" | "USDC" | { erc20: `0x${string}` }
 
-            if (data.asset === 'native-currency' || data.asset === 'USDC') {
-                assetParam = data.asset as 'native-currency' | 'USDC';
+            if (data.asset === "native-currency" || data.asset === "USDC") {
+                assetParam = data.asset as "native-currency" | "USDC"
             } else {
                 // For ERC20 tokens, we get the address from our TOKENS list and ensure it's in the correct format
-                const tokenAddress = TOKENS[data.asset as keyof typeof TOKENS]?.address;
-                assetParam = { erc20: tokenAddress };
+                const tokenAddress = TOKENS[data.asset as keyof typeof TOKENS]?.address
+                if (!tokenAddress) {
+                    throw new Error(`Token address not found for ${data.asset}`)
+                }
+                assetParam = { erc20: tokenAddress as `0x${string}` }
             }
 
             // Call fundWallet with the form values
             fundWallet(walletAddress, {
                 chain: base,
                 amount: data.amount,
-                asset: assetParam
-            });
+                asset: assetParam,
+            })
 
         }
-    };
+    }
 
     const handleCopy = async () => {
-        if (!walletAddress) return;
+        if (!walletAddress) return
 
-        await navigator.clipboard.writeText(walletAddress);
-        setCopied(true);
+        await navigator.clipboard.writeText(walletAddress)
+        setCopied(true)
         toast({
             title: "Address copied",
             description: "Wallet address copied to clipboard",
-        });
+        })
 
         setTimeout(() => {
-            setCopied(false);
-        }, 2000);
-    };
+            setCopied(false)
+        }, 2000)
+    }
 
     const openExplorer = () => {
-        if (!walletAddress) return;
-        window.open(`https://basescan.org/address/${walletAddress}`, '_blank');
-    };
+        if (!walletAddress) return
+        window.open(`https://basescan.org/address/${walletAddress}`, "_blank")
+    }
 
     if (!walletAddress) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[50vh] p-4">
                 <p className="text-lg text-center mb-4">Please connect your wallet to view your receiving address.</p>
             </div>
-        );
+        )
     }
 
     return (
@@ -196,7 +199,7 @@ export default function Receive() {
                                                     <SelectItem value="USDC">USDC</SelectItem>
                                                     {/* Add ERC20 tokens from our token list */}
                                                     {Object.entries(TOKENS)
-                                                        .filter(([symbol]) => symbol !== 'USDC') // USDC already included above
+                                                        .filter(([symbol]) => symbol !== "USDC") // USDC already included above
                                                         .map(([symbol, token]) => (
                                                             <SelectItem key={symbol} value={symbol}>
                                                                 {token.displaySymbol} ({symbol})
@@ -234,5 +237,5 @@ export default function Receive() {
                 </div>
             </div>
         </div>
-    );
+    )
 } 

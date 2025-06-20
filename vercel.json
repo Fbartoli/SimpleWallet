@@ -1,0 +1,58 @@
+{
+    "buildCommand": "pnpm build",
+    "outputDirectory": ".next",
+    "framework": "nextjs",
+    "installCommand": "pnpm install",
+    "functions": {
+        "src/app/api/*/route.ts": {
+            "maxDuration": 10
+        }
+    },
+    "headers": [
+        {
+            "source": "/api/(.*)",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, s-maxage=5, stale-while-revalidate=30"
+                },
+                {
+                    "key": "X-Robots-Tag",
+                    "value": "noindex"
+                }
+            ]
+        },
+        {
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "X-Frame-Options",
+                    "value": "DENY"
+                },
+                {
+                    "key": "X-Content-Type-Options",
+                    "value": "nosniff"
+                },
+                {
+                    "key": "Referrer-Policy",
+                    "value": "origin-when-cross-origin"
+                },
+                {
+                    "key": "Permissions-Policy",
+                    "value": "camera=(), microphone=(), geolocation=()"
+                }
+            ]
+        }
+    ],
+    "redirects": [
+        {
+            "source": "/",
+            "destination": "/dashboard",
+            "permanent": false
+        }
+    ],
+    "regions": [
+        "iad1"
+    ],
+    "crons": []
+}

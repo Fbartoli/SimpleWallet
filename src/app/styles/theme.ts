@@ -31,7 +31,7 @@ export const greenTheme = {
     hoverBg: "hover:bg-green-200",
     hoverBorder: "hover:border-green-100",
     hoverBgLight: "hover:bg-green-50/50",
-};
+}
 
 // Custom type-specific colors that integrate with the green theme
 export const tokenColors = {
@@ -41,28 +41,28 @@ export const tokenColors = {
     BTC: "bg-lime-50 border-lime-100",
     DAI: "bg-yellow-50 border-yellow-100",
     USDT: "bg-green-50 border-green-100",
-};
+}
 
 // Status colors
 export const statusColors = {
     success: {
         bg: "bg-green-100",
         text: "text-green-600",
-        border: "border-green-100"
+        border: "border-green-100",
     },
     warning: {
         bg: "bg-amber-100",
         text: "text-amber-600",
-        border: "border-amber-100"
+        border: "border-amber-100",
     },
     error: {
         bg: "bg-red-100",
         text: "text-red-600",
-        border: "border-red-100"
+        border: "border-red-100",
     },
     info: {
         bg: "bg-sky-100",
         text: "text-sky-600",
-        border: "border-sky-100"
-    }
-}; 
+        border: "border-sky-100",
+    },
+} 

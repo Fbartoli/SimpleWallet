@@ -1,8 +1,8 @@
-import { create } from 'zustand'
-import { subscribeWithSelector } from 'zustand/middleware'
-import { formatUnits } from 'viem'
-import { SUPPORTED_TOKENS, type TokenSymbol, type TokenConfig } from '@/config/constants'
-import { DuneBalance } from '@/types/dune'
+import { create } from "zustand"
+import { subscribeWithSelector } from "zustand/middleware"
+import { formatUnits } from "viem"
+import { SUPPORTED_TOKENS, type TokenConfig, type TokenSymbol } from "@/config/constants"
+import { DuneBalance } from "@/types/dune"
 
 export { SUPPORTED_TOKENS as TOKENS, type TokenSymbol, type TokenConfig as Token }
 
@@ -75,13 +75,13 @@ const createInitialBalances = (): Record<TokenSymbol, TokenBalance> => {
     [symbol]: {
       symbol: symbol as TokenSymbol,
       value: 0n,
-      formatted: '0.00',
+      formatted: "0.00",
       decimals: token.decimals,
       loading: false,
       error: false,
       usdValue: 0,
-      lastUpdated: 0
-    }
+      lastUpdated: 0,
+    },
   }), {} as Record<TokenSymbol, TokenBalance>)
 }
 
@@ -90,9 +90,9 @@ const createInitialPrices = (): Record<TokenSymbol, TokenPrice> => {
     ...acc,
     [symbol]: {
       price: 0,
-      estimatedGas: '0',
-      lastUpdated: 0
-    }
+      estimatedGas: "0",
+      lastUpdated: 0,
+    },
   }), {} as Record<TokenSymbol, TokenPrice>)
 }
 
@@ -103,18 +103,18 @@ export const useTokenStore = create<TokenStore>()(
     balanceLoadingState: {
       isLoading: false,
       error: null,
-      lastFetch: 0
+      lastFetch: 0,
     },
     prices: createInitialPrices(),
     priceLoadingState: {
       isLoading: false,
       error: null,
-      lastFetch: 0
+      lastFetch: 0,
     },
     optimisticUpdate: {
       isActive: false,
       originalBalances: null,
-      txHash: null
+      txHash: null,
     },
 
     // Balance actions
@@ -134,10 +134,10 @@ export const useTokenStore = create<TokenStore>()(
               decimals: existingBalance.decimals,
               loading: existingBalance.loading,
               value: 0n,
-              formatted: '0.00',
+              formatted: "0.00",
               usdValue: 0,
               lastUpdated: timestamp,
-              error: false
+              error: false,
             }
           }
         })
@@ -166,7 +166,7 @@ export const useTokenStore = create<TokenStore>()(
                 formatted,
                 usdValue,
                 lastUpdated: timestamp,
-                error: false
+                error: false,
               }
             }
           }
@@ -178,8 +178,8 @@ export const useTokenStore = create<TokenStore>()(
           balanceLoadingState: {
             isLoading: false,
             error: null,
-            lastFetch: timestamp
-          }
+            lastFetch: timestamp,
+          },
         }
       })
     },
@@ -199,7 +199,7 @@ export const useTokenStore = create<TokenStore>()(
           updatedPrices[tokenSymbol] = {
             price,
             estimatedGas: data.estimatedGas,
-            lastUpdated: timestamp
+            lastUpdated: timestamp,
           }
 
           // Recalculate USD value for balance
@@ -207,7 +207,7 @@ export const useTokenStore = create<TokenStore>()(
           if (existingBalance) {
             updatedBalances[tokenSymbol] = {
               ...existingBalance,
-              usdValue: price * Number(existingBalance.formatted)
+              usdValue: price * Number(existingBalance.formatted),
             }
           }
         })
@@ -219,8 +219,8 @@ export const useTokenStore = create<TokenStore>()(
           priceLoadingState: {
             isLoading: false,
             error: null,
-            lastFetch: timestamp
-          }
+            lastFetch: timestamp,
+          },
         }
       })
     },
@@ -228,32 +228,32 @@ export const useTokenStore = create<TokenStore>()(
     setBalanceLoading: (loading) =>
       set((state) => ({
         ...state,
-        balanceLoadingState: { ...state.balanceLoadingState, isLoading: loading }
+        balanceLoadingState: { ...state.balanceLoadingState, isLoading: loading },
       })),
 
     setBalanceError: (error) =>
       set((state) => ({
         ...state,
-        balanceLoadingState: { ...state.balanceLoadingState, error, isLoading: false }
+        balanceLoadingState: { ...state.balanceLoadingState, error, isLoading: false },
       })),
 
     setPriceLoading: (loading) =>
       set((state) => ({
         ...state,
-        priceLoadingState: { ...state.priceLoadingState, isLoading: loading }
+        priceLoadingState: { ...state.priceLoadingState, isLoading: loading },
       })),
 
     setPriceError: (error) =>
       set((state) => ({
         ...state,
-        priceLoadingState: { ...state.priceLoadingState, error, isLoading: false }
+        priceLoadingState: { ...state.priceLoadingState, error, isLoading: false },
       })),
 
     clearErrors: () =>
       set((state) => ({
         ...state,
         balanceLoadingState: { ...state.balanceLoadingState, error: null },
-        priceLoadingState: { ...state.priceLoadingState, error: null }
+        priceLoadingState: { ...state.priceLoadingState, error: null },
       })),
 
     // Computed getters
@@ -302,7 +302,7 @@ export const useTokenStore = create<TokenStore>()(
               value: newSellValue,
               formatted: newSellFormatted,
               usdValue: sellPrice * Number(newSellFormatted),
-              lastUpdated: Date.now()
+              lastUpdated: Date.now(),
             }
           }
 
@@ -318,7 +318,7 @@ export const useTokenStore = create<TokenStore>()(
               value: newBuyValue,
               formatted: newBuyFormatted,
               usdValue: buyPrice * Number(newBuyFormatted),
-              lastUpdated: Date.now()
+              lastUpdated: Date.now(),
             }
           }
         }
@@ -329,8 +329,8 @@ export const useTokenStore = create<TokenStore>()(
           optimisticUpdate: {
             isActive: true,
             originalBalances,
-            txHash: null
-          }
+            txHash: null,
+          },
         }
       })
     },
@@ -344,8 +344,8 @@ export const useTokenStore = create<TokenStore>()(
             optimisticUpdate: {
               isActive: false,
               originalBalances: null,
-              txHash: null
-            }
+              txHash: null,
+            },
           }
         }
         return state
@@ -358,9 +358,9 @@ export const useTokenStore = create<TokenStore>()(
         optimisticUpdate: {
           isActive: false,
           originalBalances: null,
-          txHash: null
-        }
+          txHash: null,
+        },
       }))
-    }
+    },
   }))
 ) 

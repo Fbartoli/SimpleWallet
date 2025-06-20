@@ -1,4 +1,4 @@
-import DOMPurify from 'isomorphic-dompurify'
+import DOMPurify from "isomorphic-dompurify"
 
 export interface ValidationResult {
     isValid: boolean
@@ -12,19 +12,19 @@ export class InputValidation {
      * Sanitizes user input to prevent XSS attacks
      */
     static sanitizeInput(input: string): string {
-        if (typeof input !== 'string') {
-            return ''
+        if (typeof input !== "string") {
+            return ""
         }
 
         // Remove any HTML tags and scripts
         const sanitized = DOMPurify.sanitize(input, {
             ALLOWED_TAGS: [], // No HTML tags allowed
-            ALLOWED_ATTR: []  // No attributes allowed
+            ALLOWED_ATTR: [],  // No attributes allowed
         })
 
         // Additional sanitization for potential injection attempts
         return sanitized
-            .replace(/[<>'"]/g, '') // Remove dangerous characters
+            .replace(/[<>'"]/g, "") // Remove dangerous characters
             .trim()
     }
 
@@ -34,7 +34,7 @@ export class InputValidation {
     static validateAmount(amount: string): ValidationResult {
         const result: ValidationResult = {
             isValid: true,
-            errors: []
+            errors: [],
         }
 
         // Sanitize input first
@@ -43,7 +43,7 @@ export class InputValidation {
 
         // Check if empty
         if (!sanitized || sanitized.length === 0) {
-            result.errors.push('Amount is required')
+            result.errors.push("Amount is required")
             result.isValid = false
             return result
         }
@@ -51,7 +51,7 @@ export class InputValidation {
         // Check for valid number format
         const numberRegex = /^\d+(\.\d+)?$/
         if (!numberRegex.test(sanitized)) {
-            result.errors.push('Amount must be a valid number')
+            result.errors.push("Amount must be a valid number")
             result.isValid = false
             return result
         }
@@ -60,20 +60,20 @@ export class InputValidation {
 
         // Check for positive value
         if (numValue <= 0) {
-            result.errors.push('Amount must be greater than zero')
+            result.errors.push("Amount must be greater than zero")
             result.isValid = false
         }
 
         // Check for reasonable precision (max 18 decimals)
-        const decimalPlaces = (sanitized.split('.')[1] || '').length
+        const decimalPlaces = (sanitized.split(".")[1] || "").length
         if (decimalPlaces > 18) {
-            result.errors.push('Too many decimal places (max 18)')
+            result.errors.push("Too many decimal places (max 18)")
             result.isValid = false
         }
 
         // Check for reasonable size
         if (numValue > 1e18) {
-            result.errors.push('Amount too large')
+            result.errors.push("Amount too large")
             result.isValid = false
         }
 
@@ -86,7 +86,7 @@ export class InputValidation {
     static validateAddressFormat(address: string): ValidationResult {
         const result: ValidationResult = {
             isValid: true,
-            errors: []
+            errors: [],
         }
 
         // Sanitize input
@@ -95,7 +95,7 @@ export class InputValidation {
 
         // Check if empty
         if (!sanitized || sanitized.length === 0) {
-            result.errors.push('Address is required')
+            result.errors.push("Address is required")
             result.isValid = false
             return result
         }
@@ -103,7 +103,7 @@ export class InputValidation {
         // Check basic format
         const addressRegex = /^0x[a-fA-F0-9]{40}$/
         if (!addressRegex.test(sanitized)) {
-            result.errors.push('Invalid Ethereum address format')
+            result.errors.push("Invalid Ethereum address format")
             result.isValid = false
         }
 
@@ -119,7 +119,7 @@ export class InputValidation {
     static validateTokenSymbol(symbol: string, allowedTokens: string[]): ValidationResult {
         const result: ValidationResult = {
             isValid: true,
-            errors: []
+            errors: [],
         }
 
         // Sanitize input
@@ -128,14 +128,14 @@ export class InputValidation {
 
         // Check if empty
         if (!sanitized || sanitized.length === 0) {
-            result.errors.push('Token symbol is required')
+            result.errors.push("Token symbol is required")
             result.isValid = false
             return result
         }
 
         // Check if allowed
         if (!allowedTokens.includes(sanitized)) {
-            result.errors.push('Token not supported')
+            result.errors.push("Token not supported")
             result.isValid = false
         }
 
@@ -158,7 +158,7 @@ export class InputValidation {
 
         const result: ValidationResult = {
             isValid: true,
-            errors: []
+            errors: [],
         }
 
         // Sanitize input
@@ -167,7 +167,7 @@ export class InputValidation {
 
         // Check required
         if (required && (!sanitized || sanitized.length === 0)) {
-            result.errors.push('Value is required')
+            result.errors.push("Value is required")
             result.isValid = false
             return result
         }
@@ -179,7 +179,7 @@ export class InputValidation {
         // Validate numeric format
         const numValue = parseFloat(sanitized)
         if (isNaN(numValue)) {
-            result.errors.push('Must be a valid number')
+            result.errors.push("Must be a valid number")
             result.isValid = false
             return result
         }
@@ -197,7 +197,7 @@ export class InputValidation {
 
         // Check decimal places
         if (decimals !== undefined) {
-            const decimalCount = (sanitized.split('.')[1] || '').length
+            const decimalCount = (sanitized.split(".")[1] || "").length
             if (decimalCount > decimals) {
                 result.errors.push(`Maximum ${decimals} decimal places allowed`)
                 result.isValid = false
@@ -226,7 +226,7 @@ export class InputValidation {
             return {
                 allowed: false,
                 remaining: 0,
-                resetTime: Math.ceil(now / windowMs) * windowMs
+                resetTime: Math.ceil(now / windowMs) * windowMs,
             }
         }
 
@@ -239,7 +239,7 @@ export class InputValidation {
         return {
             allowed: true,
             remaining: maxRequests - currentCount - 1,
-            resetTime: Math.ceil(now / windowMs) * windowMs
+            resetTime: Math.ceil(now / windowMs) * windowMs,
         }
     }
 
@@ -251,8 +251,8 @@ export class InputValidation {
         const cutoff = now - windowMs * 2 // Keep data for 2 windows
 
         Object.keys(localStorage).forEach(key => {
-            if (key.includes('_')) {
-                const timestamp = parseInt(key.split('_').pop() || '0') * windowMs
+            if (key.includes("_")) {
+                const timestamp = parseInt(key.split("_").pop() || "0") * windowMs
                 if (timestamp < cutoff) {
                     localStorage.removeItem(key)
                 }
@@ -266,7 +266,7 @@ export class InputValidation {
     static validateFormData(data: Record<string, unknown>): ValidationResult {
         const result: ValidationResult = {
             isValid: true,
-            errors: []
+            errors: [],
         }
 
         // Check for potential injection patterns
@@ -275,11 +275,11 @@ export class InputValidation {
             /javascript:/i,
             /on\w+\s*=/i,
             /data:text\/html/i,
-            /vbscript:/i
+            /vbscript:/i,
         ]
 
         Object.entries(data).forEach(([key, value]) => {
-            if (typeof value === 'string') {
+            if (typeof value === "string") {
                 dangerousPatterns.forEach(pattern => {
                     if (pattern.test(value)) {
                         result.errors.push(`Potentially dangerous content detected in ${key}`)
@@ -301,19 +301,19 @@ export class InputValidation {
     ): ValidationResult {
         const result: ValidationResult = {
             isValid: true,
-            errors: []
+            errors: [],
         }
 
         const now = Date.now()
         const age = now - timestamp
 
         if (age > maxAgeMs) {
-            result.errors.push('Transaction request has expired')
+            result.errors.push("Transaction request has expired")
             result.isValid = false
         }
 
         if (timestamp > now + 60000) { // 1 minute future tolerance
-            result.errors.push('Transaction timestamp is too far in the future')
+            result.errors.push("Transaction timestamp is too far in the future")
             result.isValid = false
         }
 

@@ -1,18 +1,18 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
+import { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
+import { useSmartWallets } from "@privy-io/react-auth/smart-wallets"
 import { useToast } from "@/components/ui/use-toast"
-import { SUPPORTED_TOKENS as TOKENS, type TokenSymbol, type TokenConfig as Token } from '@/config/constants'
-import { useTokenBalances } from '@/hooks/useTokenBalances'
-import { useSwapQuote } from '@/hooks/useSwapQuote'
-import { useActivityRefresh } from '@/contexts/ActivityContext'
-import { createPublicClient, encodeFunctionData, erc20Abi, formatUnits, http } from 'viem'
-import { base } from 'viem/chains'
-import { ArrowDownUp, Loader2 } from 'lucide-react'
+import { SUPPORTED_TOKENS as TOKENS, type TokenConfig as Token, type TokenSymbol } from "@/config/constants"
+import { useTokenBalances } from "@/hooks/useTokenBalances"
+import { useSwapQuote } from "@/hooks/useSwapQuote"
+import { useActivityRefresh } from "@/contexts/ActivityContext"
+import { createPublicClient, encodeFunctionData, erc20Abi, formatUnits, http } from "viem"
+import { base } from "viem/chains"
+import { ArrowDownUp, Loader2 } from "lucide-react"
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -42,16 +42,16 @@ interface ZeroXSwapProps {
 
 const publicClient = createPublicClient({
   chain: base,
-  transport: http('https://base.gateway.tenderly.co/28rOk2uI3CVMnyinm9c3yn'),
+  transport: http("https://base.gateway.tenderly.co/28rOk2uI3CVMnyinm9c3yn"),
 })
 
 function TokenSelect({
   name,
   label,
   filterPositiveBalance = false,
-  storeBalances
+  storeBalances,
 }: {
-  name: 'sellToken' | 'buyToken',
+  name: "sellToken" | "buyToken",
   label: string,
   filterPositiveBalance?: boolean,
   balances?: { address: string; amount: string; decimals: number }[]
@@ -64,7 +64,7 @@ function TokenSelect({
       const storeBalance = storeBalances[tokenSymbol]
       return storeBalance && storeBalance.value > 0n
     })
-    : Object.entries(TOKENS);
+    : Object.entries(TOKENS)
 
   return (
     <FormField
@@ -75,14 +75,14 @@ function TokenSelect({
           <Select onValueChange={field.onChange} value={field.value}>
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder={`Select token to ${name === 'sellToken' ? 'sell' : 'buy'}`} />
+                <SelectValue placeholder={`Select token to ${name === "sellToken" ? "sell" : "buy"}`} />
               </SelectTrigger>
             </FormControl>
             <SelectContent className="bg-background border rounded-md shadow-md max-h-60 overflow-y-auto">
               {tokensToDisplay.map(([symbol, token]) => {
                 const tokenSymbol = symbol as TokenSymbol
                 const storeBalance = storeBalances?.[tokenSymbol]
-                const displayBalance = storeBalance?.formatted || '0.00'
+                const displayBalance = storeBalance?.formatted || "0.00"
 
                 return (
                   <SelectItem key={symbol} value={symbol} className="hover:bg-muted">
@@ -149,7 +149,7 @@ function AmountInput({
               {isBalanceLoading ? (
                 <Loader2 className="h-3 w-3 animate-spin" />
               ) : (
-                'Max'
+                "Max"
               )}
             </Button>
           </div>
@@ -180,24 +180,24 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
     optimisticUpdate,
     applyOptimisticSwap,
     revertOptimisticSwap,
-    confirmOptimisticSwap
+    confirmOptimisticSwap,
   } = useTokenBalances(userAddress)
 
   const form = useForm<SwapFormValues>({
     defaultValues: {
-      sellToken: 'USDC',
-      buyToken: 'EURC',
-      amount: '1'
-    }
+      sellToken: "USDC",
+      buyToken: "EURC",
+      amount: "1",
+    },
   })
 
   const { watch, setValue, getValues } = form
-  const sellToken = watch('sellToken')
-  const buyToken = watch('buyToken')
-  const amount = watch('amount')
+  const sellToken = watch("sellToken")
+  const buyToken = watch("buyToken")
+  const amount = watch("amount")
 
   // Format the amount to ensure it's a valid number
-  const formattedAmount = amount && !isNaN(Number(amount)) ? amount : '0'
+  const formattedAmount = amount && !isNaN(Number(amount)) ? amount : "0"
 
   // Get quote for the swap
   const { data: quote, isLoading: isQuoteLoading } = useSwapQuote({
@@ -206,7 +206,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
     sellAmount: formattedAmount,
     taker: userAddress,
     shouldFetch: shouldFetchQuote,
-    enabled: Boolean(sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken)
+    enabled: Boolean(sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken),
   })
 
   // Watch for changes in tokens or amount to trigger quote updates
@@ -219,16 +219,16 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   const handleMaxClick = () => {
     const storeBalance = storeBalances[sellToken]
     if (storeBalance && storeBalance.value > 0n) {
-      setValue('amount', storeBalance.formatted)
+      setValue("amount", storeBalance.formatted)
       setShouldFetchQuote(true)
     }
   }
 
   const handleSwapTokens = () => {
-    const currentSellToken = getValues('sellToken')
-    const currentBuyToken = getValues('buyToken')
-    setValue('sellToken', currentBuyToken, { shouldValidate: true })
-    setValue('buyToken', currentSellToken, { shouldValidate: true })
+    const currentSellToken = getValues("sellToken")
+    const currentBuyToken = getValues("buyToken")
+    setValue("sellToken", currentBuyToken, { shouldValidate: true })
+    setValue("buyToken", currentSellToken, { shouldValidate: true })
     setShouldFetchQuote(true)
   }
 
@@ -251,7 +251,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
       toast({
         title: "Cannot fetch quote",
         description: "Please select valid tokens and enter an amount greater than 0",
-        variant: "destructive"
+        variant: "destructive",
       })
     }
   }
@@ -269,7 +269,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
     // Show immediate success feedback
     toast({
       title: "Swap processing",
-      description: `Swapping ${TOKENS[sellToken]?.displaySymbol} for ${TOKENS[buyToken]?.displaySymbol}...`
+      description: `Swapping ${TOKENS[sellToken]?.displaySymbol} for ${TOKENS[buyToken]?.displaySymbol}...`,
     })
 
     try {
@@ -277,8 +277,8 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
       if (!await client.account.isDeployed()) {
         const deployTx = await client.sendTransaction({
           to: userAddress as `0x${string}`,
-          data: '0x',
-          value: 0n
+          data: "0x",
+          value: 0n,
         })
         await publicClient.waitForTransactionReceipt({ hash: deployTx as `0x${string}` })
       }
@@ -290,8 +290,8 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
           to: quote.sellToken as `0x${string}`,
           data: encodeFunctionData({
             abi: erc20Abi,
-            functionName: 'approve',
-            args: [quote.issues.allowance.spender, BigInt(quote.sellAmount)]
+            functionName: "approve",
+            args: [quote.issues.allowance.spender, BigInt(quote.sellAmount)],
           }),
           value: 0n,
         })
@@ -316,7 +316,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
 
       toast({
         title: "Swap completed!",
-        description: "Your swap has been successfully executed"
+        description: "Your swap has been successfully executed",
       })
 
       // Refresh activity feed with a small delay to allow indexing
@@ -327,11 +327,11 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
       // Revert optimistic update on failure
       revertOptimisticSwap()
 
-      const message = error instanceof Error ? error.message : 'Failed to execute swap'
+      const message = error instanceof Error ? error.message : "Failed to execute swap"
       toast({
         variant: "destructive",
         title: "Swap failed",
-        description: message
+        description: message,
       })
     } finally {
       setIsSwapLoading(false)
@@ -447,14 +447,14 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
                     ? "bg-slate-200 text-slate-600 h-10"
                     : "bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all h-10"}
                 >
-                  {!client ? 'Wallet Not Connected' : (
+                  {!client ? "Wallet Not Connected" : (
                     isSwapLoading ? (
                       <div className="flex items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
                         <span>Executing Swap...</span>
                       </div>
                     ) : (
-                      'Execute Swap'
+                      "Execute Swap"
                     )
                   )}
                 </Button>

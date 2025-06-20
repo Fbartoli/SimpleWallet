@@ -1,28 +1,28 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from "react"
 import {
     Dialog,
     DialogContent,
     DialogDescription,
     DialogFooter,
     DialogHeader,
-    DialogTitle
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
     AlertTriangle,
-    Shield,
-    Clock,
     CheckCircle,
-    XCircle,
+    Clock,
     Eye,
     EyeOff,
-    Loader2
-} from 'lucide-react'
-import { TransactionSecurity, type TransactionValidationResult } from '@/lib/security/TransactionSecurity'
-import { SUPPORTED_TOKENS, type TokenSymbol } from '@/config/constants'
+    Loader2,
+    Shield,
+    XCircle,
+} from "lucide-react"
+import { TransactionSecurity, type TransactionValidationResult } from "@/lib/security/TransactionSecurity"
+import { SUPPORTED_TOKENS, type TokenSymbol } from "@/config/constants"
 
 interface SecurityConfirmationModalProps {
     isOpen: boolean
@@ -30,9 +30,9 @@ interface SecurityConfirmationModalProps {
     onConfirm: () => void
     isLoading: boolean
     transactionData: {
-        type: 'send' | 'swap'
+        type: "send" | "swap"
         amount: string
-        token: TokenSymbol | 'ETH'
+        token: TokenSymbol | "ETH"
         recipient?: string
         buyToken?: TokenSymbol
         buyAmount?: string
@@ -46,34 +46,34 @@ export function SecurityConfirmationModal({
     onClose,
     onConfirm,
     isLoading,
-    transactionData
+    transactionData,
 }: SecurityConfirmationModalProps) {
     const [validation, setValidation] = useState<TransactionValidationResult | null>(null)
-    const [confirmationText, setConfirmationText] = useState('')
+    const [confirmationText, setConfirmationText] = useState("")
     const [showRecipient, setShowRecipient] = useState(false)
     const [timeLeft, setTimeLeft] = useState(30) // 30 second timeout for security
     const [hasUserConfirmed, setHasUserConfirmed] = useState(false)
 
-    const requiredConfirmationText = 'CONFIRM TRANSACTION'
+    const requiredConfirmationText = "CONFIRM TRANSACTION"
 
     // Validate transaction when modal opens
     useEffect(() => {
         if (isOpen && transactionData) {
-            if (transactionData.type === 'send' && transactionData.recipient) {
+            if (transactionData.type === "send" && transactionData.recipient) {
                 const sendValidation = TransactionSecurity.validateSend({
                     token: transactionData.token,
                     amount: transactionData.amount,
                     recipient: transactionData.recipient,
-                    userAddress: transactionData.userAddress
+                    userAddress: transactionData.userAddress,
                 })
                 setValidation(sendValidation)
-            } else if (transactionData.type === 'swap' && transactionData.buyToken && transactionData.buyAmount) {
+            } else if (transactionData.type === "swap" && transactionData.buyToken && transactionData.buyAmount) {
                 const swapValidation = TransactionSecurity.validateSwap({
                     sellToken: transactionData.token as TokenSymbol,
                     buyToken: transactionData.buyToken,
                     sellAmount: transactionData.amount,
                     buyAmount: transactionData.buyAmount,
-                    userAddress: transactionData.userAddress
+                    userAddress: transactionData.userAddress,
                 })
                 setValidation(swapValidation)
             }
@@ -100,7 +100,7 @@ export function SecurityConfirmationModal({
     // Reset state when modal closes
     useEffect(() => {
         if (!isOpen) {
-            setConfirmationText('')
+            setConfirmationText("")
             setHasUserConfirmed(false)
             setTimeLeft(30)
             setValidation(null)
@@ -108,15 +108,15 @@ export function SecurityConfirmationModal({
     }, [isOpen])
 
     const getSecurityColor = (score: number) => {
-        if (score >= 80) return 'text-green-600'
-        if (score >= 60) return 'text-yellow-600'
-        return 'text-red-600'
+        if (score >= 80) return "text-green-600"
+        if (score >= 60) return "text-yellow-600"
+        return "text-red-600"
     }
 
     const getSecurityBadge = (score: number) => {
-        if (score >= 80) return { text: 'SECURE', color: 'bg-green-500' }
-        if (score >= 60) return { text: 'WARNING', color: 'bg-yellow-500' }
-        return { text: 'HIGH RISK', color: 'bg-red-500' }
+        if (score >= 80) return { text: "SECURE", color: "bg-green-500" }
+        if (score >= 60) return { text: "WARNING", color: "bg-yellow-500" }
+        return { text: "HIGH RISK", color: "bg-red-500" }
     }
 
     const canConfirm = validation?.isValid &&
@@ -124,8 +124,8 @@ export function SecurityConfirmationModal({
         hasUserConfirmed &&
         timeLeft > 0
 
-    const tokenInfo = transactionData.token === 'ETH'
-        ? { symbol: 'ETH', displaySymbol: 'ETH' }
+    const tokenInfo = transactionData.token === "ETH"
+        ? { symbol: "ETH", displaySymbol: "ETH" }
         : SUPPORTED_TOKENS[transactionData.token as TokenSymbol]
 
     const buyTokenInfo = transactionData.buyToken ? SUPPORTED_TOKENS[transactionData.buyToken] : null
@@ -164,7 +164,7 @@ export function SecurityConfirmationModal({
                     <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
                         <h4 className="font-medium text-gray-900">Transaction Details</h4>
 
-                        {transactionData.type === 'send' ? (
+                        {transactionData.type === "send" ? (
                             <>
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm text-gray-600">Sending:</span>
@@ -232,8 +232,8 @@ export function SecurityConfirmationModal({
                                 <div>
                                     <h4 className="font-medium text-red-800 mb-2">Security Errors</h4>
                                     <ul className="space-y-1">
-                                        {validation.errors.map((error, index) => (
-                                            <li key={index} className="text-sm text-red-700">• {error}</li>
+                                        {validation.errors.map((error) => (
+                                            <li key={`error-${error.slice(0, 20).replace(/\s+/g, "-")}`} className="text-sm text-red-700">• {error}</li>
                                         ))}
                                     </ul>
                                 </div>
@@ -249,8 +249,8 @@ export function SecurityConfirmationModal({
                                 <div>
                                     <h4 className="font-medium text-amber-800 mb-2">Security Warnings</h4>
                                     <ul className="space-y-1">
-                                        {validation.warnings.map((warning, index) => (
-                                            <li key={index} className="text-sm text-amber-700">• {warning}</li>
+                                        {validation.warnings.map((warning) => (
+                                            <li key={`warning-${warning.slice(0, 20).replace(/\s+/g, "-")}`} className="text-sm text-amber-700">• {warning}</li>
                                         ))}
                                     </ul>
                                 </div>
@@ -266,8 +266,8 @@ export function SecurityConfirmationModal({
                                 <div>
                                     <h4 className="font-medium text-blue-800 mb-2">Security Suggestions</h4>
                                     <ul className="space-y-1">
-                                        {validation.suggestions.map((suggestion, index) => (
-                                            <li key={index} className="text-sm text-blue-700">• {suggestion}</li>
+                                        {validation.suggestions.map((suggestion) => (
+                                            <li key={`suggestion-${suggestion.slice(0, 20).replace(/\s+/g, "-")}`} className="text-sm text-blue-700">• {suggestion}</li>
                                         ))}
                                     </ul>
                                 </div>

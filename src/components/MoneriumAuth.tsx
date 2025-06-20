@@ -1,23 +1,22 @@
-'use client'
+"use client"
 
-import { useAuth, useIBANs } from '@monerium/sdk-react-provider'
-import { usePrivy, useWallets } from '@privy-io/react-auth'
-import { Button } from '@/components/ui/button'
+import { type IBAN as MoneriumIBAN, useAuth, useIBANs } from "@monerium/sdk-react-provider"
+import { usePrivy, useWallets } from "@privy-io/react-auth"
+import { Button } from "@/components/ui/button"
 import {
-    Loader2,
-    ExternalLink,
     CheckCircle,
+    ExternalLink,
+    Loader2,
+    Wallet,
     XCircle,
-    Wallet
-} from 'lucide-react'
+} from "lucide-react"
 
-import { createWalletClient, custom, Hex } from 'viem';
-import { gnosisChiado } from 'viem/chains';
-import type { IBAN as MoneriumIBAN } from '@monerium/sdk-react-provider';
+import { Hex, createWalletClient, custom } from "viem"
+import { gnosisChiado } from "viem/chains"
 
 export function MoneriumAuth() {
     const { user } = usePrivy()
-    const { wallets } = useWallets();
+    const { wallets } = useWallets()
     const {
         authorize,
         isAuthorized,
@@ -28,30 +27,30 @@ export function MoneriumAuth() {
         data: ibansData,
         isLoading: ibansLoading,
         isError: ibansError,
-        error: ibansErrorDetails
+        error: ibansErrorDetails,
     } = useIBANs({
         query: {
             enabled: isAuthorized, // Only fetch when authorized
-        }
+        },
     })
 
     const handleConnect = async () => {
-        const wallet = wallets[0];
+        const wallet = wallets[0]
         if (!wallet) {
-            throw new Error('No wallet found');
+            throw new Error("No wallet found")
         }
-        const provider = await wallet.getEthereumProvider();
+        const provider = await wallet.getEthereumProvider()
         const walletClient = createWalletClient({
             account: wallet.address as Hex,
             chain: gnosisChiado,
             transport: custom(provider),
-        });
+        })
 
         authorize({
             email: user?.email?.address as string,
             address: user?.wallet?.address as `0x${string}`,
             chain: gnosisChiado.id,
-            signature: await walletClient.signMessage({ message: 'I hereby declare that I am the address owner.' })
+            signature: await walletClient.signMessage({ message: "I hereby declare that I am the address owner." }),
         })
 
     }
@@ -119,8 +118,8 @@ export function MoneriumAuth() {
                             </div>
                         ) : ibansData?.ibans && ibansData.ibans.length > 0 ? (
                             <div className="space-y-2">
-                                {ibansData.ibans.map((iban: MoneriumIBAN, index: number) => (
-                                    <div key={index} className="p-3 bg-white rounded-lg border border-green-200 shadow-sm">
+                                {ibansData.ibans.map((iban: MoneriumIBAN) => (
+                                    <div key={iban.iban} className="p-3 bg-white rounded-lg border border-green-200 shadow-sm">
                                         <div className="flex justify-between items-start">
                                             <div className="flex-1">
                                                 <p className="text-sm font-mono font-semibold text-gray-900 mb-1">

@@ -17,7 +17,7 @@ export interface DuneTransaction {
   logs?: DuneTransactionLog[];
   effective_gas_price?: string;
   gas_used?: string;
-  transaction_type?: 'Sender' | 'Receiver';
+  transaction_type?: "Sender" | "Receiver";
   decoded?: {
     inputs: {
       name: string;
@@ -75,7 +75,7 @@ export interface DuneTokenPrice {
 }
 
 export interface DuneTokenPriceParams {
-  chain_ids?: string | 'all' | null,
+  chain_ids?: string | "all" | null,
   limit?: number | null,
   offset?: string | null,
 }
@@ -104,7 +104,7 @@ export interface DuneBalance {
 }
 
 export interface DuneBalanceParams {
-  chain_ids?: string | 'all';
+  chain_ids?: string | "all";
   limit?: number;
   offset?: string;
 }
@@ -134,7 +134,7 @@ export interface DuneTokenInfoResponse {
 }
 
 export interface DuneTokenInfoParams {
-  chain_ids?: string | 'all';
+  chain_ids?: string | "all";
   limit?: number;
   offset?: string;
 }
@@ -145,8 +145,8 @@ export interface DuneActivity {
   block_number: number;
   block_time: string;
   tx_hash: string;
-  type: 'receive' | 'send' | 'mint' | 'burn' | 'swap' | 'approve' | 'call';
-  asset_type: 'native' | 'erc20' | 'erc721';
+  type: "receive" | "send" | "mint" | "burn" | "swap" | "approve" | "call";
+  asset_type: "native" | "erc20" | "erc721";
   token_address?: string;
   from: string;
   to?: string;
@@ -168,5 +168,5 @@ export interface DuneActivityResponse {
 export interface DuneActivityParams {
   limit?: number;
   offset?: string;
-  chain_ids?: string | 'all';
+  chain_ids?: string | "all";
 }

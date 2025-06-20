@@ -1,10 +1,10 @@
-'use client'
+"use client"
 
-import { usePrivy, useFundWallet } from '@privy-io/react-auth'
-import { Button } from '@/components/ui/button'
-import { CreditCard, Loader2, Wallet } from 'lucide-react'
-import { useToast } from '@/components/ui/use-toast'
-import { base } from 'viem/chains'
+import { useFundWallet, usePrivy } from "@privy-io/react-auth"
+import { Button } from "@/components/ui/button"
+import { CreditCard, Loader2, Wallet } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
+import { base } from "viem/chains"
 
 interface OnRampButtonProps {
     /**
@@ -14,15 +14,15 @@ interface OnRampButtonProps {
     /**
      * Asset to buy - 'native-currency' for ETH, 'USDC', or ERC20 token address
      */
-    asset?: 'native-currency' | 'USDC' | { erc20: `0x${string}` }
+    asset?: "native-currency" | "USDC" | { erc20: `0x${string}` }
     /**
      * Button variant
      */
-    variant?: 'default' | 'outline' | 'ghost' | 'destructive' | 'secondary'
+    variant?: "default" | "outline" | "ghost" | "destructive" | "secondary"
     /**
      * Button size
      */
-    size?: 'default' | 'sm' | 'lg' | 'icon'
+    size?: "default" | "sm" | "lg" | "icon"
     /**
      * Custom class name
      */
@@ -42,14 +42,14 @@ interface OnRampButtonProps {
 }
 
 export function OnRampButton({
-    amount = '50',
-    asset = 'native-currency',
-    variant = 'default',
-    size = 'default',
-    className = '',
+    amount = "50",
+    asset = "native-currency",
+    variant = "default",
+    size = "default",
+    className = "",
     children,
     fullWidth = false,
-    disabled = false
+    disabled = false,
 }: OnRampButtonProps) {
     const { user, ready } = usePrivy()
     const { fundWallet } = useFundWallet()
@@ -60,9 +60,9 @@ export function OnRampButton({
     const handleOnRamp = () => {
         if (!walletAddress) {
             toast({
-                title: 'Wallet not connected',
-                description: 'Please connect your wallet first',
-                variant: 'destructive'
+                title: "Wallet not connected",
+                description: "Please connect your wallet first",
+                variant: "destructive",
             })
             return
         }
@@ -70,15 +70,15 @@ export function OnRampButton({
         try {
             fundWallet(walletAddress, {
                 chain: base,
-                amount: amount,
-                asset: asset
+                amount,
+                asset,
             })
         } catch (error) {
-            console.error('On-ramp error:', error)
+            console.error("On-ramp error:", error)
             toast({
-                title: 'On-ramp failed',
-                description: 'Failed to initiate on-ramp flow. Please try again.',
-                variant: 'destructive'
+                title: "On-ramp failed",
+                description: "Failed to initiate on-ramp flow. Please try again.",
+                variant: "destructive",
             })
         }
     }
@@ -104,7 +104,7 @@ export function OnRampButton({
             <Button
                 variant={variant}
                 size={size}
-                className={`${fullWidth ? 'w-full' : ''} ${className}`}
+                className={`${fullWidth ? "w-full" : ""} ${className}`}
                 disabled
             >
                 {loadingContent}
@@ -117,7 +117,7 @@ export function OnRampButton({
             <Button
                 variant="outline"
                 size={size}
-                className={`${fullWidth ? 'w-full' : ''} ${className} border-amber-200 text-amber-700 hover:bg-amber-50`}
+                className={`${fullWidth ? "w-full" : ""} ${className} border-amber-200 text-amber-700 hover:bg-amber-50`}
                 disabled
             >
                 <Wallet className="mr-2 h-4 w-4" />
@@ -131,7 +131,7 @@ export function OnRampButton({
             onClick={handleOnRamp}
             variant={variant}
             size={size}
-            className={`${fullWidth ? 'w-full' : ''} ${className}`}
+            className={`${fullWidth ? "w-full" : ""} ${className}`}
             disabled={isDisabled}
         >
             {buttonContent}
@@ -139,7 +139,7 @@ export function OnRampButton({
     )
 }
 
-export function OnRampETHButton(props: Omit<OnRampButtonProps, 'asset'>) {
+export function OnRampETHButton(props: Omit<OnRampButtonProps, "asset">) {
     return (
         <OnRampButton
             {...props}
@@ -151,7 +151,7 @@ export function OnRampETHButton(props: Omit<OnRampButtonProps, 'asset'>) {
     )
 }
 
-export function OnRampUSDCButton(props: Omit<OnRampButtonProps, 'asset'>) {
+export function OnRampUSDCButton(props: Omit<OnRampButtonProps, "asset">) {
     return (
         <OnRampButton
             {...props}
@@ -166,10 +166,10 @@ export function OnRampUSDCButton(props: Omit<OnRampButtonProps, 'asset'>) {
 // Quick buy button with preset amounts
 export function QuickBuyButton({
     amount,
-    asset = 'native-currency',
+    asset = "native-currency",
     ...props
-}: { amount: string; asset?: OnRampButtonProps['asset'] } & Omit<OnRampButtonProps, 'amount' | 'asset'>) {
-    const assetName = asset === 'native-currency' ? 'ETH' : asset === 'USDC' ? 'USDC' : 'Token'
+}: { amount: string; asset?: OnRampButtonProps["asset"] } & Omit<OnRampButtonProps, "amount" | "asset">) {
+    const assetName = asset === "native-currency" ? "ETH" : asset === "USDC" ? "USDC" : "Token"
 
     return (
         <OnRampButton

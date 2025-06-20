@@ -1,8 +1,8 @@
-'use client'
+"use client"
 
-import { useQuery } from '@tanstack/react-query'
-import { TokenSymbol } from '@/stores/useTokenStore'
-import { fetchSwapQuote, queryKeys } from '@/app/api/queries'
+import { useQuery } from "@tanstack/react-query"
+import { TokenSymbol } from "@/stores/useTokenStore"
+import { fetchSwapQuote, queryKeys } from "@/app/api/queries"
 
 interface UseSwapQuoteParams {
   sellToken: TokenSymbol

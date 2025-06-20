@@ -1,73 +1,73 @@
-'use client';
+"use client"
 
-import { useMemo, useEffect } from 'react'
-import { usePrivy } from '@privy-io/react-auth'
-import { useActivity } from '@/hooks/useActivity'
-import { useActivityRefresh } from '@/contexts/ActivityContext'
-import { DuneActivity } from '@/types/dune'
-import { SUPPORTED_TOKENS } from '@/config/constants'
-import { Button } from '@/components/ui/button'
+import { useEffect, useMemo } from "react"
+import { usePrivy } from "@privy-io/react-auth"
+import { useActivity } from "@/hooks/useActivity"
+import { useActivityRefresh } from "@/contexts/ActivityContext"
+import { DuneActivity } from "@/types/dune"
+import { SUPPORTED_TOKENS } from "@/config/constants"
+import { Button } from "@/components/ui/button"
 import {
     Activity as ActivityIcon,
-    ArrowUpRight,
+    AlertCircle,
     ArrowDownLeft,
+    ArrowRightLeft,
+    ArrowUpRight,
+    Clock,
     ExternalLink,
     RefreshCw,
-    AlertCircle,
-    Clock,
-    ArrowRightLeft,
-    Zap
-} from 'lucide-react'
+    Zap,
+} from "lucide-react"
 
 // Format timestamp to readable date
 function formatTimestamp(timestamp: string): string {
-    return new Date(timestamp).toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
+    return new Date(timestamp).toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
     })
 }
 
 // Format value with proper decimals
 function formatValue(value: string, decimals: number): string {
     const num = Number(value) / Math.pow(10, decimals)
-    if (num === 0) return '0'
-    if (num < 0.001) return '< 0.001'
-    return num.toLocaleString('en-US', {
+    if (num === 0) return "0"
+    if (num < 0.001) return "< 0.001"
+    return num.toLocaleString("en-US", {
         minimumFractionDigits: 0,
-        maximumFractionDigits: 6
+        maximumFractionDigits: 6,
     })
 }
 
 // Get token symbol from address
 function getTokenSymbol(address?: string, token_metadata?: { symbol?: string }): string {
     if (token_metadata?.symbol) return token_metadata.symbol
-    if (!address) return 'ETH'
+    if (!address) return "ETH"
 
     const token = Object.values(SUPPORTED_TOKENS).find(
         t => t.address.toLowerCase() === address.toLowerCase()
     )
-    return token?.displaySymbol || 'UNKNOWN'
+    return token?.displaySymbol || "UNKNOWN"
 }
 
 // Get activity icon based on type and direction
 function getActivityIcon(activity: DuneActivity) {
     switch (activity.type) {
-        case 'receive':
+        case "receive":
             return <ArrowDownLeft className="h-4 w-4 text-green-600" />
-        case 'send':
+        case "send":
             return <ArrowUpRight className="h-4 w-4 text-red-600" />
-        case 'swap':
+        case "swap":
             return <ArrowRightLeft className="h-4 w-4 text-blue-600" />
-        case 'mint':
+        case "mint":
             return <Zap className="h-4 w-4 text-purple-600" />
-        case 'burn':
+        case "burn":
             return <Zap className="h-4 w-4 text-orange-600" />
-        case 'approve':
+        case "approve":
             return <ActivityIcon className="h-4 w-4 text-yellow-600" />
-        case 'call':
+        case "call":
             return <ActivityIcon className="h-4 w-4 text-blue-600" />
         default:
             return <ActivityIcon className="h-4 w-4 text-gray-600" />
@@ -77,22 +77,22 @@ function getActivityIcon(activity: DuneActivity) {
 // Get activity color based on type and direction
 function getActivityColor(activity: DuneActivity): string {
     switch (activity.type) {
-        case 'receive':
-            return 'text-green-600'
-        case 'send':
-            return 'text-red-600'
-        case 'swap':
-            return 'text-blue-600'
-        case 'mint':
-            return 'text-purple-600'
-        case 'burn':
-            return 'text-orange-600'
-        case 'approve':
-            return 'text-yellow-600'
-        case 'call':
-            return 'text-blue-600'
+        case "receive":
+            return "text-green-600"
+        case "send":
+            return "text-red-600"
+        case "swap":
+            return "text-blue-600"
+        case "mint":
+            return "text-purple-600"
+        case "burn":
+            return "text-orange-600"
+        case "approve":
+            return "text-yellow-600"
+        case "call":
+            return "text-blue-600"
         default:
-            return 'text-gray-600'
+            return "text-gray-600"
     }
 }
 
@@ -101,22 +101,22 @@ function getActivityDescription(activity: DuneActivity): string {
     const symbol = getTokenSymbol(activity.token_address, activity.token_metadata)
 
     switch (activity.type) {
-        case 'receive':
+        case "receive":
             return `Received ${symbol}`
-        case 'send':
+        case "send":
             return `Sent ${symbol}`
-        case 'swap':
+        case "swap":
             return `Swapped ${symbol}`
-        case 'mint':
+        case "mint":
             return `Minted ${symbol}`
-        case 'burn':
+        case "burn":
             return `Burned ${symbol}`
-        case 'approve':
+        case "approve":
             return `Approved ${symbol}`
-        case 'call':
-            return 'Contract interaction'
+        case "call":
+            return "Contract interaction"
         default:
-            return 'Unknown activity'
+            return "Unknown activity"
     }
 }
 
@@ -133,7 +133,7 @@ function ActivityItem({ activity }: ActivityItemProps) {
     const colorClass = getActivityColor(activity)
 
     const handleViewTransaction = () => {
-        window.open(`https://basescan.org/tx/${activity.tx_hash}`, '_blank')
+        window.open(`https://basescan.org/tx/${activity.tx_hash}`, "_blank")
     }
 
     return (
@@ -152,10 +152,10 @@ function ActivityItem({ activity }: ActivityItemProps) {
             </div>
 
             <div className="flex items-center gap-3">
-                {(activity.type === 'receive' || activity.type === 'send') && activity.asset_type !== 'erc721' && (
+                {(activity.type === "receive" || activity.type === "send") && activity.asset_type !== "erc721" && (
                     <div className="text-right">
                         <p className={`font-medium ${colorClass}`}>
-                            {activity.type === 'receive' ? '+' : '-'}{formattedValue} {symbol}
+                            {activity.type === "receive" ? "+" : "-"}{formattedValue} {symbol}
                         </p>
                         {activity.value_usd && (
                             <p className="text-xs text-gray-500">
@@ -203,8 +203,8 @@ export function Activity() {
     const walletAddress = user?.smartWallet?.address
     const { registerRefreshFunction } = useActivityRefresh()
 
-    const { data, isLoading, error, refetch } = useActivity(walletAddress || '', {
-        chain_ids: '8453' // Base chain
+    const { data, isLoading, error, refetch } = useActivity(walletAddress || "", {
+        chain_ids: "8453", // Base chain
     })
 
     // Register the refetch function with the activity context
@@ -227,7 +227,7 @@ export function Activity() {
         // Filter activities to only include whitelisted tokens and native ETH
         const filteredActivities = data.filter(activity => {
             // Include native ETH transactions
-            if (activity.asset_type === 'native') {
+            if (activity.asset_type === "native") {
                 return true
             }
 
@@ -282,8 +282,8 @@ export function Activity() {
 
             {isLoading && activities.length === 0 ? (
                 <div className="space-y-3">
-                    {[...Array(5)].map((_, i) => (
-                        <div key={i} className="animate-pulse">
+                    {Array.from({ length: 5 }, () => (
+                        <div key={`skeleton-${Math.random().toString(36).substring(2, 15)}`} className="animate-pulse">
                             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                 <div className="flex items-center gap-3">
                                     <div className="h-10 w-10 bg-gray-200 rounded-full" />
@@ -305,9 +305,9 @@ export function Activity() {
                 </div>
             ) : (
                 <div className="space-y-3">
-                    {activities.map((activity, index) => (
+                    {activities.map((activity) => (
                         <ActivityItem
-                            key={`${activity.tx_hash}-${index}`}
+                            key={`${activity.tx_hash}-${activity.block_time}`}
                             activity={activity}
                         />
                     ))}

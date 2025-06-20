@@ -1,18 +1,18 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { usePrivy } from '@privy-io/react-auth'
-import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
-import { useToast } from '@/components/ui/use-toast'
-import { useTokenBalances } from '@/hooks/useTokenBalances'
-import { useActivityRefresh } from '@/contexts/ActivityContext'
-import { SUPPORTED_TOKENS, type TokenSymbol } from '@/config/constants'
-import { createPublicClient, encodeFunctionData, erc20Abi, http, parseUnits, isAddress } from 'viem'
-import { base } from 'viem/chains'
-import { Send as SendIcon, AlertTriangle, Loader2, ArrowRight, CheckCircle } from 'lucide-react'
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { usePrivy } from "@privy-io/react-auth"
+import { useSmartWallets } from "@privy-io/react-auth/smart-wallets"
+import { useToast } from "@/components/ui/use-toast"
+import { useTokenBalances } from "@/hooks/useTokenBalances"
+import { useActivityRefresh } from "@/contexts/ActivityContext"
+import { SUPPORTED_TOKENS, type TokenSymbol } from "@/config/constants"
+import { createPublicClient, encodeFunctionData, erc20Abi, http, isAddress, parseUnits } from "viem"
+import { base } from "viem/chains"
+import { AlertTriangle, ArrowRight, CheckCircle, Loader2, Send as SendIcon } from "lucide-react"
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
@@ -20,15 +20,15 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from '@/components/ui/form'
+} from "@/components/ui/form"
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
+} from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
 import {
     Dialog,
     DialogContent,
@@ -36,11 +36,11 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog"
 
 interface SendFormValues {
     recipient: string
-    token: TokenSymbol | 'ETH'
+    token: TokenSymbol | "ETH"
     amount: string
 }
 
@@ -55,7 +55,7 @@ interface ConfirmationModalProps {
 
 const publicClient = createPublicClient({
     chain: base,
-    transport: http('https://base.gateway.tenderly.co/28rOk2uI3CVMnyinm9c3yn'),
+    transport: http("https://base.gateway.tenderly.co/28rOk2uI3CVMnyinm9c3yn"),
 })
 
 function ConfirmationModal({
@@ -64,10 +64,10 @@ function ConfirmationModal({
     onConfirm,
     isLoading,
     formData,
-    estimatedGas
+    estimatedGas,
 }: ConfirmationModalProps) {
-    const tokenInfo = formData.token === 'ETH'
-        ? { symbol: 'ETH', displaySymbol: 'ETH', decimals: 18 }
+    const tokenInfo = formData.token === "ETH"
+        ? { symbol: "ETH", displaySymbol: "ETH", decimals: 18 }
         : SUPPORTED_TOKENS[formData.token as TokenSymbol]
 
     return (
@@ -173,49 +173,49 @@ export function Send() {
 
     const walletAddress = user?.smartWallet?.address
 
-    const { storeBalances, isLoading: isBalanceLoading, refresh } = useTokenBalances(walletAddress || '')
+    const { storeBalances, isLoading: isBalanceLoading, refresh } = useTokenBalances(walletAddress || "")
 
     const form = useForm<SendFormValues>({
         defaultValues: {
-            recipient: '',
-            token: 'ETH',
-            amount: ''
-        }
+            recipient: "",
+            token: "ETH",
+            amount: "",
+        },
     })
 
     const { watch, setValue, handleSubmit } = form
-    const selectedToken = watch('token')
+    const selectedToken = watch("token")
 
     // Get available balance for selected token
     const getAvailableBalance = () => {
-        if (selectedToken === 'ETH') {
+        if (selectedToken === "ETH") {
             // For native ETH, get from storeBalances if available, otherwise return '0'
-            return storeBalances['WETH']?.formatted || '0'
+            return storeBalances["WETH"]?.formatted || "0"
         }
-        return storeBalances[selectedToken as TokenSymbol]?.formatted || '0'
+        return storeBalances[selectedToken as TokenSymbol]?.formatted || "0"
     }
 
     const handleMaxClick = () => {
         const balance = getAvailableBalance()
         if (balance && parseFloat(balance) > 0) {
-            setValue('amount', balance)
+            setValue("amount", balance)
         }
     }
 
     const validateForm = (data: SendFormValues): string | null => {
         if (!isAddress(data.recipient)) {
-            return 'Please enter a valid Ethereum address'
+            return "Please enter a valid Ethereum address"
         }
 
         if (!data.amount || parseFloat(data.amount) <= 0) {
-            return 'Please enter a valid amount'
+            return "Please enter a valid amount"
         }
 
         const availableBalance = parseFloat(getAvailableBalance())
         const sendAmount = parseFloat(data.amount)
 
         if (sendAmount > availableBalance) {
-            return 'Insufficient balance'
+            return "Insufficient balance"
         }
 
         return null
@@ -225,9 +225,9 @@ export function Send() {
         const validation = validateForm(data)
         if (validation) {
             toast({
-                title: 'Validation Error',
+                title: "Validation Error",
                 description: validation,
-                variant: 'destructive'
+                variant: "destructive",
             })
             return
         }
@@ -238,9 +238,9 @@ export function Send() {
             setIsModalOpen(true)
         } catch {
             toast({
-                title: 'Error',
-                description: 'Failed to estimate transaction cost',
-                variant: 'destructive'
+                title: "Error",
+                description: "Failed to estimate transaction cost",
+                variant: "destructive",
             })
         }
     }
@@ -257,40 +257,40 @@ export function Send() {
             if (!await client.account.isDeployed()) {
                 const deployTx = await client.sendTransaction({
                     to: walletAddress as `0x${string}`,
-                    data: '0x',
-                    value: 0n
+                    data: "0x",
+                    value: 0n,
                 })
                 await publicClient.waitForTransactionReceipt({ hash: deployTx as `0x${string}` })
             }
 
             let tx: string
 
-            if (formData.token === 'ETH') {
+            if (formData.token === "ETH") {
                 // Native ETH transfer
                 const valueInWei = parseUnits(formData.amount, 18)
                 tx = await client.sendTransaction({
                     to: formData.recipient as `0x${string}`,
                     value: valueInWei,
-                    data: '0x'
+                    data: "0x",
                 })
             } else {
                 // ERC20 transfer
                 const token = SUPPORTED_TOKENS[formData.token as TokenSymbol]
                 if (!token) {
-                    throw new Error('Token not found')
+                    throw new Error("Token not found")
                 }
                 const amountInTokenUnits = parseUnits(formData.amount, token.decimals)
 
                 const transferData = encodeFunctionData({
                     abi: erc20Abi,
-                    functionName: 'transfer',
-                    args: [formData.recipient as `0x${string}`, amountInTokenUnits]
+                    functionName: "transfer",
+                    args: [formData.recipient as `0x${string}`, amountInTokenUnits],
                 })
 
                 tx = await client.sendTransaction({
                     to: token.address as `0x${string}`,
                     data: transferData,
-                    value: 0n
+                    value: 0n,
                 })
             }
 
@@ -301,8 +301,8 @@ export function Send() {
             refresh()
 
             toast({
-                title: 'Transaction Successful!',
-                description: `Successfully sent ${formData.amount} ${formData.token === 'ETH' ? 'ETH' : SUPPORTED_TOKENS[formData.token as TokenSymbol]?.displaySymbol} to ${formData.recipient.slice(0, 6)}...${formData.recipient.slice(-4)}`,
+                title: "Transaction Successful!",
+                description: `Successfully sent ${formData.amount} ${formData.token === "ETH" ? "ETH" : SUPPORTED_TOKENS[formData.token as TokenSymbol]?.displaySymbol} to ${formData.recipient.slice(0, 6)}...${formData.recipient.slice(-4)}`,
             })
 
             // Refresh activity feed with a small delay to allow indexing
@@ -315,12 +315,12 @@ export function Send() {
             setIsModalOpen(false)
 
         } catch (error) {
-            console.error('Send error:', error)
-            const message = error instanceof Error ? error.message : 'Transaction failed'
+            console.error("Send error:", error)
+            const message = error instanceof Error ? error.message : "Transaction failed"
             toast({
-                title: 'Transaction Failed',
+                title: "Transaction Failed",
                 description: message,
-                variant: 'destructive'
+                variant: "destructive",
             })
         } finally {
             setIsSending(false)
@@ -403,7 +403,7 @@ export function Send() {
                                                     <div className="flex items-center justify-between w-full">
                                                         <span className="font-medium">ETH (Native)</span>
                                                         <span className="ml-2 text-sm text-gray-500 font-mono">
-                                                            {isBalanceLoading ? '...' : getAvailableBalance()}
+                                                            {isBalanceLoading ? "..." : getAvailableBalance()}
                                                         </span>
                                                     </div>
                                                 </SelectItem>
@@ -419,7 +419,7 @@ export function Send() {
                                                                 <div className="flex items-center justify-between w-full">
                                                                     <span className="font-medium">{token.displaySymbol}</span>
                                                                     <span className="ml-2 text-sm text-gray-500 font-mono">
-                                                                        {balance?.formatted || '0.00'}
+                                                                        {balance?.formatted || "0.00"}
                                                                     </span>
                                                                 </div>
                                                             </SelectItem>
@@ -461,12 +461,12 @@ export function Send() {
                                                 {isBalanceLoading ? (
                                                     <Loader2 className="h-3 w-3 animate-spin" />
                                                 ) : (
-                                                    'Max'
+                                                    "Max"
                                                 )}
                                             </Button>
                                         </div>
                                         <div className="text-sm text-gray-500">
-                                            Available: {isBalanceLoading ? '...' : getAvailableBalance()} {selectedToken === 'ETH' ? 'ETH' : SUPPORTED_TOKENS[selectedToken as TokenSymbol]?.displaySymbol}
+                                            Available: {isBalanceLoading ? "..." : getAvailableBalance()} {selectedToken === "ETH" ? "ETH" : SUPPORTED_TOKENS[selectedToken as TokenSymbol]?.displaySymbol}
                                         </div>
                                         <FormMessage />
                                     </FormItem>
@@ -479,7 +479,7 @@ export function Send() {
                                 disabled={!client || isBalanceLoading}
                             >
                                 {!client ? (
-                                    'Wallet Not Connected'
+                                    "Wallet Not Connected"
                                 ) : (
                                     <>
                                         <ArrowRight className="mr-2 h-4 w-4" />

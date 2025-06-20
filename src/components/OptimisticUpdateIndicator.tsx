@@ -1,7 +1,7 @@
-'use client'
+"use client"
 
-import { memo } from 'react'
-import { RefreshCw } from 'lucide-react'
+import { memo } from "react"
+import { RefreshCw } from "lucide-react"
 
 interface OptimisticUpdateIndicatorProps {
     isActive: boolean
@@ -9,11 +9,11 @@ interface OptimisticUpdateIndicatorProps {
     compact?: boolean
 }
 
-export const OptimisticUpdateIndicator = memo(function OptimisticUpdateIndicator({
+const OptimisticUpdateIndicatorComponent = ({
     isActive,
     message = "Transaction pending - updating...",
-    compact = false
-}: OptimisticUpdateIndicatorProps) {
+    compact = false,
+}: OptimisticUpdateIndicatorProps) => {
     if (!isActive) return null
 
     if (compact) {
@@ -31,4 +31,8 @@ export const OptimisticUpdateIndicator = memo(function OptimisticUpdateIndicator
             <span className="text-sm font-medium">{message}</span>
         </div>
     )
-}) 
+}
+
+OptimisticUpdateIndicatorComponent.displayName = "OptimisticUpdateIndicator"
+
+export const OptimisticUpdateIndicator = memo(OptimisticUpdateIndicatorComponent) 

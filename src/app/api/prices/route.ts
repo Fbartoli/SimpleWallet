@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
-import { TOKENS, type TokenSymbol } from '@/stores/useTokenStore'
+import { NextResponse } from "next/server"
+import { TOKENS, type TokenSymbol } from "@/stores/useTokenStore"
 
 interface PriceData {
     prices: Array<{
@@ -14,25 +14,25 @@ interface PriceData {
 let pricesCache: {
     data: PriceData;
     timestamp: number;
-} | null = null;
+} | null = null
 
-const CACHE_DURATION = 30 * 1000; // 30 seconds cache duration
+const CACHE_DURATION = 30 * 1000 // 30 seconds cache duration
 
 // Helper function to create price query URL
 const createPriceQueryUrl = (sellToken: string, buyToken: string, sellAmount: string) => {
-    const baseUrl = 'https://api.0x.org/swap/allowance-holder/price'
+    const baseUrl = "https://api.0x.org/swap/allowance-holder/price"
     const params = new URLSearchParams({
         sellToken,
         buyToken,
         sellAmount,
-        chainId: '8453', // Base chain ID
+        chainId: "8453", // Base chain ID
     })
     return `${baseUrl}?${params.toString()}`
 }
 
 // Helper function to check if cache is valid
 const isCacheValid = () => {
-    return Boolean(pricesCache && (Date.now() - pricesCache.timestamp) < CACHE_DURATION);
+    return Boolean(pricesCache && (Date.now() - pricesCache.timestamp) < CACHE_DURATION)
 }
 
 export async function GET() {
@@ -41,14 +41,14 @@ export async function GET() {
         if (isCacheValid() && pricesCache) {
             return NextResponse.json(pricesCache.data, {
                 headers: {
-                    'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=59',
-                }
-            });
+                    "Cache-Control": "public, s-maxage=30, stale-while-revalidate=59",
+                },
+            })
         }
 
         // Get prices for all token pairs against USDC
         const pricePromises = Object.entries(TOKENS)
-            .filter(([symbol]) => symbol !== 'USDC') // Skip USDC/USDC pair
+            .filter(([symbol]) => symbol !== "USDC") // Skip USDC/USDC pair
             .map(async ([symbol, token]) => {
                 const url = createPriceQueryUrl(
                     token.address,
@@ -59,8 +59,8 @@ export async function GET() {
                     url,
                     {
                         headers: {
-                            '0x-api-key': process.env.OX_API_KEY || '',
-                            '0x-version': 'v2',
+                            "0x-api-key": process.env.OX_API_KEY || "",
+                            "0x-version": "v2",
                         },
                     }
                 )
@@ -78,46 +78,46 @@ export async function GET() {
                     symbol: symbol as TokenSymbol,
                     price: price.toString(),
                     estimatedGas: data.estimatedGas,
-                    decimals: token.decimals
+                    decimals: token.decimals,
                 }
             })
 
         // Add USDC price
         const prices = await Promise.all(pricePromises)
         prices.push({
-            symbol: 'USDC' as TokenSymbol,
-            price: '1',
-            estimatedGas: '0',
-            decimals: TOKENS!.USDC!.decimals
+            symbol: "USDC" as TokenSymbol,
+            price: "1",
+            estimatedGas: "0",
+            decimals: TOKENS!.USDC!.decimals,
         })
 
         // Update cache
         const responseData: PriceData = { prices }
         pricesCache = {
             data: responseData,
-            timestamp: Date.now()
+            timestamp: Date.now(),
         }
 
         // Return response with cache headers
         return NextResponse.json(responseData, {
             headers: {
-                'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=59',
-            }
+                "Cache-Control": "public, s-maxage=30, stale-while-revalidate=59",
+            },
         })
     } catch (error) {
-        console.error('Error fetching prices:', error)
+        console.error("Error fetching prices:", error)
 
         // If there's an error but we have cached data, return it
         if (pricesCache) {
             return NextResponse.json(pricesCache.data, {
                 headers: {
-                    'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=59',
-                }
-            });
+                    "Cache-Control": "public, s-maxage=30, stale-while-revalidate=59",
+                },
+            })
         }
 
         return NextResponse.json(
-            { error: 'Failed to fetch prices' },
+            { error: "Failed to fetch prices" },
             { status: 500 }
         )
     }

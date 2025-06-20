@@ -1,39 +1,39 @@
-'use client';
+"use client"
 
-import { useState } from 'react';
-import { usePrivy } from '@privy-io/react-auth';
-import { useAuth } from '@monerium/sdk-react-provider';
-import { Button } from './Button';
-import { Menu, LogOut, Home, PiggyBank } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useState } from "react"
+import { usePrivy } from "@privy-io/react-auth"
+import { useAuth } from "@monerium/sdk-react-provider"
+import { Button } from "./Button"
+import { Home, LogOut, Menu, PiggyBank } from "lucide-react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 export default function Header() {
-  const { authenticated, logout } = usePrivy();
-  const { revokeAccess, isAuthorized } = useAuth();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const pathname = usePathname();
-  const isNotDashboard = pathname !== '/dashboard';
+  const { authenticated, logout } = usePrivy()
+  const { revokeAccess, isAuthorized } = useAuth()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const pathname = usePathname()
+  const isNotDashboard = pathname !== "/dashboard"
 
   const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
+    setIsMenuOpen(false)
+  }
 
   const handleDisconnect = async () => {
     try {
       // Revoke Monerium access if user is authorized
       if (isAuthorized) {
-        await revokeAccess();
+        await revokeAccess()
       }
     } catch (error) {
-      console.error('Error revoking Monerium access:', error);
+      console.error("Error revoking Monerium access:", error)
       // Continue with logout even if Monerium revocation fails
     } finally {
       // Always logout from Privy
-      logout();
-      closeMenu();
+      logout()
+      closeMenu()
     }
-  };
+  }
 
   return (
     <>
@@ -94,5 +94,5 @@ export default function Header() {
         </div>
       </header>
     </>
-  );
+  )
 } 

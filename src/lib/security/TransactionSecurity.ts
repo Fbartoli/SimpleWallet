@@ -1,5 +1,5 @@
-import { isAddress, parseUnits, formatUnits } from 'viem'
-import { SUPPORTED_TOKENS, type TokenSymbol } from '@/config/constants'
+import { formatUnits, isAddress, parseUnits } from "viem"
+import { SUPPORTED_TOKENS, type TokenSymbol } from "@/config/constants"
 
 // Security configuration constants
 export const SECURITY_LIMITS = {
@@ -18,8 +18,8 @@ export const SECURITY_LIMITS = {
 
     // Address validation
     FORBIDDEN_ADDRESSES: [
-        '0x0000000000000000000000000000000000000000', // Zero address
-        '0x000000000000000000000000000000000000dead', // Burn address
+        "0x0000000000000000000000000000000000000000", // Zero address
+        "0x000000000000000000000000000000000000dead", // Burn address
     ] as const,
 
     // Network validation
@@ -49,7 +49,7 @@ export interface SwapValidationParams {
 }
 
 export interface SendValidationParams {
-    token: TokenSymbol | 'ETH'
+    token: TokenSymbol | "ETH"
     amount: string
     recipient: string
     userAddress: string
@@ -69,12 +69,12 @@ export class TransactionSecurity {
             errors: [],
             warnings: [],
             securityScore: 100,
-            suggestions: []
+            suggestions: [],
         }
 
         // Basic validation
         if (sellToken === buyToken) {
-            result.errors.push('Cannot swap identical tokens')
+            result.errors.push("Cannot swap identical tokens")
             result.securityScore -= 50
         }
 
@@ -83,12 +83,12 @@ export class TransactionSecurity {
         const buyAmountNum = parseFloat(buyAmount)
 
         if (sellAmountNum <= 0 || buyAmountNum <= 0) {
-            result.errors.push('Invalid transaction amounts')
+            result.errors.push("Invalid transaction amounts")
             result.securityScore -= 30
         }
 
         if (sellAmountNum > 1000000) { // Suspiciously large amount
-            result.warnings.push('Extremely large transaction amount detected')
+            result.warnings.push("Extremely large transaction amount detected")
             result.securityScore -= 20
         }
 
@@ -106,23 +106,23 @@ export class TransactionSecurity {
         // Price impact calculation (simplified)
         const expectedPrice = sellAmountNum / buyAmountNum
         if (expectedPrice > 1.5) { // Suspicious price ratio
-            result.warnings.push('Unusual price ratio detected - verify token prices')
+            result.warnings.push("Unusual price ratio detected - verify token prices")
             result.securityScore -= 10
         }
 
         // Recipient validation (if different from user)
         if (recipient && recipient !== userAddress) {
             if (!this.validateAddress(recipient).isValid) {
-                result.errors.push('Invalid recipient address')
+                result.errors.push("Invalid recipient address")
                 result.securityScore -= 30
             }
-            result.warnings.push('Tokens will be sent to a different address')
+            result.warnings.push("Tokens will be sent to a different address")
             result.securityScore -= 5
         }
 
         // Token validation
         if (!SUPPORTED_TOKENS[sellToken] || !SUPPORTED_TOKENS[buyToken]) {
-            result.errors.push('Unsupported token in swap')
+            result.errors.push("Unsupported token in swap")
             result.securityScore -= 25
         }
 
@@ -130,11 +130,11 @@ export class TransactionSecurity {
 
         // Add suggestions based on issues found
         if (slippageBps > SECURITY_LIMITS.DEFAULT_SLIPPAGE_BPS) {
-            result.suggestions.push('Consider using lower slippage tolerance for better execution')
+            result.suggestions.push("Consider using lower slippage tolerance for better execution")
         }
 
         if (sellAmountNum > 100) {
-            result.suggestions.push('Consider splitting large transactions into smaller amounts')
+            result.suggestions.push("Consider splitting large transactions into smaller amounts")
         }
 
         return result
@@ -151,7 +151,7 @@ export class TransactionSecurity {
             errors: [],
             warnings: [],
             securityScore: 100,
-            suggestions: []
+            suggestions: [],
         }
 
         // Address validation
@@ -164,39 +164,39 @@ export class TransactionSecurity {
 
         // Self-send check
         if (recipient.toLowerCase() === userAddress.toLowerCase()) {
-            result.warnings.push('Sending to yourself - transaction will only consume gas')
+            result.warnings.push("Sending to yourself - transaction will only consume gas")
             result.securityScore -= 10
         }
 
         // Amount validation
         const amountNum = parseFloat(amount)
         if (amountNum <= 0) {
-            result.errors.push('Invalid send amount')
+            result.errors.push("Invalid send amount")
             result.securityScore -= 30
         }
 
         // Large transaction warning
         if (amountNum > SECURITY_LIMITS.LARGE_TRANSACTION_USD / 100) { // Rough estimate
-            result.warnings.push('Large transaction amount - please verify recipient address carefully')
+            result.warnings.push("Large transaction amount - please verify recipient address carefully")
             result.securityScore -= 15
         }
 
         // Gas validation
         if (gasLimit) {
             if (gasLimit < SECURITY_LIMITS.MIN_GAS_LIMIT) {
-                result.errors.push('Gas limit too low - transaction will likely fail')
+                result.errors.push("Gas limit too low - transaction will likely fail")
                 result.securityScore -= 25
             }
 
             if (gasLimit > SECURITY_LIMITS.MAX_GAS_LIMIT) {
-                result.warnings.push('Very high gas limit - transaction may be expensive')
+                result.warnings.push("Very high gas limit - transaction may be expensive")
                 result.securityScore -= 10
             }
         }
 
         // Token validation
-        if (token !== 'ETH' && !SUPPORTED_TOKENS[token as TokenSymbol]) {
-            result.errors.push('Unsupported token')
+        if (token !== "ETH" && !SUPPORTED_TOKENS[token as TokenSymbol]) {
+            result.errors.push("Unsupported token")
             result.securityScore -= 30
         }
 
@@ -204,11 +204,11 @@ export class TransactionSecurity {
 
         // Security suggestions
         if (amountNum > 10) {
-            result.suggestions.push('Double-check recipient address for large transactions')
+            result.suggestions.push("Double-check recipient address for large transactions")
         }
 
         if (!addressValidation.isChecksumValid) {
-            result.suggestions.push('Use checksummed address format for better security')
+            result.suggestions.push("Use checksummed address format for better security")
         }
 
         return result
@@ -222,12 +222,12 @@ export class TransactionSecurity {
             isValid: true,
             errors: [] as string[],
             warnings: [] as string[],
-            isChecksumValid: false
+            isChecksumValid: false,
         }
 
         // Basic format validation
         if (!isAddress(address)) {
-            result.errors.push('Invalid Ethereum address format')
+            result.errors.push("Invalid Ethereum address format")
             result.isValid = false
             return result
         }
@@ -235,7 +235,7 @@ export class TransactionSecurity {
         // Check against forbidden addresses
         const lowerAddress = address.toLowerCase()
         if (SECURITY_LIMITS.FORBIDDEN_ADDRESSES.some(forbidden => forbidden.toLowerCase() === lowerAddress)) {
-            result.errors.push('Cannot send to this address (zero/burn address)')
+            result.errors.push("Cannot send to this address (zero/burn address)")
             result.isValid = false
         }
 
@@ -245,12 +245,12 @@ export class TransactionSecurity {
         result.isChecksumValid = hasUpperCase || hasLowerCase
 
         if (!result.isChecksumValid) {
-            result.warnings.push('Address is not checksummed - consider using checksummed format')
+            result.warnings.push("Address is not checksummed - consider using checksummed format")
         }
 
         // Contract detection (basic heuristic)
-        if (address.slice(2).startsWith('000000')) {
-            result.warnings.push('Address appears to be a contract - verify this is intended')
+        if (address.slice(2).startsWith("000000")) {
+            result.warnings.push("Address appears to be a contract - verify this is intended")
         }
 
         return result
@@ -272,31 +272,31 @@ export class TransactionSecurity {
     /**
      * Estimates gas for different transaction types
      */
-    static estimateGasLimits(transactionType: 'eth_transfer' | 'erc20_transfer' | 'swap'): { min: bigint; recommended: bigint; max: bigint } {
+    static estimateGasLimits(transactionType: "eth_transfer" | "erc20_transfer" | "swap"): { min: bigint; recommended: bigint; max: bigint } {
         switch (transactionType) {
-            case 'eth_transfer':
+            case "eth_transfer":
                 return {
                     min: 21000n,
                     recommended: 21000n,
-                    max: 25000n
+                    max: 25000n,
                 }
-            case 'erc20_transfer':
+            case "erc20_transfer":
                 return {
                     min: 50000n,
                     recommended: 65000n,
-                    max: 100000n
+                    max: 100000n,
                 }
-            case 'swap':
+            case "swap":
                 return {
                     min: 150000n,
                     recommended: 250000n,
-                    max: 500000n
+                    max: 500000n,
                 }
             default:
                 return {
                     min: 21000n,
                     recommended: 100000n,
-                    max: 500000n
+                    max: 500000n,
                 }
         }
     }
@@ -314,7 +314,7 @@ export class TransactionSecurity {
 
         return {
             isSignificant: percentage > 50, // More than 50% of balance
-            percentage
+            percentage,
         }
     }
 } 

@@ -1,9 +1,9 @@
-'use client'
+"use client"
 
-import { DuneBalance, DuneActivity, DuneActivityResponse } from '@/types/dune'
-import { TokenSymbol } from '@/config/constants'
-import { base } from 'viem/chains'
-import { ZeroXQuote } from '@/app/types/quote'
+import { DuneActivity, DuneActivityResponse, DuneBalance } from "@/types/dune"
+import { TokenSymbol } from "@/config/constants"
+import { base } from "viem/chains"
+import { ZeroXQuote } from "@/app/types/quote"
 
 // Types
 export interface TokenPrice {
@@ -34,7 +34,7 @@ export async function fetchBalances(address: string): Promise<DuneBalance[]> {
 
     const response = await fetch(`/api/balance?address=${address}&chain_ids=${base.id}`)
     if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }))
+        const errorData = await response.json().catch(() => ({ error: "Failed to parse error response" }))
         throw new Error(errorData.error || `HTTP ${response.status}`)
     }
 
@@ -45,23 +45,23 @@ export async function fetchBalances(address: string): Promise<DuneBalance[]> {
 }
 
 export async function fetchPrices(): Promise<TokenPricesRecord> {
-    const response = await fetch('/api/prices')
+    const response = await fetch("/api/prices")
     if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }))
+        const errorData = await response.json().catch(() => ({ error: "Failed to parse error response" }))
         throw new Error(errorData.error || `HTTP ${response.status}`)
     }
 
     const data = await response.json()
 
     if (!data.prices || !Array.isArray(data.prices)) {
-        throw new Error('Invalid prices response format')
+        throw new Error("Invalid prices response format")
     }
 
     return data.prices.reduce((acc: TokenPricesRecord, item: TokenPrice) => {
         acc[item.symbol] = {
             price: item.price,
             estimatedGas: item.estimatedGas,
-            decimals: item.decimals
+            decimals: item.decimals,
         }
         return acc
     }, {})
@@ -82,7 +82,7 @@ export async function fetchSwapQuote(params: {
 
     const response = await fetch(`/api/swap/quote?${searchParams}`)
     if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Failed to get swap quote' }))
+        const errorData = await response.json().catch(() => ({ error: "Failed to get swap quote" }))
         throw new Error(errorData.error || `HTTP ${response.status}`)
     }
 
@@ -110,7 +110,7 @@ export async function fetchActivity(address: string, params?: {
 
     const response = await fetch(`/api/activity?${searchParams}`)
     if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }))
+        const errorData = await response.json().catch(() => ({ error: "Failed to parse error response" }))
         throw new Error(errorData.error || `HTTP ${response.status}`)
     }
 
@@ -126,7 +126,7 @@ export async function fetchAllActivity(address: string, params?: {
 
     const searchParams = new URLSearchParams({
         address,
-        fetch_all: 'true' // Special flag to indicate we want all activities
+        fetch_all: "true", // Special flag to indicate we want all activities
     })
 
     if (params) {
@@ -139,7 +139,7 @@ export async function fetchAllActivity(address: string, params?: {
 
     const response = await fetch(`/api/activity?${searchParams}`)
     if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }))
+        const errorData = await response.json().catch(() => ({ error: "Failed to parse error response" }))
         throw new Error(errorData.error || `HTTP ${response.status}`)
     }
 
@@ -149,21 +149,21 @@ export async function fetchAllActivity(address: string, params?: {
 
 // Query Keys for React Query
 export const queryKeys = {
-    balances: (address: string) => ['balances', address] as const,
-    prices: ['prices'] as const,
+    balances: (address: string) => ["balances", address] as const,
+    prices: ["prices"] as const,
     activity: (address: string, params?: {
         limit?: number
         offset?: string
         chain_ids?: string
-    }) => ['activity', address, params] as const,
+    }) => ["activity", address, params] as const,
     allActivity: (address: string, params?: {
         chain_ids?: string
-    }) => ['allActivity', address, params] as const,
+    }) => ["allActivity", address, params] as const,
     swapQuote: (params: {
         sellToken: TokenSymbol
         buyToken: TokenSymbol
         sellAmount: string
         taker: string
         feeBps?: string
-    }) => ['swap-quote', params] as const,
+    }) => ["swap-quote", params] as const,
 } as const 
