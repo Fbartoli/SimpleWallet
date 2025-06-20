@@ -158,7 +158,7 @@ export function OnRampUSDCButton(props: Omit<OnRampButtonProps, "asset">) {
             asset="USDC"
         >
             <CreditCard className="mr-2 h-4 w-4" />
-            Get USDC
+            Get USD
         </OnRampButton>
     )
 }
