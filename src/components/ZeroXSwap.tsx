@@ -215,14 +215,9 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   }, [sellToken, buyToken, formattedAmount])
 
   const handleMaxClick = () => {
-    const token = TOKENS[sellToken]
-    if (!token) return
-
-    const selectedToken = balances.find(b =>
-      b.address.toLowerCase() === token.address.toLowerCase()
-    )
-    if (selectedToken) {
-      setValue('amount', (Number(selectedToken.amount) / 10 ** selectedToken.decimals).toString())
+    const storeBalance = storeBalances[sellToken]
+    if (storeBalance && storeBalance.value > 0n) {
+      setValue('amount', storeBalance.formatted)
       setShouldFetchQuote(true)
     }
   }
@@ -374,13 +369,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
               onBlur={handleAmountBlur}
               onMaxClick={handleMaxClick}
               isBalanceLoading={isBalanceLoading}
-              balance={(() => {
-                const token = TOKENS[sellToken]
-                if (!token) return undefined
-                return balances.find(b =>
-                  b.address.toLowerCase() === token.address.toLowerCase()
-                )?.amount
-              })()}
+              balance={storeBalances[sellToken]?.formatted}
             />
 
             <div className="flex justify-center -my-1">

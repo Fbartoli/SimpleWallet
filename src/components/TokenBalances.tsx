@@ -7,6 +7,7 @@ import { useTokenPrices } from '@/hooks/useTokenPrices'
 import { SUPPORTED_TOKENS, type TokenSymbol } from '@/config/constants'
 import { Wallet, Bitcoin, Coins, Euro, DollarSign, RefreshCw, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { OnRampUSDCButton } from '@/components/OnRampButton'
 
 // Token icon mapping (constant to prevent re-creation)
 const TOKEN_ICONS: Record<TokenSymbol, React.ReactNode> = {
@@ -208,20 +209,33 @@ const TotalValueDisplay = memo(function TotalValueDisplay({
   totalValue: number
   stablecoinValue: number
 }) {
-  if (totalValue === 0) return null
-
   return (
-    <div className="mb-4 p-3 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border border-green-100">
-      <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-600">Total Portfolio Value</span>
-        <span className="font-semibold text-lg">${totalValue.toFixed(2)}</span>
-      </div>
-      {stablecoinValue > 0 && (
-        <div className="flex justify-between items-center mt-1">
-          <span className="text-xs text-gray-500">Stablecoins</span>
-          <span className="text-sm text-gray-600">${stablecoinValue.toFixed(2)}</span>
-        </div>
+    <div className="mb-4 p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border border-green-100">
+      {totalValue > 0 && (
+        <>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Total Portfolio Value</span>
+            <span className="font-semibold text-lg">${totalValue.toFixed(2)}</span>
+          </div>
+          {stablecoinValue > 0 && (
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-xs text-gray-500">Stablecoins</span>
+              <span className="text-sm text-gray-600">${stablecoinValue.toFixed(2)}</span>
+            </div>
+          )}
+          <div className="h-px bg-gray-200 my-3" />
+        </>
       )}
+
+      {/* On-ramp buttons */}
+      <div className="space-y-3">
+
+        <OnRampUSDCButton
+          variant="outline"
+          size="sm"
+          className="flex-1"
+        />
+      </div>
     </div>
   )
 })
