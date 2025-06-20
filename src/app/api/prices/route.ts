@@ -52,10 +52,9 @@ export async function GET() {
             .map(async ([symbol, token]) => {
                 const url = createPriceQueryUrl(
                     token.address,
-                    TOKENS.USDC.address,
+                    TOKENS!.USDC!.address,
                     (1 * 10 ** token.decimals).toString() // 1 unit of token in base units
                 )
-                console.log('url', url)
                 const response = await fetch(
                     url,
                     {
@@ -73,7 +72,7 @@ export async function GET() {
                 const data = await response.json()
 
                 // Calculate price accounting for decimals and hardcode USDC to $1
-                const price = Number(data.buyAmount) / (10 ** TOKENS.USDC.decimals) * 1 // Multiply by 1 to represent $1 USDC price
+                const price = Number(data.buyAmount) / (10 ** TOKENS!.USDC!.decimals) * 1 // Multiply by 1 to represent $1 USDC price
 
                 return {
                     symbol: symbol as TokenSymbol,
@@ -89,7 +88,7 @@ export async function GET() {
             symbol: 'USDC' as TokenSymbol,
             price: '1',
             estimatedGas: '0',
-            decimals: TOKENS.USDC.decimals
+            decimals: TOKENS!.USDC!.decimals
         })
 
         // Update cache

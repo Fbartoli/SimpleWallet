@@ -107,7 +107,6 @@ export class DuneClient {
         }
       });
     }
-    console.log('hello', queryParams.toString(), address);
     const url = `${this.baseUrl}beta/tokens/evm/${address}?${queryParams.toString()}`;
 
     const response = await fetch(url, {
@@ -118,7 +117,6 @@ export class DuneClient {
     });
 
     if (!response.ok) {
-      console.log(response);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -134,7 +132,6 @@ export class DuneClient {
 
     // Split addresses into batches
     for (let i = 0; i < addresses.length; i += batchSize) {
-      console.log('hello', addresses[i]!);
       const response = await this.getTokenPrice(addresses[i]!, params);
       allPrices.push(...response.prices);
     }
@@ -165,8 +162,6 @@ export class DuneClient {
     const queryString = queryParams.toString();
     const url = `${this.baseUrl}v1/evm/balances/${address}${queryString ? `?${queryString}` : ''
       }`;
-
-    console.log('url', url);
 
     const response = await fetch(url, {
       method: 'GET',

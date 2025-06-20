@@ -208,11 +208,8 @@ export function Activity() {
     // Filter, sort activities by timestamp (newest first) and take the last 10 (most recent)
     const activities = useMemo(() => {
         if (!data || !Array.isArray(data)) {
-            console.log('Activity data:', data)
             return []
         }
-
-        console.log(`Total activities fetched: ${data.length}`)
 
         // Get whitelisted token addresses
         const whitelistedAddresses = Object.values(SUPPORTED_TOKENS).map(token =>
@@ -234,7 +231,6 @@ export function Activity() {
             return false
         })
 
-        console.log(`Activities after filtering: ${filteredActivities.length} (from ${data.length} total)`)
 
         // Sort by block_time (newest first) to ensure we get the most recent activities
         const sortedActivities = filteredActivities.sort((a, b) => {
@@ -243,8 +239,6 @@ export function Activity() {
             return timeB - timeA // Newest first
         })
 
-        console.log('After sorting - first (newest):', sortedActivities[0])
-        console.log('After sorting - showing count:', Math.min(10, sortedActivities.length))
 
         // Take the first 10 activities (which are now the most recent)
         return sortedActivities.slice(0, 10)

@@ -3,6 +3,7 @@
 import { PrivyProvider } from '@privy-io/react-auth';
 import { SmartWalletsProvider } from '@privy-io/react-auth/smart-wallets';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MoneriumProvider } from '@monerium/sdk-react-provider';
 import { createConfig, WagmiProvider } from '@privy-io/wagmi';
 import { base } from 'wagmi/chains';
 import { http } from 'wagmi';
@@ -59,7 +60,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       >
         <SmartWalletsProvider>
           <WagmiProvider config={config}>
-            {children}
+            <MoneriumProvider
+              clientId="4636fc62-fe8f-11ef-8ea8-d600b28158e8"
+              redirectUri="http://localhost:3000/dashboard"
+              environment="sandbox"
+            >
+              {children}
+            </MoneriumProvider>
             <ReactQueryDevtools initialIsOpen={false} />
           </WagmiProvider>
         </SmartWalletsProvider>

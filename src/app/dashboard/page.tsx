@@ -5,16 +5,36 @@ import { usePrivy } from '@privy-io/react-auth';
 import { ZeroXSwap } from '@/components/ZeroXSwap';
 import { TokenBalances } from '@/components/TokenBalances'
 import { Activity } from '@/components/Activity';
+import { MoneriumAuth } from '@/components/MoneriumAuth';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 export default function Dashboard() {
-  const { user, login } = usePrivy();
+  const { user, login, ready } = usePrivy();
   const smartWalletAddress = user?.smartWallet?.address;
 
-  const zeroXProps = {
-    userAddress: smartWalletAddress as `0x${string}`
-  };
+  // Show loading screen while Privy is initializing
+  if (!ready) {
+    return (
+      <div className="min-h-screen bg-green-50/40 relative flex items-center justify-center">
+        {/* Background gradient elements */}
+        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-green-100/30 to-teal-100/30 rounded-full blur-3xl -z-10 transform translate-x-1/4 -translate-y-1/4" />
+        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-green-100/30 to-teal-100/30 rounded-full blur-3xl -z-10 transform -translate-x-1/4 translate-y-1/4" />
 
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-lg">
+            <Loader2 className="h-8 w-8 text-green-600 animate-spin" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold text-gray-900">Loading Simple Savings</h2>
+            <p className="text-gray-600">Initializing your wallet connection...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show connect screen if user is not authenticated
   if (!smartWalletAddress) {
     return (
       <div className="min-h-screen bg-green-50/40 relative">
@@ -42,6 +62,7 @@ export default function Dashboard() {
     );
   }
 
+  // Show dashboard when authenticated
   return (
     <div className="relative min-h-screen bg-green-50/40 pb-16 md:pb-0">
       {/* Background gradient elements */}
@@ -66,8 +87,10 @@ export default function Dashboard() {
         <div className="lg:col-span-2 flex flex-col gap-6">
           <TokenBalances />
 
+          <MoneriumAuth />
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ZeroXSwap {...zeroXProps} />
+            <ZeroXSwap userAddress={smartWalletAddress as `0x${string}`} />
             <Activity />
           </div>
         </div>

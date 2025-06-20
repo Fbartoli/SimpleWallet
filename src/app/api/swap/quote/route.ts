@@ -18,10 +18,6 @@ export async function GET(request: Request) {
   const buyToken = searchParams.get('buyToken') as TokenSymbol
   const sellAmount = searchParams.get('sellAmount')
   const taker = searchParams.get('taker')
-  console.log('sellToken', sellToken)
-  console.log('buyToken', buyToken)
-  console.log('sellAmount', sellAmount)
-  console.log('taker', taker)
   if (!sellToken || !buyToken || !sellAmount || !taker) {
     return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 })
   }
@@ -52,7 +48,6 @@ export async function GET(request: Request) {
       swapFeeToken: sellTokenInfo.address,
       ...SWAP_FEE_CONFIG,
     })
-    console.log('priceParams', priceParams.toString())
     const response = await fetch(
       `https://api.0x.org/swap/allowance-holder/quote?${priceParams.toString()}`,
       { headers }

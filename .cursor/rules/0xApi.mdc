@@ -1,6 +1,7 @@
 ---
 description: 0x api
 globs: 
+alwaysApply: false
 ---
 ---
 
