@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { SUPPORTED_TOKENS as TOKENS, type TokenSymbol, type TokenConfig as Token } from '@/config/constants'
 import { useTokenBalances } from '@/hooks/useTokenBalances'
 import { useSwapQuote } from '@/hooks/useSwapQuote'
+import { useActivityRefresh } from '@/contexts/ActivityContext'
 import { createPublicClient, encodeFunctionData, erc20Abi, formatUnits, http } from 'viem'
 import { base } from 'viem/chains'
 import { ArrowDownUp, Loader2 } from 'lucide-react'
@@ -168,6 +169,7 @@ function findTokenByAddress(address: string): Token | undefined {
 export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   const { client } = useSmartWallets()
   const { toast } = useToast()
+  const { refreshActivity } = useActivityRefresh()
   const [isSwapLoading, setIsSwapLoading] = useState(false)
   const [shouldFetchQuote, setShouldFetchQuote] = useState(false)
   const {
@@ -316,6 +318,11 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
         title: "Swap completed!",
         description: "Your swap has been successfully executed"
       })
+
+      // Refresh activity feed with a small delay to allow indexing
+      setTimeout(() => {
+        refreshActivity()
+      }, 2000)
     } catch (error) {
       // Revert optimistic update on failure
       revertOptimisticSwap()

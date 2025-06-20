@@ -1,8 +1,9 @@
 'use client';
 
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { usePrivy } from '@privy-io/react-auth'
 import { useActivity } from '@/hooks/useActivity'
+import { useActivityRefresh } from '@/contexts/ActivityContext'
 import { DuneActivity } from '@/types/dune'
 import { SUPPORTED_TOKENS } from '@/config/constants'
 import { Button } from '@/components/ui/button'
@@ -200,10 +201,17 @@ function ErrorDisplay({ error, onRetry }: ErrorDisplayProps) {
 export function Activity() {
     const { user } = usePrivy()
     const walletAddress = user?.smartWallet?.address
+    const { registerRefreshFunction } = useActivityRefresh()
 
     const { data, isLoading, error, refetch } = useActivity(walletAddress || '', {
         chain_ids: '8453' // Base chain
     })
+
+    // Register the refetch function with the activity context
+    useEffect(() => {
+        const cleanup = registerRefreshFunction(refetch)
+        return cleanup
+    }, [registerRefreshFunction, refetch])
 
     // Filter, sort activities by timestamp (newest first) and take the last 10 (most recent)
     const activities = useMemo(() => {
@@ -270,16 +278,6 @@ export function Activity() {
                     </div>
                     <h2 className="text-xl font-semibold text-gray-900">Recent Activity (Last 10)</h2>
                 </div>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => refetch()}
-                    disabled={isLoading}
-                    className="gap-2"
-                >
-                    <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-                    Refresh
-                </Button>
             </div>
 
             {isLoading && activities.length === 0 ? (

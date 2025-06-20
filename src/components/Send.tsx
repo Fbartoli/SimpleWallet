@@ -6,6 +6,7 @@ import { usePrivy } from '@privy-io/react-auth'
 import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
 import { useToast } from '@/components/ui/use-toast'
 import { useTokenBalances } from '@/hooks/useTokenBalances'
+import { useActivityRefresh } from '@/contexts/ActivityContext'
 import { SUPPORTED_TOKENS, type TokenSymbol } from '@/config/constants'
 import { createPublicClient, encodeFunctionData, erc20Abi, http, parseUnits, isAddress } from 'viem'
 import { base } from 'viem/chains'
@@ -166,6 +167,7 @@ export function Send() {
     const { user } = usePrivy()
     const { client } = useSmartWallets()
     const { toast } = useToast()
+    const { refreshActivity } = useActivityRefresh()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isSending, setIsSending] = useState(false)
 
@@ -302,6 +304,11 @@ export function Send() {
                 title: 'Transaction Successful!',
                 description: `Successfully sent ${formData.amount} ${formData.token === 'ETH' ? 'ETH' : SUPPORTED_TOKENS[formData.token as TokenSymbol]?.displaySymbol} to ${formData.recipient.slice(0, 6)}...${formData.recipient.slice(-4)}`,
             })
+
+            // Refresh activity feed with a small delay to allow indexing
+            setTimeout(() => {
+                refreshActivity()
+            }, 2000)
 
             // Reset form
             form.reset()

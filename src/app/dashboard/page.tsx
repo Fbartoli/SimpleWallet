@@ -6,6 +6,7 @@ import { ZeroXSwap } from '@/components/ZeroXSwap';
 import { TokenBalances } from '@/components/TokenBalances'
 import { Activity } from '@/components/Activity';
 import { Send } from '@/components/Send';
+import { ActivityProvider } from '@/contexts/ActivityContext';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 
@@ -89,14 +90,16 @@ export default function Dashboard() {
 
           {/* <MoneriumAuth /> */}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ZeroXSwap userAddress={smartWalletAddress as `0x${string}`} />
-            <Send />
-          </div>
+          <ActivityProvider>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <ZeroXSwap userAddress={smartWalletAddress as `0x${string}`} />
+              <Send />
+            </div>
 
-          <div className="grid grid-cols-1 gap-6">
-            <Activity />
-          </div>
+            <div className="grid grid-cols-1 gap-6">
+              <Activity />
+            </div>
+          </ActivityProvider>
         </div>
 
       </main>
