@@ -8,7 +8,6 @@ import {
   BarChart3,
   Bitcoin,
   CheckCircle,
-  ChevronRight,
   Coins,
   DollarSign,
   Euro,
@@ -35,7 +34,7 @@ export default function Home() {
               Simple Savings
             </span>
           </Link>
-          <nav className="ml-auto flex gap-6">
+          <nav className="ml-auto flex items-center gap-6">
             <Link href="#features" className="text-sm font-medium text-gray-600 hover:text-green-600 transition-colors">
               Features
             </Link>
@@ -88,9 +87,6 @@ export default function Home() {
                     Start Earning Now <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="border-2 border-gray-300 hover:border-green-500">
-                  Watch Demo <ChevronRight className="ml-2 h-5 w-5" />
-                </Button>
               </div>
 
               {/* Yield Showcase */}
@@ -514,7 +510,7 @@ export default function Home() {
                     Start Earning Today <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="border-2 border-white/30 text-white hover:bg-white/10">
+                <Button variant="outline" size="lg" className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-green-600">
                   Learn More
                 </Button>
               </div>
