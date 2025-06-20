@@ -8,6 +8,7 @@ import { SUPPORTED_TOKENS, type TokenSymbol } from "@/config/constants"
 import { AlertCircle, Bitcoin, Coins, DollarSign, Euro, RefreshCw, Wallet } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { OnRampUSDCButton } from "@/components/OnRampButton"
+import { useTranslations } from "@/hooks/useTranslations"
 
 // Token icon mapping (constant to prevent re-creation)
 const TOKEN_ICONS: Record<TokenSymbol, React.ReactNode> = {
@@ -186,11 +187,13 @@ const ErrorDisplay = memo(({
   error: string
   onRetry: () => void
 }) => {
+  const { errors, common } = useTranslations()
+
   return (
     <div className="p-4 bg-red-50 text-red-700 rounded-md border border-red-200">
       <div className="flex items-center gap-2 mb-2">
         <AlertCircle className="h-4 w-4" />
-        <span className="font-medium">Error loading balances</span>
+        <span className="font-medium">{errors("networkError")}</span>
       </div>
       <p className="text-sm mb-3">{error}</p>
       <Button
@@ -200,7 +203,7 @@ const ErrorDisplay = memo(({
         className="text-red-700 border-red-200 hover:bg-red-100"
       >
         <RefreshCw className="h-3 w-3 mr-1" />
-        Try Again
+        {common("retry")}
       </Button>
     </div>
   )
@@ -215,12 +218,14 @@ const TotalValueDisplay = memo(({
   totalValue: number
   stablecoinValue: number
 }) => {
+  const { wallet } = useTranslations()
+
   return (
     <div className="mb-4 p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border border-green-100">
       {totalValue > 0 && (
         <>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Total Portfolio Value</span>
+            <span className="text-sm text-gray-600">{wallet("totalBalance")}</span>
             <span className="font-semibold text-lg">${totalValue.toFixed(2)}</span>
           </div>
           {stablecoinValue > 0 && (
@@ -296,6 +301,7 @@ function TokenBalancesMainContent({
   refreshBalances: () => void
   totalUSDValue: number
 }) {
+  const { wallet } = useTranslations()
 
   const {
     storePrices,
@@ -322,7 +328,7 @@ function TokenBalancesMainContent({
   if (!user?.smartWallet?.address) {
     return (
       <div className="p-4 bg-amber-50 text-amber-800 rounded-lg border border-amber-100">
-        <p>Please connect your wallet to view token balances.</p>
+        <p>{wallet("connectWallet")} to view token balances.</p>
       </div>
     )
   }
@@ -355,7 +361,7 @@ export function TokenBalances() {
           <div className="h-8 w-8 bg-green-500/10 text-green-600 rounded-full flex items-center justify-center">
             <Wallet className="h-4 w-4" />
           </div>
-          <h3 className="text-lg font-semibold">Your Balances</h3>
+          <h3 className="text-lg font-semibold">{useTranslations().wallet("balance")}</h3>
         </div>
 
         <Suspense fallback={

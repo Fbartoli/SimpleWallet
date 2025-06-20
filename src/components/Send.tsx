@@ -11,6 +11,7 @@ import { SUPPORTED_TOKENS, type TokenSymbol } from "@/config/constants"
 import { createPublicClient, encodeFunctionData, erc20Abi, http, isAddress, parseUnits } from "viem"
 import { base } from "viem/chains"
 import { AlertTriangle, ArrowRight, CheckCircle, Loader2, Send as SendIcon } from "lucide-react"
+import { useTranslations } from "@/hooks/useTranslations"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -170,6 +171,7 @@ export function Send() {
     const { refreshActivity } = useActivityRefresh()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isSending, setIsSending] = useState(false)
+    const { send, wallet } = useTranslations()
 
     const walletAddress = user?.smartWallet?.address
 
@@ -331,7 +333,7 @@ export function Send() {
         return (
             <div className="p-6 border rounded-lg shadow-md bg-card">
                 <div className="text-center">
-                    <p className="text-amber-800">Please connect your wallet to send tokens.</p>
+                    <p className="text-amber-800">{wallet("connectWallet")} to send tokens.</p>
                 </div>
             </div>
         )
@@ -348,7 +350,7 @@ export function Send() {
                         <div className="h-8 w-8 bg-blue-500/10 text-blue-600 rounded-full flex items-center justify-center">
                             <SendIcon className="h-4 w-4" />
                         </div>
-                        <h3 className="text-lg font-semibold">Send Tokens</h3>
+                        <h3 className="text-lg font-semibold">{send("sendTokens")}</h3>
                     </div>
 
                     {/* Warning Banner */}
@@ -373,7 +375,7 @@ export function Send() {
                                 name="recipient"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Recipient Address</FormLabel>
+                                        <FormLabel>{send("recipientAddress")}</FormLabel>
                                         <FormControl>
                                             <Input
                                                 placeholder="0x..."
@@ -438,7 +440,7 @@ export function Send() {
                                 name="amount"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Amount</FormLabel>
+                                        <FormLabel>{send("amount")}</FormLabel>
                                         <div className="relative">
                                             <FormControl>
                                                 <Input

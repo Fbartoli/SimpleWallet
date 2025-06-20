@@ -11,6 +11,7 @@ import { useActivityRefresh } from "@/contexts/ActivityContext"
 import { createPublicClient, encodeFunctionData, erc20Abi, formatUnits, http } from "viem"
 import { base } from "viem/chains"
 import { ArrowDownUp, Loader2 } from "lucide-react"
+import { useTranslations } from "@/hooks/useTranslations"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -57,6 +58,8 @@ function TokenSelect({
   balances?: { address: string; amount: string; decimals: number }[]
   storeBalances?: Record<TokenSymbol, { value: bigint; formatted: string }>
 }) {
+  const { swap } = useTranslations()
+
   // Get tokens to display, filtering by balance if needed
   const tokensToDisplay = filterPositiveBalance && storeBalances
     ? Object.entries(TOKENS).filter(([symbol]) => {
@@ -75,7 +78,7 @@ function TokenSelect({
           <Select onValueChange={field.onChange} value={field.value}>
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder={`Select token to ${name === "sellToken" ? "sell" : "buy"}`} />
+                <SelectValue placeholder={swap("selectToken")} />
               </SelectTrigger>
             </FormControl>
             <SelectContent className="bg-background border rounded-md shadow-md max-h-60 overflow-y-auto">
@@ -117,12 +120,14 @@ function AmountInput({
   isBalanceLoading: boolean
   balance?: string
 }) {
+  const { swap } = useTranslations()
+
   return (
     <FormField
       name="amount"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Amount</FormLabel>
+          <FormLabel>{swap("enterAmount")}</FormLabel>
           <div className="relative">
             <FormControl>
               <Input
@@ -172,6 +177,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   const { refreshActivity } = useActivityRefresh()
   const [isSwapLoading, setIsSwapLoading] = useState(false)
   const [shouldFetchQuote, setShouldFetchQuote] = useState(false)
+  const { swap, common } = useTranslations()
   const {
     balances,
     storeBalances,
@@ -359,14 +365,14 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
           <div className="h-8 w-8 bg-green-500/10 text-green-600 rounded-full flex items-center justify-center">
             <ArrowDownUp className="h-4 w-4" />
           </div>
-          <h2 className="text-lg font-semibold">Swap Tokens</h2>
+          <h2 className="text-lg font-semibold">{swap("swapTokens")}</h2>
         </div>
 
         <Form {...form}>
           <form className="space-y-5">
             <TokenSelect
               name="sellToken"
-              label="Sell Token"
+              label={swap("from")}
               filterPositiveBalance={true}
               balances={balances}
               storeBalances={storeBalances}
@@ -388,11 +394,11 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
                 onClick={handleSwapTokens}
               >
                 <ArrowDownUp className="h-5 w-5" />
-                <span className="sr-only">Swap tokens</span>
+                <span className="sr-only">{swap("swapTokens")}</span>
               </Button>
             </div>
 
-            <TokenSelect name="buyToken" label="Buy Token" />
+            <TokenSelect name="buyToken" label={swap("to")} />
 
             <div className="p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg space-y-2 border border-green-100">
               {optimisticUpdate.isActive && (
@@ -404,7 +410,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin text-green-600" />
-                  <p className="text-sm font-medium text-green-800">Fetching latest quote...</p>
+                  <p className="text-sm font-medium text-green-800">{common("loading")}</p>
                 </div>
               ) : quote ? (
                 <div className="space-y-1">
@@ -424,7 +430,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
               ) : (
                 <div className="space-y-2">
                   <p className="text-sm text-green-600">
-                    Enter an amount and select tokens to get a quote
+                    {swap("enterAmount")} and select tokens to get a quote
                   </p>
                   <Button
                     type="button"
@@ -451,10 +457,10 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
                     isSwapLoading ? (
                       <div className="flex items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Executing Swap...</span>
+                        <span>{swap("swapNow")}...</span>
                       </div>
                     ) : (
-                      "Execute Swap"
+                      swap("swapNow")
                     )
                   )}
                 </Button>

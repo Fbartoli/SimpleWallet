@@ -9,6 +9,10 @@ import { base } from "wagmi/chains"
 import { http } from "wagmi"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { useState } from "react"
+import { LanguageProvider } from "../../contexts/LanguageContext"
+
+// Initialize i18n
+import "../../lib/i18n"
 
 export const config = createConfig({
   batch: {
@@ -63,43 +67,45 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PrivyProvider
-        appId={process.env.NEXT_PUBLIC_APP_ID!}
-        clientId={process.env.NEXT_PUBLIC_CLIENT_ID!}
-        config={{
-          defaultChain: base,
-          supportedChains: [base],
-          // Customize Privy's appearance in your app
-          appearance: {
-            theme: "light",
-            accentColor: "#676FFF",
-            logo: "https://your-logo-url",
-            walletChainType: "ethereum-only",
-          },
-          // Create embedded wallets for users who don't have a wallet
-          embeddedWallets: {
-            createOnLogin: "users-without-wallets",
-            showWalletUIs: false,
-          },
-          // Performance optimizations
-          loginMethods: ["email", "wallet"], // Limit login methods for faster load
-        }}
-      >
-        <SmartWalletsProvider>
-          <WagmiProvider config={config}>
-            <MoneriumProvider
-              clientId="4636fc62-fe8f-11ef-8ea8-d600b28158e8"
-              redirectUri={typeof window !== "undefined" ? `${window.location.origin}/dashboard` : "http://localhost:3000/dashboard"}
-              environment="sandbox"
-            >
-              {children}
-            </MoneriumProvider>
-            {process.env.NODE_ENV === "development" && (
-              <ReactQueryDevtools initialIsOpen={false} />
-            )}
-          </WagmiProvider>
-        </SmartWalletsProvider>
-      </PrivyProvider>
+      <LanguageProvider>
+        <PrivyProvider
+          appId={process.env.NEXT_PUBLIC_APP_ID!}
+          clientId={process.env.NEXT_PUBLIC_CLIENT_ID!}
+          config={{
+            defaultChain: base,
+            supportedChains: [base],
+            // Customize Privy's appearance in your app
+            appearance: {
+              theme: "light",
+              accentColor: "#676FFF",
+              logo: "https://your-logo-url",
+              walletChainType: "ethereum-only",
+            },
+            // Create embedded wallets for users who don't have a wallet
+            embeddedWallets: {
+              createOnLogin: "users-without-wallets",
+              showWalletUIs: false,
+            },
+            // Performance optimizations
+            loginMethods: ["email", "google"], // Limit login methods for faster load
+          }}
+        >
+          <SmartWalletsProvider>
+            <WagmiProvider config={config}>
+              <MoneriumProvider
+                clientId="4636fc62-fe8f-11ef-8ea8-d600b28158e8"
+                redirectUri={typeof window !== "undefined" ? `${window.location.origin}/dashboard` : "http://localhost:3000/dashboard"}
+                environment="sandbox"
+              >
+                {children}
+              </MoneriumProvider>
+              {process.env.NODE_ENV === "development" && (
+                <ReactQueryDevtools initialIsOpen={false} />
+              )}
+            </WagmiProvider>
+          </SmartWalletsProvider>
+        </PrivyProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   )
 }

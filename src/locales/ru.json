@@ -1,0 +1,119 @@
+{
+    "common": {
+        "loading": "Загрузка...",
+        "error": "Ошибка",
+        "success": "Успех",
+        "cancel": "Отмена",
+        "confirm": "Подтвердить",
+        "close": "Закрыть",
+        "save": "Сохранить",
+        "edit": "Редактировать",
+        "delete": "Удалить",
+        "copy": "Копировать",
+        "copied": "Скопировано",
+        "back": "Назад",
+        "next": "Далее",
+        "previous": "Предыдущий",
+        "search": "Поиск",
+        "filter": "Фильтр",
+        "sort": "Сортировать",
+        "refresh": "Обновить",
+        "retry": "Повторить"
+    },
+    "navigation": {
+        "dashboard": "Панель управления",
+        "wallet": "Кошелёк",
+        "send": "Отправить",
+        "receive": "Получить",
+        "swap": "Обменять",
+        "activity": "Активность",
+        "settings": "Настройки"
+    },
+    "wallet": {
+        "balance": "Баланс",
+        "totalBalance": "Общий баланс",
+        "availableBalance": "Доступный баланс",
+        "tokens": "Токены",
+        "nfts": "НФТ",
+        "connectWallet": "Подключить кошелёк",
+        "disconnectWallet": "Отключить кошелёк",
+        "walletAddress": "Адрес кошелька",
+        "copyAddress": "Копировать адрес",
+        "addressCopied": "Адрес скопирован в буфер обмена"
+    },
+    "send": {
+        "sendTokens": "Отправить токены",
+        "recipient": "Получатель",
+        "amount": "Сумма",
+        "recipientAddress": "Адрес получателя",
+        "enterAmount": "Введите сумму",
+        "enterRecipient": "Введите адрес получателя",
+        "invalidAddress": "Неверный адрес",
+        "insufficientBalance": "Недостаточно средств",
+        "transactionFee": "Комиссия транзакции",
+        "estimatedFee": "Расчётная комиссия",
+        "sendTransaction": "Отправить транзакцию",
+        "transactionSent": "Транзакция успешно отправлена"
+    },
+    "receive": {
+        "receiveTokens": "Получить токены",
+        "yourAddress": "Ваш адрес",
+        "qrCode": "QR-код",
+        "shareAddress": "Поделиться адресом"
+    },
+    "swap": {
+        "swapTokens": "Обменять токены",
+        "from": "От",
+        "to": "К",
+        "youPay": "Вы платите",
+        "youReceive": "Вы получаете",
+        "exchangeRate": "Курс обмена",
+        "slippageTolerance": "Допустимое проскальзывание",
+        "swapNow": "Обменять сейчас",
+        "swapSuccess": "Обмен успешно завершён",
+        "selectToken": "Выберите токен",
+        "enterAmount": "Введите сумму"
+    },
+    "activity": {
+        "recentActivity": "Недавняя активность",
+        "transactionHistory": "История транзакций",
+        "sent": "Отправлено",
+        "received": "Получено",
+        "swapped": "Обменено",
+        "pending": "В ожидании",
+        "completed": "Завершено",
+        "failed": "Не удалось",
+        "viewOnExplorer": "Просмотреть в обозревателе",
+        "transactionDetails": "Детали транзакции",
+        "transactionHash": "Хеш транзакции",
+        "blockNumber": "Номер блока",
+        "gasUsed": "Использован газ",
+        "gasPrice": "Цена газа"
+    },
+    "settings": {
+        "language": "Язык",
+        "currency": "Валюта",
+        "theme": "Тема",
+        "notifications": "Уведомления",
+        "security": "Безопасность",
+        "about": "О приложении",
+        "version": "Версия",
+        "termsOfService": "Условия использования",
+        "privacyPolicy": "Политика конфиденциальности",
+        "support": "Поддержка"
+    },
+    "errors": {
+        "somethingWentWrong": "Что-то пошло не так",
+        "networkError": "Ошибка сети",
+        "transactionFailed": "Транзакция не удалась",
+        "invalidInput": "Неверный ввод",
+        "connectionFailed": "Не удалось подключиться"
+    },
+    "auth": {
+        "signIn": "Войти",
+        "signOut": "Выйти",
+        "connecting": "Подключение...",
+        "connected": "Подключено",
+        "disconnected": "Отключено"
+    }
+}

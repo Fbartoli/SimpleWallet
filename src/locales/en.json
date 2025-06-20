@@ -1,0 +1,119 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "close": "Close",
+        "save": "Save",
+        "edit": "Edit",
+        "delete": "Delete",
+        "copy": "Copy",
+        "copied": "Copied",
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous",
+        "search": "Search",
+        "filter": "Filter",
+        "sort": "Sort",
+        "refresh": "Refresh",
+        "retry": "Retry"
+    },
+    "navigation": {
+        "dashboard": "Dashboard",
+        "wallet": "Wallet",
+        "send": "Send",
+        "receive": "Receive",
+        "swap": "Swap",
+        "activity": "Activity",
+        "settings": "Settings"
+    },
+    "wallet": {
+        "balance": "Balance",
+        "totalBalance": "Total Balance",
+        "availableBalance": "Available Balance",
+        "tokens": "Tokens",
+        "nfts": "NFTs",
+        "connectWallet": "Connect Wallet",
+        "disconnectWallet": "Disconnect Wallet",
+        "walletAddress": "Wallet Address",
+        "copyAddress": "Copy Address",
+        "addressCopied": "Address copied to clipboard"
+    },
+    "send": {
+        "sendTokens": "Send Tokens",
+        "recipient": "Recipient",
+        "amount": "Amount",
+        "recipientAddress": "Recipient Address",
+        "enterAmount": "Enter amount",
+        "enterRecipient": "Enter recipient address",
+        "invalidAddress": "Invalid address",
+        "insufficientBalance": "Insufficient balance",
+        "transactionFee": "Transaction Fee",
+        "estimatedFee": "Estimated Fee",
+        "sendTransaction": "Send Transaction",
+        "transactionSent": "Transaction sent successfully"
+    },
+    "receive": {
+        "receiveTokens": "Receive Tokens",
+        "yourAddress": "Your Address",
+        "qrCode": "QR Code",
+        "shareAddress": "Share Address"
+    },
+    "swap": {
+        "swapTokens": "Swap Tokens",
+        "from": "From",
+        "to": "To",
+        "youPay": "You Pay",
+        "youReceive": "You Receive",
+        "exchangeRate": "Exchange Rate",
+        "slippageTolerance": "Slippage Tolerance",
+        "swapNow": "Swap Now",
+        "swapSuccess": "Swap completed successfully",
+        "selectToken": "Select Token",
+        "enterAmount": "Enter amount"
+    },
+    "activity": {
+        "recentActivity": "Recent Activity",
+        "transactionHistory": "Transaction History",
+        "sent": "Sent",
+        "received": "Received",
+        "swapped": "Swapped",
+        "pending": "Pending",
+        "completed": "Completed",
+        "failed": "Failed",
+        "viewOnExplorer": "View on Explorer",
+        "transactionDetails": "Transaction Details",
+        "transactionHash": "Transaction Hash",
+        "blockNumber": "Block Number",
+        "gasUsed": "Gas Used",
+        "gasPrice": "Gas Price"
+    },
+    "settings": {
+        "language": "Language",
+        "currency": "Currency",
+        "theme": "Theme",
+        "notifications": "Notifications",
+        "security": "Security",
+        "about": "About",
+        "version": "Version",
+        "termsOfService": "Terms of Service",
+        "privacyPolicy": "Privacy Policy",
+        "support": "Support"
+    },
+    "errors": {
+        "somethingWentWrong": "Something went wrong",
+        "networkError": "Network error",
+        "transactionFailed": "Transaction failed",
+        "invalidInput": "Invalid input",
+        "connectionFailed": "Connection failed"
+    },
+    "auth": {
+        "signIn": "Sign In",
+        "signOut": "Sign Out",
+        "connecting": "Connecting...",
+        "connected": "Connected",
+        "disconnected": "Disconnected"
+    }
+}

@@ -6,6 +6,7 @@ import { usePrivy } from "@privy-io/react-auth"
 import { ActivityProvider } from "@/contexts/ActivityContext"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
+import { useTranslations } from "@/hooks/useTranslations"
 
 // Lazy load heavy components
 const ZeroXSwap = lazy(() => import("@/components/ZeroXSwap").then(mod => ({ default: mod.ZeroXSwap })))
@@ -42,34 +43,39 @@ const LoadingScreen = () => (
 )
 
 // Optimized connect screen component
-const ConnectScreen = ({ onConnect }: { onConnect: () => void }) => (
-    <div className="min-h-screen bg-green-50/40 relative">
-        {/* Background gradient elements */}
-        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-green-100/30 to-teal-100/30 rounded-full blur-3xl -z-10 transform translate-x-1/4 -translate-y-1/4" />
-        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-green-100/30 to-teal-100/30 rounded-full blur-3xl -z-10 transform -translate-x-1/4 translate-y-1/4" />
+const ConnectScreen = ({ onConnect }: { onConnect: () => void }) => {
+    const { wallet } = useTranslations()
 
-        <Header />
-        <main className="container mx-auto px-4 py-16">
-            <div className="max-w-md mx-auto text-center space-y-6">
-                <h1 className="text-3xl font-bold tracking-tight">Welcome to Simple Savings</h1>
-                <p className="text-muted-foreground">
-                    Connect your wallet to access your vault dashboard and start managing your finances.
-                </p>
-                <Button
-                    size="lg"
-                    onClick={onConnect}
-                    className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all animate-pulse"
-                >
-                    Connect
-                </Button>
-            </div>
-        </main>
-    </div>
-)
+    return (
+        <div className="min-h-screen bg-green-50/40 relative">
+            {/* Background gradient elements */}
+            <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-green-100/30 to-teal-100/30 rounded-full blur-3xl -z-10 transform translate-x-1/4 -translate-y-1/4" />
+            <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-green-100/30 to-teal-100/30 rounded-full blur-3xl -z-10 transform -translate-x-1/4 translate-y-1/4" />
+
+            <Header />
+            <main className="container mx-auto px-4 py-16">
+                <div className="max-w-md mx-auto text-center space-y-6">
+                    <h1 className="text-3xl font-bold tracking-tight">Welcome to Simple Savings</h1>
+                    <p className="text-muted-foreground">
+                        {wallet("connectWallet")} to access your vault dashboard and start managing your finances.
+                    </p>
+                    <Button
+                        size="lg"
+                        onClick={onConnect}
+                        className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all animate-pulse"
+                    >
+                        {wallet("connectWallet")}
+                    </Button>
+                </div>
+            </main>
+        </div>
+    )
+}
 
 export default function Dashboard() {
     const { user, login, ready } = usePrivy()
     const smartWalletAddress = user?.smartWallet?.address
+    const { navigation } = useTranslations()
 
     // Show loading screen while Privy is initializing
     if (!ready) {
@@ -97,7 +103,7 @@ export default function Dashboard() {
                 <header className="mb-8">
                     <div className="flex flex-col gap-1 mb-6">
                         <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-green-600 to-teal-600 text-transparent bg-clip-text">
-                            Smart Vault Dashboard
+                            {navigation("dashboard")}
                         </h1>
                         <p className="text-slate-500">Manage and track your token portfolio</p>
                     </div>
