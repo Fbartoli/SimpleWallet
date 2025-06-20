@@ -37,7 +37,7 @@ function createQueryClient() {
         retry: (failureCount, error) => {
           // Smart retry logic
           if (error && typeof error === "object" && "status" in error) {
-            const status = (error as any).status
+            const status = (error as { status: number }).status
             // Don't retry client errors (4xx)
             if (status >= 400 && status < 500) return false
           }

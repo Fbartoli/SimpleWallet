@@ -11,8 +11,21 @@ const duneClient = new DuneClient({
 })
 
 // In-memory cache for balance data (with proper TypeScript types)
+interface BalanceData {
+    balances: Array<{
+        address: string
+        amount: string
+        decimals: number
+        symbol: string
+        chain_id: number
+    }>
+    filtered: boolean
+    whitelisted_count: number
+    total_count: number
+}
+
 interface CacheEntry {
-    data: any
+    data: BalanceData
     timestamp: number
     etag: string
 }
@@ -22,13 +35,13 @@ const CACHE_DURATION = 10_000 // 10 seconds
 const STALE_WHILE_REVALIDATE = 30_000 // 30 seconds
 
 // Request deduplication map
-const pendingRequests = new Map<string, Promise<any>>()
+const pendingRequests = new Map<string, Promise<BalanceData>>()
 
 function generateCacheKey(address: string, chainIds?: string, limit?: string): string {
     return `balance:${address}:${chainIds || "all"}:${limit || "default"}`
 }
 
-function generateETag(data: any): string {
+function generateETag(data: BalanceData): string {
     return Buffer.from(JSON.stringify(data)).toString("base64").slice(0, 16)
 }
 
@@ -40,7 +53,7 @@ function getCachedData(cacheKey: string): CacheEntry | null {
     return null
 }
 
-function setCachedData(cacheKey: string, data: any): void {
+function setCachedData(cacheKey: string, data: BalanceData): void {
     const etag = generateETag(data)
     cache.set(cacheKey, {
         data,

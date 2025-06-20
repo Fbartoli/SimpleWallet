@@ -30,8 +30,13 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
   },
 
-  // Webpack optimizations
+  // Conditional webpack optimizations (only when not using Turbopack)
   webpack: (config, { isServer }) => {
+    // Skip webpack optimizations when using Turbopack
+    if (process.env.TURBOPACK) {
+      return config
+    }
+
     // Don't bundle Node.js polyfills on the client side
     if (!isServer) {
       config.resolve.fallback = {
@@ -98,6 +103,20 @@ const nextConfig: NextConfig = {
       "@radix-ui/react-label",
       "@radix-ui/react-slot",
     ],
+  },
+
+  // Turbopack-specific optimizations (moved from deprecated experimental.turbo)
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
+      },
+    },
+    resolveAlias: {
+      // Turbopack-specific module resolution optimizations
+      "@": "./src",
+    },
   },
 }
 
