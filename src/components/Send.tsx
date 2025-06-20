@@ -67,6 +67,7 @@ function ConfirmationModal({
     formData,
     estimatedGas,
 }: ConfirmationModalProps) {
+    const { send, common } = useTranslations()
     const tokenInfo = formData.token === "ETH"
         ? { symbol: "ETH", displaySymbol: "ETH", decimals: 18 }
         : SUPPORTED_TOKENS[formData.token as TokenSymbol]
@@ -77,10 +78,10 @@ function ConfirmationModal({
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <SendIcon className="h-5 w-5 text-blue-600" />
-                        Confirm Transaction
+                        {send("confirmTransaction")}
                     </DialogTitle>
                     <DialogDescription>
-                        Please review the transaction details before sending.
+                        {send("reviewDetails")}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -90,10 +91,10 @@ function ConfirmationModal({
                         <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
                         <div className="space-y-1">
                             <p className="text-sm font-medium text-amber-800">
-                                Base Network Only
+                                {send("baseNetworkOnly")}
                             </p>
                             <p className="text-xs text-amber-700">
-                                This transaction will only work on Base network. Do not send to addresses on other networks.
+                                {send("baseNetworkWarning")}
                             </p>
                         </div>
                     </div>
@@ -101,27 +102,27 @@ function ConfirmationModal({
                     {/* Transaction Details */}
                     <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
                         <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600">Sending:</span>
+                            <span className="text-sm text-gray-600">{send("sending")}</span>
                             <span className="font-mono font-medium">
                                 {formData.amount} {tokenInfo?.displaySymbol}
                             </span>
                         </div>
 
                         <div className="flex justify-between items-start">
-                            <span className="text-sm text-gray-600">To:</span>
+                            <span className="text-sm text-gray-600">{send("to")}</span>
                             <span className="font-mono text-sm text-right break-all max-w-48">
                                 {formData.recipient}
                             </span>
                         </div>
 
                         <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600">Network:</span>
+                            <span className="text-sm text-gray-600">{send("network")}</span>
                             <span className="text-sm font-medium text-blue-600">Base</span>
                         </div>
 
                         {estimatedGas && (
                             <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-600">Est. Gas:</span>
+                                <span className="text-sm text-gray-600">{send("estimatedGas")}</span>
                                 <span className="text-sm text-gray-800">{estimatedGas} ETH</span>
                             </div>
                         )}
@@ -129,7 +130,7 @@ function ConfirmationModal({
 
                     {/* Final Warning */}
                     <div className="text-center text-sm text-gray-600">
-                        <p>This action cannot be undone. Make sure the recipient address is correct.</p>
+                        <p>{send("actionCannotBeUndone")}</p>
                     </div>
                 </div>
 
@@ -139,7 +140,7 @@ function ConfirmationModal({
                         onClick={onClose}
                         disabled={isLoading}
                     >
-                        Cancel
+                        {common("cancel")}
                     </Button>
                     <Button
                         onClick={onConfirm}
@@ -149,12 +150,12 @@ function ConfirmationModal({
                         {isLoading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Sending...
+                                {send("sending...")}
                             </>
                         ) : (
                             <>
                                 <CheckCircle className="mr-2 h-4 w-4" />
-                                Confirm Send
+                                {send("confirmSend")}
                             </>
                         )}
                     </Button>
@@ -171,7 +172,7 @@ export function Send() {
     const { refreshActivity } = useActivityRefresh()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isSending, setIsSending] = useState(false)
-    const { send, wallet } = useTranslations()
+    const { send, wallet, common } = useTranslations()
 
     const walletAddress = user?.smartWallet?.address
 
@@ -206,18 +207,18 @@ export function Send() {
 
     const validateForm = (data: SendFormValues): string | null => {
         if (!isAddress(data.recipient)) {
-            return "Please enter a valid Ethereum address"
+            return send("pleaseEnterValidAddress")
         }
 
         if (!data.amount || parseFloat(data.amount) <= 0) {
-            return "Please enter a valid amount"
+            return send("pleaseEnterValidAmount")
         }
 
         const availableBalance = parseFloat(getAvailableBalance())
         const sendAmount = parseFloat(data.amount)
 
         if (sendAmount > availableBalance) {
-            return "Insufficient balance"
+            return send("insufficientBalance")
         }
 
         return null
@@ -227,7 +228,7 @@ export function Send() {
         const validation = validateForm(data)
         if (validation) {
             toast({
-                title: "Validation Error",
+                title: send("validationError"),
                 description: validation,
                 variant: "destructive",
             })
@@ -240,8 +241,8 @@ export function Send() {
             setIsModalOpen(true)
         } catch {
             toast({
-                title: "Error",
-                description: "Failed to estimate transaction cost",
+                title: common("error"),
+                description: send("failedToEstimate"),
                 variant: "destructive",
             })
         }
@@ -279,7 +280,7 @@ export function Send() {
                 // ERC20 transfer
                 const token = SUPPORTED_TOKENS[formData.token as TokenSymbol]
                 if (!token) {
-                    throw new Error("Token not found")
+                    throw new Error(send("tokenNotFound"))
                 }
                 const amountInTokenUnits = parseUnits(formData.amount, token.decimals)
 
@@ -303,8 +304,8 @@ export function Send() {
             refresh()
 
             toast({
-                title: "Transaction Successful!",
-                description: `Successfully sent ${formData.amount} ${formData.token === "ETH" ? "ETH" : SUPPORTED_TOKENS[formData.token as TokenSymbol]?.displaySymbol} to ${formData.recipient.slice(0, 6)}...${formData.recipient.slice(-4)}`,
+                title: send("transactionSuccessful"),
+                description: `${send("successfullySent")} ${formData.amount} ${formData.token === "ETH" ? "ETH" : SUPPORTED_TOKENS[formData.token as TokenSymbol]?.displaySymbol} to ${formData.recipient.slice(0, 6)}...${formData.recipient.slice(-4)}`,
             })
 
             // Refresh activity feed with a small delay to allow indexing
@@ -318,9 +319,9 @@ export function Send() {
 
         } catch (error) {
             console.error("Send error:", error)
-            const message = error instanceof Error ? error.message : "Transaction failed"
+            const message = error instanceof Error ? error.message : send("transactionFailed")
             toast({
-                title: "Transaction Failed",
+                title: send("transactionFailed"),
                 description: message,
                 variant: "destructive",
             })
@@ -359,10 +360,10 @@ export function Send() {
                             <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <p className="text-sm font-medium text-amber-800 mb-1">
-                                    ⚠️ Base Network Only
+                                    ⚠️ {send("baseNetworkOnly")}
                                 </p>
                                 <p className="text-sm text-amber-700">
-                                    Tokens will only be sent on the Base network. Do not send to addresses on Ethereum mainnet or other networks as funds may be lost.
+                                    {send("baseNetworkWarningLong")}
                                 </p>
                             </div>
                         </div>
@@ -397,13 +398,13 @@ export function Send() {
                                         <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="Select token to send" />
+                                                    <SelectValue placeholder={send("selectTokenToSend")} />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
                                                 <SelectItem value="ETH">
                                                     <div className="flex items-center justify-between w-full">
-                                                        <span className="font-medium">ETH (Native)</span>
+                                                        <span className="font-medium">{send("ethNative")}</span>
                                                         <span className="ml-2 text-sm text-gray-500 font-mono">
                                                             {isBalanceLoading ? "..." : getAvailableBalance()}
                                                         </span>
@@ -463,12 +464,12 @@ export function Send() {
                                                 {isBalanceLoading ? (
                                                     <Loader2 className="h-3 w-3 animate-spin" />
                                                 ) : (
-                                                    "Max"
+                                                    common("max")
                                                 )}
                                             </Button>
                                         </div>
                                         <div className="text-sm text-gray-500">
-                                            Available: {isBalanceLoading ? "..." : getAvailableBalance()} {selectedToken === "ETH" ? "ETH" : SUPPORTED_TOKENS[selectedToken as TokenSymbol]?.displaySymbol}
+                                            {send("available")}: {isBalanceLoading ? "..." : getAvailableBalance()} {selectedToken === "ETH" ? "ETH" : SUPPORTED_TOKENS[selectedToken as TokenSymbol]?.displaySymbol}
                                         </div>
                                         <FormMessage />
                                     </FormItem>
@@ -481,11 +482,11 @@ export function Send() {
                                 disabled={!client || isBalanceLoading}
                             >
                                 {!client ? (
-                                    "Wallet Not Connected"
+                                    wallet("connectWallet")
                                 ) : (
                                     <>
                                         <ArrowRight className="mr-2 h-4 w-4" />
-                                        Review Transaction
+                                        {send("reviewTransaction")}
                                     </>
                                 )}
                             </Button>

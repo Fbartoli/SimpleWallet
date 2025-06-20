@@ -191,7 +191,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
 
   const form = useForm<SwapFormValues>({
     defaultValues: {
-      sellToken: "USDC",
+      sellToken: "" as TokenSymbol,
       buyToken: "EURC",
       amount: "1",
     },
@@ -214,6 +214,25 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
     shouldFetch: shouldFetchQuote,
     enabled: Boolean(sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken),
   })
+
+  // Auto-select first available token with positive balance when user connects
+  useEffect(() => {
+    if (storeBalances && Object.keys(storeBalances).length > 0) {
+      const currentSellBalance = storeBalances[sellToken]
+
+      // If current sellToken is empty, has no balance, or is not available, find first token with positive balance
+      if (!sellToken || !currentSellBalance || currentSellBalance.value <= 0n) {
+        const firstAvailableToken = Object.entries(storeBalances).find(([_, balance]) =>
+          balance.value > 0n
+        )
+
+        if (firstAvailableToken) {
+          const [tokenSymbol] = firstAvailableToken
+          setValue("sellToken", tokenSymbol as TokenSymbol, { shouldValidate: true })
+        }
+      }
+    }
+  }, [storeBalances, setValue, sellToken])
 
   // Watch for changes in tokens or amount to trigger quote updates
   useEffect(() => {
@@ -255,8 +274,8 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
       setShouldFetchQuote(true)
     } else {
       toast({
-        title: "Cannot fetch quote",
-        description: "Please select valid tokens and enter an amount greater than 0",
+        title: swap("cannotFetchQuote"),
+        description: swap("selectValidTokensAndAmount"),
         variant: "destructive",
       })
     }
@@ -274,8 +293,8 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
 
     // Show immediate success feedback
     toast({
-      title: "Swap processing",
-      description: `Swapping ${TOKENS[sellToken]?.displaySymbol} for ${TOKENS[buyToken]?.displaySymbol}...`,
+      title: swap("swapProcessing"),
+      description: swap("swappingTokens").replace("{{sellToken}}", TOKENS[sellToken]?.displaySymbol || sellToken).replace("{{buyToken}}", TOKENS[buyToken]?.displaySymbol || buyToken),
     })
 
     try {
@@ -321,8 +340,8 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
       refresh()
 
       toast({
-        title: "Swap completed!",
-        description: "Your swap has been successfully executed",
+        title: swap("swapCompleted"),
+        description: swap("swapExecutedSuccessfully"),
       })
 
       // Refresh activity feed with a small delay to allow indexing
@@ -336,7 +355,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
       const message = error instanceof Error ? error.message : "Failed to execute swap"
       toast({
         variant: "destructive",
-        title: "Swap failed",
+        title: swap("swapFailed"),
         description: message,
       })
     } finally {
@@ -350,7 +369,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   if (!buyTokenInfo) {
     return (
       <div className="p-6 border rounded-lg shadow-md bg-card">
-        <p>Invalid token configuration</p>
+        <p>{swap("invalidTokenConfiguration")}</p>
       </div>
     )
   }
@@ -404,7 +423,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
               {optimisticUpdate.isActive && (
                 <div className="flex items-center gap-2 mb-2 p-2 bg-blue-50 rounded border border-blue-200">
                   <Loader2 className="h-3 w-3 animate-spin text-blue-600" />
-                  <p className="text-xs font-medium text-blue-800">Confirming swap on blockchain...</p>
+                  <p className="text-xs font-medium text-blue-800">{swap("confirmingSwapOnBlockchain")}</p>
                 </div>
               )}
               {isLoading ? (
@@ -415,14 +434,14 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
               ) : quote ? (
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-green-800">
-                    Estimated output: {(Number(quote.buyAmount) / 10 ** buyTokenInfo.decimals).toFixed(6)} {buyTokenInfo.symbol}
+                    {swap("estimatedOutput")} {(Number(quote.buyAmount) / 10 ** buyTokenInfo.decimals).toFixed(6)} {buyTokenInfo.symbol}
                   </p>
                   {quote.fees?.integratorFee && (() => {
                     const feeToken = findTokenByAddress(quote.fees.integratorFee.token)
                     if (!feeToken) return null
                     return (
                       <p className="text-sm text-green-600">
-                        Platform fee: {formatUnits(BigInt(quote.fees.integratorFee.amount), feeToken.decimals).toString()} {feeToken.symbol}
+                        {swap("platformFee")} {formatUnits(BigInt(quote.fees.integratorFee.amount), feeToken.decimals).toString()} {feeToken.symbol}
                       </p>
                     )
                   })()}
@@ -430,14 +449,14 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
               ) : (
                 <div className="space-y-2">
                   <p className="text-sm text-green-600">
-                    {swap("enterAmount")} and select tokens to get a quote
+                    {swap("enterAmount")} {swap("selectTokensForQuote")}
                   </p>
                   <Button
                     type="button"
                     onClick={fetchQuote}
                     className="w-full bg-green-100 hover:bg-green-200 text-green-700 shadow-sm"
                   >
-                    Get Quote
+                    {swap("getQuote")}
                   </Button>
                 </div>
               )}
@@ -453,7 +472,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
                     ? "bg-slate-200 text-slate-600 h-10"
                     : "bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all h-10"}
                 >
-                  {!client ? "Wallet Not Connected" : (
+                  {!client ? swap("walletNotConnected") : (
                     isSwapLoading ? (
                       <div className="flex items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />

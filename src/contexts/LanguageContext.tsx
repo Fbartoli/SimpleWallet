@@ -19,9 +19,6 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 const AVAILABLE_LANGUAGES = [
     { code: "en" as Language, name: "English", nativeName: "English" },
-    { code: "es" as Language, name: "Spanish", nativeName: "Español" },
-    { code: "fr" as Language, name: "French", nativeName: "Français" },
-    { code: "de" as Language, name: "German", nativeName: "Deutsch" },
     { code: "ru" as Language, name: "Russian", nativeName: "Русский" },
 ]
 
