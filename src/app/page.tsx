@@ -291,6 +291,209 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Security Section - Inspired by Privy's Security Architecture */}
+        <section id="security" className="w-full py-20 md:py-32 bg-gradient-to-br from-slate-50 to-gray-100">
+          <div className="container px-4 md:px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-bold mb-6">
+                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">Security First</span>
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                <strong>The security of your funds is our top priority.</strong> We partner with <strong>Privy</strong>, a leading wallet infrastructure provider, to deliver enterprise-grade security with multiple independent security boundaries protecting your assets.
+              </p>
+            </div>
+
+            {/* Core Security Principles */}
+            <div className="mb-20">
+              <h3 className="text-2xl font-bold text-center mb-12">Privy&apos;s Security Approach</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <div className="text-center">
+                  <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-6 mx-auto">
+                    <Shield className="h-8 w-8 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold mb-4">Non-Custodial by Design</h4>
+                  <p className="text-gray-600">
+                    Only you can access your keys through sophisticated cryptographic protection and secure execution environments.
+                  </p>
+                </div>
+                <div className="text-center">
+                  <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mb-6 mx-auto">
+                    <Lock className="h-8 w-8 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold mb-4">Defense in Depth</h4>
+                  <p className="text-gray-600">
+                    Multiple independent security boundaries protect your assets from cryptographic guarantees to hardware-level isolation.
+                  </p>
+                </div>
+                <div className="text-center">
+                  <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl mb-6 mx-auto">
+                    <Zap className="h-8 w-8 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold mb-4">Continuous Validation</h4>
+                  <p className="text-gray-600">
+                    Regular third-party audits, active bug bounty programs, and 24/7 security monitoring ensure systems remain secure.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Technical Security Features */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-20">
+              {/* Trusted Execution Environments */}
+              <div className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all">
+                <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-6">
+                  <Shield className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Trusted Execution Environments</h3>
+                <p className="text-gray-600 mb-4">
+                  Privy uses Trusted Execution Environments (TEEs) for sensitive wallet operations—highly restricted compute environments with deep system isolation guaranteed by the processor itself.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center text-blue-600 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Hardware-level isolation
+                  </div>
+                  <div className="flex items-center text-blue-600 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    No persistent storage
+                  </div>
+                  <div className="flex items-center text-blue-600 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Cryptographic attestation
+                  </div>
+                </div>
+              </div>
+
+              {/* Key Sharding */}
+              <div className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all">
+                <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mb-6">
+                  <Lock className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Distributed Key Sharding</h3>
+                <p className="text-gray-600 mb-4">
+                  Privy splits private keys into encrypted shares using Shamir&apos;s secret sharing, distributed across separate security boundaries. Keys only exist temporarily during signing operations.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center text-green-600 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    2-of-2 share requirement
+                  </div>
+                  <div className="flex items-center text-green-600 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Encrypted storage
+                  </div>
+                  <div className="flex items-center text-green-600 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Temporary reconstruction
+                  </div>
+                </div>
+              </div>
+
+              {/* Smart Contract Security */}
+              <div className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all">
+                <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl mb-6">
+                  <BarChart3 className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Battle-Tested Infrastructure</h3>
+                <p className="text-gray-600 mb-4">
+                  Built on Privy&apos;s proven wallet infrastructure that secures over 50 million users and has facilitated billions of dollars in transaction value.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center text-purple-600 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    50+ million users secured
+                  </div>
+                  <div className="flex items-center text-purple-600 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Billions in transaction value
+                  </div>
+                  <div className="flex items-center text-purple-600 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Enterprise-grade security
+                  </div>
+                </div>
+              </div>
+
+              {/* Operational Security */}
+              <div className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all">
+                <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl mb-6">
+                  <Globe className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Privy&apos;s Operational Excellence</h3>
+                <p className="text-gray-600 mb-4">
+                  Privy maintains strict access controls, multi-party approvals, and automated security testing to ensure infrastructure remains secure against evolving threats.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center text-orange-600 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    SOC2 Type II certified
+                  </div>
+                  <div className="flex items-center text-orange-600 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Multi-party approvals
+                  </div>
+                  <div className="flex items-center text-orange-600 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    24/7 incident response
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Privy's Security Validation */}
+            <div className="bg-white rounded-3xl p-8 shadow-lg mb-16">
+              <h3 className="text-2xl font-bold text-center mb-8">Privy&apos;s Security Validation</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600 mb-2">Multiple</div>
+                  <div className="text-sm text-gray-600">Independent Audits</div>
+                  <div className="text-xs text-gray-500 mt-1">Cure53, Zellic, Doyensec</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600 mb-2">SOC2</div>
+                  <div className="text-sm text-gray-600">Type II Certified</div>
+                  <div className="text-xs text-gray-500 mt-1">Compliance validated</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600 mb-2">Active</div>
+                  <div className="text-sm text-gray-600">Bug Bounty Program</div>
+                  <div className="text-xs text-gray-500 mt-1">Continuous testing</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-orange-600 mb-2">24/7</div>
+                  <div className="text-sm text-gray-600">Security Monitoring</div>
+                  <div className="text-xs text-gray-500 mt-1">Rapid response SLAs</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Powered by Privy */}
+            <div className="text-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8">
+              <h3 className="text-xl font-bold mb-4">Powered by Privy</h3>
+              <p className="text-gray-600 max-w-3xl mx-auto">
+                Your wallet security is powered by Privy&apos;s open-source cryptographic implementations that have undergone dedicated third-party audits.
+                Privy believes security requires constant vigilance and transparency to maintain trust.
+              </p>
+              <div className="flex items-center justify-center mt-6">
+                <div className="flex items-center text-blue-600 font-medium">
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Open-source cryptography
+                </div>
+                <div className="mx-4 text-gray-300">•</div>
+                <div className="flex items-center text-blue-600 font-medium">
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Public audit reports
+                </div>
+                <div className="mx-4 text-gray-300">•</div>
+                <div className="flex items-center text-blue-600 font-medium">
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Vulnerability disclosure program
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="w-full py-20 md:py-32 bg-gradient-to-br from-green-600 via-teal-600 to-green-700 text-white relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMiIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC4xIi8+Cjwvc3ZnPgo=')] opacity-30"></div>
@@ -338,7 +541,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="w-full py-12 bg-gray-900 text-white">
         <div className="container px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <div className="h-8 w-8 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center">
@@ -357,24 +560,6 @@ export default function Home() {
                 <Link href="#features" className="block hover:text-white transition-colors">Features</Link>
                 <Link href="#security" className="block hover:text-white transition-colors">Security</Link>
                 <Link href="/dashboard" className="block hover:text-white transition-colors">Dashboard</Link>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <div className="space-y-2 text-gray-400">
-                <Link href="#" className="block hover:text-white transition-colors">About</Link>
-                <Link href="#" className="block hover:text-white transition-colors">Blog</Link>
-                <Link href="#" className="block hover:text-white transition-colors">Careers</Link>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <div className="space-y-2 text-gray-400">
-                <Link href="#" className="block hover:text-white transition-colors">Help Center</Link>
-                <Link href="#" className="block hover:text-white transition-colors">Contact</Link>
-                <Link href="#" className="block hover:text-white transition-colors">Status</Link>
               </div>
             </div>
           </div>
