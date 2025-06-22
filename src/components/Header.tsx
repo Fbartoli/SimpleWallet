@@ -4,11 +4,10 @@ import { useState } from "react"
 import { usePrivy } from "@privy-io/react-auth"
 import { useAuth } from "@monerium/sdk-react-provider"
 import { Button } from "./Button"
-import { Home, LogOut, Menu, PiggyBank } from "lucide-react"
+import { Home, LogOut, Menu, PiggyBank, Settings } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTranslations } from "../hooks/useTranslations"
-import { LanguageSwitcherCompact } from "./LanguageSwitcher"
 
 export default function Header() {
   const { authenticated, logout } = usePrivy()
@@ -54,7 +53,6 @@ export default function Header() {
             </Link>
           </div>
           <div className="flex items-center space-x-2">
-            <LanguageSwitcherCompact />
             <div className="relative">
               {!authenticated ? (<></>) : (
                 <>
@@ -82,6 +80,15 @@ export default function Header() {
                             {navigation("dashboard")}
                           </Link>
                         )}
+                        <Link
+                          href="/settings"
+                          className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-muted/50 transition-colors"
+                          role="menuitem"
+                          onClick={closeMenu}
+                        >
+                          <Settings className="h-4 w-4" />
+                          {navigation("settings")}
+                        </Link>
                         <button
                           onClick={handleDisconnect}
                           className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-muted/50 transition-colors"

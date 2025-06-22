@@ -419,47 +419,54 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
 
             <TokenSelect name="buyToken" label={swap("to")} />
 
-            <div className="p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg space-y-2 border border-green-100">
-              {optimisticUpdate.isActive && (
-                <div className="flex items-center gap-2 mb-2 p-2 bg-blue-50 rounded border border-blue-200">
-                  <Loader2 className="h-3 w-3 animate-spin text-blue-600" />
-                  <p className="text-xs font-medium text-blue-800">{swap("confirmingSwapOnBlockchain")}</p>
-                </div>
-              )}
-              {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-green-600" />
-                  <p className="text-sm font-medium text-green-800">{common("loading")}</p>
-                </div>
-              ) : quote ? (
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-green-800">
-                    {swap("estimatedOutput")} {(Number(quote.buyAmount) / 10 ** buyTokenInfo.decimals).toFixed(6)} {buyTokenInfo.symbol}
-                  </p>
-                  {quote.fees?.integratorFee && (() => {
-                    const feeToken = findTokenByAddress(quote.fees.integratorFee.token)
-                    if (!feeToken) return null
-                    return (
-                      <p className="text-sm text-green-600">
-                        {swap("platformFee")} {formatUnits(BigInt(quote.fees.integratorFee.amount), feeToken.decimals).toString()} {feeToken.symbol}
-                      </p>
-                    )
-                  })()}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <p className="text-sm text-green-600">
-                    {swap("enterAmount")} {swap("selectTokensForQuote")}
-                  </p>
-                  <Button
-                    type="button"
-                    onClick={fetchQuote}
-                    className="w-full bg-green-100 hover:bg-green-200 text-green-700 shadow-sm"
-                  >
-                    {swap("getQuote")}
-                  </Button>
-                </div>
-              )}
+            <div className="p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border border-green-100 min-h-[100px]">
+              {/* Reserve space for optimistic update notification */}
+              <div className="mb-2" style={{ minHeight: optimisticUpdate.isActive ? "auto" : "0px" }}>
+                {optimisticUpdate.isActive && (
+                  <div className="flex items-center gap-2 p-2 bg-blue-50 rounded border border-blue-200">
+                    <Loader2 className="h-3 w-3 animate-spin text-blue-600" />
+                    <p className="text-xs font-medium text-blue-800">{swap("confirmingSwapOnBlockchain")}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Quote/loading section with consistent height */}
+              <div className="space-y-2" style={{ minHeight: "48px" }}>
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-green-600" />
+                    <p className="text-sm font-medium text-green-800">{common("loading")}</p>
+                  </div>
+                ) : quote ? (
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-green-800">
+                      {swap("estimatedOutput")} {(Number(quote.buyAmount) / 10 ** buyTokenInfo.decimals).toFixed(6)} {buyTokenInfo.symbol}
+                    </p>
+                    {quote.fees?.integratorFee && (() => {
+                      const feeToken = findTokenByAddress(quote.fees.integratorFee.token)
+                      if (!feeToken) return null
+                      return (
+                        <p className="text-sm text-green-600">
+                          {swap("platformFee")} {formatUnits(BigInt(quote.fees.integratorFee.amount), feeToken.decimals).toString()} {feeToken.symbol}
+                        </p>
+                      )
+                    })()}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-sm text-green-600">
+                      {swap("enterAmount")} {swap("selectTokensForQuote")}
+                    </p>
+                    <Button
+                      type="button"
+                      onClick={fetchQuote}
+                      className="w-full bg-green-100 hover:bg-green-200 text-green-700 shadow-sm"
+                    >
+                      {swap("getQuote")}
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-col gap-4">

@@ -17,7 +17,7 @@ export function LanguageSwitcher() {
     return (
         <div className="flex items-center space-x-2">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t("settings.language")}:
+                {t("settings.language.title")}:
             </span>
             <Select value={currentLanguage} onValueChange={changeLanguage}>
                 <SelectTrigger className="w-32">

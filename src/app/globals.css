@@ -1,7 +1,80 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
+/* Prevent layout shifts from web fonts */
+@layer base {
+  * {
+    font-display: optional;
+  }
+
+  /* Ensure consistent box-sizing to prevent layout shifts */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  /* Prevent layout shifts from images */
+  img {
+    height: auto;
+    max-width: 100%;
+  }
+
+  /* Smooth transitions to reduce perceived layout shifts */
+  * {
+    transition-property: opacity, transform;
+    transition-duration: 0.15s;
+    transition-timing-function: ease-in-out;
+  }
+
+  /* Override specific elements that shouldn't have transitions */
+  input,
+  textarea,
+  select,
+  button:active,
+  [role="button"]:active {
+    transition: none;
+  }
+}
+
+/* Utilities for preventing layout shifts */
+@layer utilities {
+  .aspect-preserve {
+    aspect-ratio: attr(width) / attr(height);
+  }
+
+  .font-fallback {
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+
+  /* Skeleton loading improvements */
+  .skeleton {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.04), transparent);
+    background-size: 200% 100%;
+  }
+
+  .skeleton::before {
+    content: '';
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+
+    100% {
+      background-position: 200% 0;
+    }
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -25,7 +98,7 @@
     --ring: 240 5.9% 10%;
     --radius: 0.5rem;
   }
- 
+
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
@@ -48,12 +121,13 @@
     --ring: 240 4.9% 83.9%;
   }
 }
- 
+
 @layer base {
   * {
     @apply border-neutral-200;
   }
+
   body {
     @apply bg-background text-foreground;
   }
-} 
+}

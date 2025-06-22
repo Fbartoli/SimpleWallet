@@ -145,9 +145,10 @@ const TokenGrid = memo(({
     })
   }, [storeBalances, storePrices])
 
-  // Filter and sort tokens - only show tokens with value >= $1 or with any balance
+  // Always show at least 4 token slots to prevent layout shifts
+  const minTokenSlots = 4
   const sortedTokens = useMemo(() => {
-    return tokenList
+    const filtered = tokenList
       .filter(token => token.usdValue >= 1 || token.hasBalance)
       .sort((a, b) => {
         // First, sort by whether they have balance
@@ -160,10 +161,22 @@ const TokenGrid = memo(({
         // Finally by symbol alphabetically
         return a.symbol.localeCompare(b.symbol)
       })
-  }, [tokenList])
+
+    // Ensure we show at least minTokenSlots by adding zero-balance tokens if needed
+    if (filtered.length < minTokenSlots) {
+      const remainingTokens = tokenList
+        .filter(token => !filtered.some(f => f.symbol === token.symbol))
+        .sort((a, b) => a.symbol.localeCompare(b.symbol))
+        .slice(0, minTokenSlots - filtered.length)
+
+      return [...filtered, ...remainingTokens]
+    }
+
+    return filtered
+  }, [tokenList, minTokenSlots])
 
   return (
-    <div className="grid gap-3">
+    <div className="grid gap-3" style={{ minHeight: `${minTokenSlots * 60}px` }}>
       {sortedTokens.map((token) => (
         <TokenCard
           key={token.symbol}
@@ -214,39 +227,56 @@ ErrorDisplay.displayName = "ErrorDisplay"
 const TotalValueDisplay = memo(({
   totalValue,
   stablecoinValue,
+  isLoading = false,
 }: {
   totalValue: number
   stablecoinValue: number
+  isLoading?: boolean
 }) => {
   const { wallet } = useTranslations()
 
+  // Always render the container to prevent layout shifts
   return (
-    <div className="mb-4 p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border border-green-100">
-      {totalValue > 0 && (
+    <div className="mb-4 p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border border-green-100 min-h-[120px]">
+      {isLoading ? (
+        <div className="space-y-3 animate-pulse">
+          <div className="flex justify-between items-center">
+            <div className="h-4 w-20 bg-gray-200 rounded" />
+            <div className="h-6 w-24 bg-gray-200 rounded" />
+          </div>
+          <div className="h-px bg-gray-200" />
+          <div className="h-8 w-full bg-gray-200 rounded" />
+        </div>
+      ) : (
         <>
+          {/* Always show total balance section, even if zero */}
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">{wallet("totalBalance")}</span>
             <span className="font-semibold text-lg">${totalValue.toFixed(2)}</span>
           </div>
-          {stablecoinValue > 0 && (
-            <div className="flex justify-between items-center mt-1">
-              <span className="text-xs text-gray-500">Stablecoins</span>
-              <span className="text-sm text-gray-600">${stablecoinValue.toFixed(2)}</span>
-            </div>
-          )}
+
+          {/* Show stablecoin breakdown if there are stablecoins */}
+          <div className="flex justify-between items-center mt-1" style={{ minHeight: "20px" }}>
+            {stablecoinValue > 0 && (
+              <>
+                <span className="text-xs text-gray-500">Stablecoins</span>
+                <span className="text-sm text-gray-600">${stablecoinValue.toFixed(2)}</span>
+              </>
+            )}
+          </div>
+
           <div className="h-px bg-gray-200 my-3" />
+
+          {/* On-ramp buttons */}
+          <div className="space-y-3">
+            <OnRampUSDCButton
+              variant="outline"
+              size="sm"
+              className="flex-1"
+            />
+          </div>
         </>
       )}
-
-      {/* On-ramp buttons */}
-      <div className="space-y-3">
-
-        <OnRampUSDCButton
-          variant="outline"
-          size="sm"
-          className="flex-1"
-        />
-      </div>
     </div>
   )
 })
@@ -268,12 +298,16 @@ function TokenBalancesContent() {
 
   return (
     <>
-      {optimisticUpdate.isActive && (
-        <div className="mb-4 flex items-center gap-2 p-3 bg-blue-50 text-blue-800 rounded-lg border border-blue-200">
-          <RefreshCw className="h-4 w-4 animate-spin" />
-          <span className="text-sm font-medium">Transaction pending - balances updating...</span>
-        </div>
-      )}
+      {/* Reserve space for optimistic update notification to prevent layout shift */}
+      <div className="mb-4" style={{ minHeight: optimisticUpdate.isActive ? "auto" : "0px" }}>
+        {optimisticUpdate.isActive && (
+          <div className="flex items-center gap-2 p-3 bg-blue-50 text-blue-800 rounded-lg border border-blue-200">
+            <RefreshCw className="h-4 w-4 animate-spin" />
+            <span className="text-sm font-medium">Transaction pending - balances updating...</span>
+          </div>
+        )}
+      </div>
+
       <TokenBalancesMainContent
         user={user}
         storeBalances={storeBalances}
@@ -342,6 +376,7 @@ function TokenBalancesMainContent({
       <TotalValueDisplay
         totalValue={totalUSDValue}
         stablecoinValue={stablecoinValue}
+        isLoading={isLoading}
       />
       <TokenGrid
         storeBalances={storeBalances}

@@ -269,8 +269,11 @@ export function Activity() {
         )
     }
 
+    const minActivitySlots = 5 // Minimum number of activity slots to show
+    const activityHeight = 76 // Height of each activity item (p-4 = 16px top/bottom + content ~44px)
+
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 min-h-[400px]">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="h-8 w-8 bg-blue-500/10 text-blue-600 rounded-full flex items-center justify-center">
@@ -280,39 +283,49 @@ export function Activity() {
                 </div>
             </div>
 
-            {isLoading && activities.length === 0 ? (
-                <div className="space-y-3">
-                    {Array.from({ length: 5 }, () => (
-                        <div key={`skeleton-${Math.random().toString(36).substring(2, 15)}`} className="animate-pulse">
-                            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                <div className="flex items-center gap-3">
-                                    <div className="h-10 w-10 bg-gray-200 rounded-full" />
+            {/* Container with consistent height to prevent layout shifts */}
+            <div className="space-y-3" style={{ minHeight: `${minActivitySlots * activityHeight}px` }}>
+                {isLoading && activities.length === 0 ? (
+                    <>
+                        {Array.from({ length: minActivitySlots }, (_, i) => (
+                            <div key={i} className="animate-pulse">
+                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-10 w-10 bg-gray-200 rounded-full" />
+                                        <div className="space-y-2">
+                                            <div className="h-4 bg-gray-200 rounded w-32" />
+                                            <div className="h-3 bg-gray-200 rounded w-24" />
+                                        </div>
+                                    </div>
                                     <div className="space-y-2">
-                                        <div className="h-4 bg-gray-200 rounded w-32" />
-                                        <div className="h-3 bg-gray-200 rounded w-24" />
+                                        <div className="h-4 bg-gray-200 rounded w-20" />
+                                        <div className="h-8 w-8 bg-gray-200 rounded" />
                                     </div>
                                 </div>
-                                <div className="h-4 bg-gray-200 rounded w-20" />
                             </div>
-                        </div>
-                    ))}
-                </div>
-            ) : activities.length === 0 ? (
-                <div className="p-8 text-center bg-gray-50 rounded-lg">
-                    <ActivityIcon className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-1">No activity yet</h3>
-                    <p className="text-gray-500">Your wallet activity will show up here</p>
-                </div>
-            ) : (
-                <div className="space-y-3">
-                    {activities.map((activity) => (
-                        <ActivityItem
-                            key={`${activity.tx_hash}-${activity.block_time}`}
-                            activity={activity}
-                        />
-                    ))}
-                </div>
-            )}
+                        ))}
+                    </>
+                ) : activities.length === 0 ? (
+                    <div className="p-8 text-center bg-gray-50 rounded-lg">
+                        <ActivityIcon className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-1">No activity yet</h3>
+                        <p className="text-gray-500">Your wallet activity will show up here</p>
+                    </div>
+                ) : (
+                    <>
+                        {activities.map((activity) => (
+                            <ActivityItem
+                                key={`${activity.tx_hash}-${activity.block_time}`}
+                                activity={activity}
+                            />
+                        ))}
+                        {/* Fill remaining slots with empty space to maintain consistent height */}
+                        {activities.length < minActivitySlots && (
+                            <div style={{ height: `${(minActivitySlots - activities.length) * activityHeight}px` }} />
+                        )}
+                    </>
+                )}
+            </div>
         </div>
     )
 } 

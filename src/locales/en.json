@@ -130,11 +130,37 @@
         "gasPrice": "Gas Price"
     },
     "settings": {
-        "language": "Language",
+        "title": "Settings",
+        "description": "Manage your account preferences and application settings",
+        "language": {
+            "title": "Language & Region",
+            "description": "Choose your preferred language and regional settings"
+        },
+        "account": {
+            "title": "Account & Profile",
+            "description": "Manage your account information and profile settings"
+        },
+        "appearance": {
+            "title": "Appearance",
+            "description": "Customize the look and feel of your dashboard"
+        },
+        "notifications": {
+            "title": "Notifications",
+            "description": "Control how and when you receive notifications"
+        },
+        "security": {
+            "title": "Security & Privacy",
+            "description": "Manage your security settings and privacy preferences"
+        },
+        "help": {
+            "title": "Help & Support",
+            "description": "Get help, report issues, and contact support"
+        },
+        "footer": {
+            "feedback": "Have feedback or questions? Contact us at"
+        },
         "currency": "Currency",
         "theme": "Theme",
-        "notifications": "Notifications",
-        "security": "Security",
         "about": "About",
         "version": "Version",
         "termsOfService": "Terms of Service",
