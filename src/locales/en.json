@@ -167,6 +167,35 @@
         "privacyPolicy": "Privacy Policy",
         "support": "Support"
     },
+    "morpho": {
+        "earn": "Morpho Earn",
+        "selectVault": "Select Vault",
+        "depositAmount": "Deposit Amount",
+        "withdrawAmount": "Withdraw Amount",
+        "deposit": "Deposit",
+        "withdraw": "Withdraw",
+        "apy": "APY",
+        "tvl": "TVL",
+        "yourPosition": "Your Position",
+        "sharePrice": "Share Price",
+        "depositProcessing": "Deposit Processing",
+        "withdrawalProcessing": "Withdrawal Processing",
+        "depositSuccessful": "Deposit Successful",
+        "withdrawalSuccessful": "Withdrawal Successful",
+        "depositFailed": "Deposit Failed",
+        "withdrawalFailed": "Withdrawal Failed",
+        "rewardsAvailable": "Rewards Available",
+        "claimable": "Claimable",
+        "pending": "Pending",
+        "howItWorks": "How it works:",
+        "howItWorksSteps": [
+            "Deposit assets into curated Morpho vaults",
+            "Earn yield from lending markets automatically",
+            "Receive additional reward tokens from various programs",
+            "Withdraw anytime with accrued yield"
+        ],
+        "learnMore": "Learn more"
+    },
     "errors": {
         "somethingWentWrong": "Something went wrong",
         "networkError": "Network error",

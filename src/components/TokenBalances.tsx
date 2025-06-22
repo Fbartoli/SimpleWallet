@@ -8,7 +8,7 @@ import { SUPPORTED_TOKENS, type TokenSymbol } from "@/config/constants"
 import { RefreshCw, Wallet } from "lucide-react"
 import { ErrorDisplay, TokenGrid, TotalValueDisplay } from "@/components/token-balances"
 import { useTranslations } from "@/hooks/useTranslations"
-import { AsyncErrorBoundary } from "@/components/error-boundaries"
+
 
 
 
@@ -147,15 +147,7 @@ export function TokenBalances() {
             ))}
           </div>
         }>
-          <AsyncErrorBoundary
-            name="TokenBalances"
-            onError={(error) => {
-              // Could send to error reporting service here
-              console.error("TokenBalances error:", error)
-            }}
-          >
-            <TokenBalancesContent />
-          </AsyncErrorBoundary>
+          <TokenBalancesContent />
         </Suspense>
       </div>
     </div>

@@ -167,6 +167,35 @@
         "privacyPolicy": "Политика конфиденциальности",
         "support": "Поддержка"
     },
+    "morpho": {
+        "earn": "Morpho Earn",
+        "selectVault": "Выберите хранилище",
+        "depositAmount": "Сумма депозита",
+        "withdrawAmount": "Сумма вывода",
+        "deposit": "Депозит",
+        "withdraw": "Вывод",
+        "apy": "Годовая доходность",
+        "tvl": "TVL",
+        "yourPosition": "Ваша позиция",
+        "sharePrice": "Цена доли",
+        "depositProcessing": "Обработка депозита",
+        "withdrawalProcessing": "Обработка вывода",
+        "depositSuccessful": "Депозит успешен",
+        "withdrawalSuccessful": "Вывод успешен",
+        "depositFailed": "Депозит не удался",
+        "withdrawalFailed": "Вывод не удался",
+        "rewardsAvailable": "Доступны награды",
+        "claimable": "Доступно для получения",
+        "pending": "В ожидании",
+        "howItWorks": "Как это работает:",
+        "howItWorksSteps": [
+            "Депозит активов в курируемые хранилища Morpho",
+            "Автоматическое получение дохода от рынков кредитования",
+            "Получение дополнительных токенов вознаграждения от различных программ",
+            "Вывод в любое время с накопленным доходом"
+        ],
+        "learnMore": "Узнать больше"
+    },
     "errors": {
         "somethingWentWrong": "Что-то пошло не так",
         "networkError": "Ошибка сети",

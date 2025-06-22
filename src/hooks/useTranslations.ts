@@ -17,6 +17,7 @@ export function useTranslations() {
         swap: (key: string) => t(`swap.${key}`),
         activity: (key: string) => t(`activity.${key}`),
         settings: (key: string) => t(`settings.${key}`),
+        morpho: (key: string) => t(`morpho.${key}`),
         errors: (key: string) => t(`errors.${key}`),
         auth: (key: string) => t(`auth.${key}`),
     }
