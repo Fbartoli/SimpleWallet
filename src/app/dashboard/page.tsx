@@ -7,6 +7,7 @@ import { ActivityProvider } from "@/contexts/ActivityContext"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 import { useTranslations } from "@/hooks/useTranslations"
+import { AsyncErrorBoundary } from "@/components/error-boundaries"
 
 // Lazy load heavy components
 const ZeroXSwap = lazy(() => import("@/components/ZeroXSwap").then(mod => ({ default: mod.ZeroXSwap })))
@@ -225,23 +226,27 @@ export default function Dashboard() {
                 </header>
 
                 <div className="lg:col-span-2 flex flex-col gap-6">
-                    <Suspense fallback={<TokenBalancesSkeleton />}>
-                        <TokenBalances />
-                    </Suspense>
+                    <AsyncErrorBoundary name="TokenBalances">
+                        <Suspense fallback={<TokenBalancesSkeleton />}>
+                            <TokenBalances />
+                        </Suspense>
+                    </AsyncErrorBoundary>
 
                     {/* <MoneriumAuth /> */}
 
                     <ActivityProvider>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Suspense fallback={<SwapSkeleton />}>
-                                <ZeroXSwap userAddress={smartWalletAddress as `0x${string}`} />
-                            </Suspense>
-                            <Suspense fallback={<SendSkeleton />}>
-                                <Send />
-                            </Suspense>
+                            <AsyncErrorBoundary name="ZeroXSwap">
+                                <Suspense fallback={<SwapSkeleton />}>
+                                    <ZeroXSwap userAddress={smartWalletAddress as `0x${string}`} />
+                                </Suspense>
+                            </AsyncErrorBoundary>
+                            <AsyncErrorBoundary name="Send">
+                                <Suspense fallback={<SendSkeleton />}>
+                                    <Send />
+                                </Suspense>
+                            </AsyncErrorBoundary>
                         </div>
-
-
                     </ActivityProvider>
                 </div>
 
