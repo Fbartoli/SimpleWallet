@@ -8,6 +8,7 @@ import { Activity, Home, LogOut, Menu, PiggyBank, Settings } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTranslations } from "../hooks/useTranslations"
+import { logger } from "@/lib/logger"
 
 export default function Header() {
   const { authenticated, logout } = usePrivy()
@@ -28,7 +29,13 @@ export default function Header() {
         await revokeAccess()
       }
     } catch (error) {
-      console.error("Error revoking Monerium access:", error)
+      logger.error("Error revoking Monerium access", {
+        component: "header",
+        metadata: {
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+        },
+      })
       // Continue with logout even if Monerium revocation fails
     } finally {
       // Always logout from Privy

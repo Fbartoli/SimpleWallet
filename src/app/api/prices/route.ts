@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { TOKENS, type TokenSymbol } from "@/stores/useTokenStore"
+import { logger } from "@/lib/logger"
 
 interface PriceData {
     prices: Array<{
@@ -105,7 +106,13 @@ export async function GET() {
             },
         })
     } catch (error) {
-        console.error("Error fetching prices:", error)
+        logger.error("Error fetching prices", {
+            component: "prices-api",
+            metadata: {
+                error: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+            },
+        })
 
         // If there's an error but we have cached data, return it
         if (pricesCache) {

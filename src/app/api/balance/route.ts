@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { DuneClient } from "@/lib/DuneClient"
 import { getWhitelistedAddresses } from "@/config/constants"
+import { logger } from "@/lib/logger"
 
 if (!process.env.DUNE_API_KEY) {
     throw new Error("DUNE_API_KEY environment variable is not set")
@@ -203,7 +204,13 @@ export async function GET(request: NextRequest) {
         }
 
     } catch (error) {
-        console.error("Error fetching balances:", error)
+        logger.error("Error fetching balances", {
+            component: "balance-api",
+            metadata: {
+                error: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+            },
+        })
 
         // Return more specific error messages
         if (error instanceof Error) {

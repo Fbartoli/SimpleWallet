@@ -12,6 +12,7 @@ import { createPublicClient, encodeFunctionData, erc20Abi, http, isAddress, pars
 import { base } from "viem/chains"
 import { AlertTriangle, ArrowRight, CheckCircle, Loader2, Send as SendIcon } from "lucide-react"
 import { useTranslations } from "@/hooks/useTranslations"
+import { logger } from "@/lib/logger"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -318,7 +319,13 @@ export function Send() {
             setIsModalOpen(false)
 
         } catch (error) {
-            console.error("Send error:", error)
+            logger.error("Send transaction error", {
+                component: "send",
+                metadata: {
+                    error: error instanceof Error ? error.message : String(error),
+                    stack: error instanceof Error ? error.stack : undefined,
+                },
+            })
             const message = error instanceof Error ? error.message : send("transactionFailed")
             toast({
                 title: send("transactionFailed"),

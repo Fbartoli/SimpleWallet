@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { DuneClient } from "@/lib/DuneClient"
+import { logger } from "@/lib/logger"
 
 if (!process.env.DUNE_API_KEY) {
     throw new Error("DUNE_API_KEY environment variable is not set")
@@ -78,7 +79,13 @@ export async function GET(request: NextRequest) {
         }
 
     } catch (error) {
-        console.error("Error fetching activity:", error)
+        logger.error("Error fetching activity", {
+            component: "activity-api",
+            metadata: {
+                error: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+            },
+        })
 
         // Return more specific error messages
         if (error instanceof Error) {

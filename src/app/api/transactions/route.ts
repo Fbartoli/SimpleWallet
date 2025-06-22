@@ -1,6 +1,7 @@
 import { DuneClient } from "@/lib/DuneClient"
 import { NextRequest, NextResponse } from "next/server"
 import { base } from "viem/chains"
+import { logger } from "@/lib/logger"
 
 export async function GET(request: NextRequest) {
     try {
@@ -30,7 +31,13 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json(response)
     } catch (error) {
-        console.error("Error fetching transactions:", error)
+        logger.error("Error fetching transactions", {
+            component: "transactions-api",
+            metadata: {
+                error: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+            },
+        })
         return NextResponse.json(
             { error: "Failed to fetch transactions" },
             { status: 500 }

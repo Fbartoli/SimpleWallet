@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { TOKENS, type TokenSymbol } from "@/stores/useTokenStore"
 import { FEE_RECIPIENT } from "@/config/constants"
+import { logger } from "@/lib/logger"
 
 const SWAP_FEE_CONFIG = {
   swapFeeRecipient: FEE_RECIPIENT,
@@ -60,7 +61,13 @@ export async function GET(request: Request) {
     const data = await response.json()
     return NextResponse.json(data)
   } catch (error) {
-    console.error("Quote fetch error:", error)
+    logger.error("Quote fetch error", {
+      component: "swap-quote-api",
+      metadata: {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    })
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to fetch quote" },
       { status: 500 }
