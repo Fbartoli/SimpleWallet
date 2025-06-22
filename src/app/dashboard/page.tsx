@@ -11,7 +11,7 @@ import { useTranslations } from "@/hooks/useTranslations"
 // Lazy load heavy components
 const ZeroXSwap = lazy(() => import("@/components/ZeroXSwap").then(mod => ({ default: mod.ZeroXSwap })))
 const TokenBalances = lazy(() => import("@/components/TokenBalances").then(mod => ({ default: mod.TokenBalances })))
-const Activity = lazy(() => import("@/components/Activity").then(mod => ({ default: mod.Activity })))
+
 const Send = lazy(() => import("@/components/Send").then(mod => ({ default: mod.Send })))
 
 // Improved skeleton loaders with consistent dimensions
@@ -134,34 +134,7 @@ const SendSkeleton = () => (
     </div>
 )
 
-const ActivitySkeleton = () => (
-    <div className="space-y-4 min-h-[400px]">
-        <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-                <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
-                <div className="h-6 w-48 bg-gray-200 rounded animate-pulse" />
-            </div>
-        </div>
 
-        <div className="space-y-3">
-            {Array.from({ length: 5 }, (_, i) => (
-                <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border animate-pulse">
-                    <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-gray-200 rounded-full" />
-                        <div className="space-y-2">
-                            <div className="h-4 bg-gray-200 rounded w-32" />
-                            <div className="h-3 bg-gray-200 rounded w-24" />
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <div className="h-4 bg-gray-200 rounded w-20" />
-                        <div className="h-8 w-8 bg-gray-200 rounded" />
-                    </div>
-                </div>
-            ))}
-        </div>
-    </div>
-)
 
 // Optimized loading screen component
 const LoadingScreen = () => (
@@ -268,11 +241,7 @@ export default function Dashboard() {
                             </Suspense>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-6">
-                            <Suspense fallback={<ActivitySkeleton />}>
-                                <Activity />
-                            </Suspense>
-                        </div>
+
                     </ActivityProvider>
                 </div>
 

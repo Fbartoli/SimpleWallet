@@ -195,7 +195,7 @@ export default function Receive() {
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="native-currency">ETH (Native)</SelectItem>
+                                                    <SelectItem value="native-currency">ETH</SelectItem>
                                                     <SelectItem value="USDC">USDC</SelectItem>
                                                     {/* Add ERC20 tokens from our token list */}
                                                     {Object.entries(TOKENS)

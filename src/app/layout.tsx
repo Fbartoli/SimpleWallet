@@ -6,7 +6,7 @@ import "./globals.css"
 
 import Providers from "@/app/providers/providers"
 import { Toaster } from "@/components/ui/toaster"
-// import MobileFooterWrapper from "@/components/MobileFooterWrapper"
+import MobileFooterWrapper from "@/components/MobileFooterWrapper"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // Configure the Inter font with optimal settings for preventing flicker
@@ -68,7 +68,7 @@ export default function RootLayout({
         <Providers>
           {children}
           <SpeedInsights />
-          {/* <MobileFooterWrapper /> */}
+          <MobileFooterWrapper />
         </Providers>
         <Toaster />
       </body>

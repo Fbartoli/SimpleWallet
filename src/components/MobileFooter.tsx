@@ -1,7 +1,7 @@
 "use client"
 
 import { usePrivy } from "@privy-io/react-auth"
-import { Home, LogOut, Send, Wallet } from "lucide-react"
+import { Activity, Home, LogOut } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/app/utils"
@@ -22,16 +22,10 @@ export default function MobileFooter() {
             active: pathname === "/dashboard",
         },
         {
-            href: "/send",
-            label: "Send",
-            icon: Send,
-            active: pathname === "/send",
-        },
-        {
-            href: "/receive",
-            label: "Receive",
-            icon: Wallet,
-            active: pathname === "/receive",
+            href: "/activity",
+            label: "Activity",
+            icon: Activity,
+            active: pathname === "/activity",
         },
         {
             href: "#",
@@ -43,7 +37,7 @@ export default function MobileFooter() {
 
     return (
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-green-50 to-teal-50 border-t border-green-100 backdrop-blur supports-[backdrop-filter]:bg-green-50/90">
-            <div className="grid grid-cols-4 h-16">
+            <div className="grid grid-cols-3 h-16">
                 {navItems.map((item) => (
                     item.href === "#" ? (
                         <button

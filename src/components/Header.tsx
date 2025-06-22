@@ -4,7 +4,7 @@ import { useState } from "react"
 import { usePrivy } from "@privy-io/react-auth"
 import { useAuth } from "@monerium/sdk-react-provider"
 import { Button } from "./Button"
-import { Home, LogOut, Menu, PiggyBank, Settings } from "lucide-react"
+import { Activity, Home, LogOut, Menu, PiggyBank, Settings } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTranslations } from "../hooks/useTranslations"
@@ -80,6 +80,15 @@ export default function Header() {
                             {navigation("dashboard")}
                           </Link>
                         )}
+                        <Link
+                          href="/activity"
+                          className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-muted/50 transition-colors"
+                          role="menuitem"
+                          onClick={closeMenu}
+                        >
+                          <Activity className="h-4 w-4" />
+                          {navigation("activity")}
+                        </Link>
                         <Link
                           href="/settings"
                           className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-muted/50 transition-colors"

@@ -66,7 +66,7 @@
         "estimatedGas": "Est. Gas:",
         "actionCannotBeUndone": "This action cannot be undone. Make sure the recipient address is correct.",
         "selectTokenToSend": "Select token to send",
-        "ethNative": "ETH (Native)",
+        "ethNative": "ETH",
         "available": "Available:",
         "reviewTransaction": "Review Transaction",
         "pleaseEnterValidAddress": "Please enter a valid Ethereum address",
