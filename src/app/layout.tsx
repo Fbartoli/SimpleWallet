@@ -1,12 +1,12 @@
 // app/layout.tsx
 import type { Metadata } from "next"
 import { Analytics } from "@vercel/analytics/react"
-import "@coinbase/onchainkit/styles.css"
 import "./globals.css"
 
 import Providers from "@/app/providers/providers"
 import { Toaster } from "@/components/ui/toaster"
-import MobileFooterWrapper from "@/components/MobileFooterWrapper"
+// import MobileFooterWrapper from "@/components/MobileFooterWrapper"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata: Metadata = {
   title: "Simple Savings - Self-Custodial DeFi Savings Platform",
@@ -45,7 +45,8 @@ export default function RootLayout({
         <Analytics />
         <Providers>
           {children}
-          <MobileFooterWrapper />
+          <SpeedInsights />
+          {/* <MobileFooterWrapper /> */}
         </Providers>
         <Toaster />
       </body>
