@@ -44,13 +44,6 @@
             ]
         }
     ],
-    "redirects": [
-        {
-            "source": "/",
-            "destination": "/dashboard",
-            "permanent": false
-        }
-    ],
     "regions": [
         "iad1"
     ],
