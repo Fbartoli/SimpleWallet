@@ -1,4 +1,4 @@
-import type { Config } from "tailwindcss";
+import type { Config } from "tailwindcss"
 
 export default {
   content: [
@@ -6,8 +6,8 @@ export default {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  darkMode: ['class'], 
-  safelist: ['dark'], 
+  darkMode: ["class"],
+  safelist: ["dark"],
   theme: {
     container: {
       center: true,
@@ -58,9 +58,9 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
       },
     },
   },
   plugins: [],
-} satisfies Config;
+} satisfies Config
