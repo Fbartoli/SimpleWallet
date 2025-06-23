@@ -6,7 +6,7 @@ import { fetchTokenInfo, queryKeys } from "@/app/api/queries"
 export function useTokenInfo(contractAddress: string, chainIds?: string) {
     return useQuery({
         queryKey: queryKeys.tokenInfo(contractAddress, { chain_ids: chainIds }),
-        queryFn: () => fetchTokenInfo(contractAddress, { chain_ids: chainIds }),
+        queryFn: () => fetchTokenInfo(contractAddress, { chain_ids: chainIds || "all" }),
         enabled: Boolean(contractAddress),
         staleTime: 5 * 60 * 1000, // 5 minutes
         retry: (failureCount, error) => {

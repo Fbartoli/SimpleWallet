@@ -14,7 +14,7 @@ interface UseTokenActivityParams {
 export function useTokenActivity(address: string, params?: UseTokenActivityParams) {
     const { data: allActivity, isLoading, error, refetch } = useQuery({
         queryKey: queryKeys.allActivity(address, { chain_ids: params?.chain_ids }),
-        queryFn: () => fetchAllActivity(address, { chain_ids: params?.chain_ids }),
+        queryFn: () => fetchAllActivity(address, { chain_ids: params?.chain_ids || "all" }),
         enabled: Boolean(address),
         refetchInterval: 30000, // Refetch every 30 seconds
         staleTime: 15000, // Consider data stale after 15 seconds

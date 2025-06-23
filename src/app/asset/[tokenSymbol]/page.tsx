@@ -146,7 +146,7 @@ export default function AssetPage() {
         error: tokenInfoError,
     } = useTokenInfo(
         token?.address || "native",
-        "8453" // Base chain
+        "8453" // Filter by Base chain ID
     )
 
     // Fetch filtered activity
@@ -158,7 +158,7 @@ export default function AssetPage() {
     } = useTokenActivity(walletAddress || "", {
         tokenAddress: token?.address,
         tokenSymbol: token?.symbol,
-        chain_ids: "8453",
+        // No longer filtering by specific chain - will use "all" by default
     })
 
     // Get token info for display
@@ -259,7 +259,7 @@ export default function AssetPage() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div className="bg-gray-50 rounded-lg p-4">
                             <p className="text-sm text-gray-600 mb-1">Current Price</p>
-                            <p className="text-2xl font-bold text-gray-900">
+                            <div className="text-2xl font-bold text-gray-900">
                                 {tokenInfoLoading ? (
                                     <div className="h-8 w-20 bg-gray-200 rounded animate-pulse" />
                                 ) : tokenInfoError ? (
@@ -269,7 +269,7 @@ export default function AssetPage() {
                                 ) : (
                                     "N/A"
                                 )}
-                            </p>
+                            </div>
                             {tokenInfoError && (
                                 <div className="text-xs text-red-500 mt-1">
                                     {tokenInfoError.message}
@@ -279,7 +279,7 @@ export default function AssetPage() {
 
                         <div className="bg-gray-50 rounded-lg p-4">
                             <p className="text-sm text-gray-600 mb-1">Fully Diluted Value</p>
-                            <p className="text-2xl font-bold text-gray-900">
+                            <div className="text-2xl font-bold text-gray-900">
                                 {tokenInfoLoading ? (
                                     <div className="h-8 w-20 bg-gray-200 rounded animate-pulse" />
                                 ) : tokenInfoError ? (
@@ -300,7 +300,7 @@ export default function AssetPage() {
                                 ) : (
                                     "N/A"
                                 )}
-                            </p>
+                            </div>
                             {fullyDilutedValue && displayInfo?.market_cap && fullyDilutedValue !== displayInfo.market_cap && (
                                 <div className="text-xs text-gray-500 mt-1">
                                     Market Cap: ${displayInfo.market_cap >= 1e9 ?
@@ -315,7 +315,7 @@ export default function AssetPage() {
 
                         <div className="bg-gray-50 rounded-lg p-4">
                             <p className="text-sm text-gray-600 mb-1">Chain</p>
-                            <p className="text-2xl font-bold text-gray-900">Base</p>
+                            <div className="text-2xl font-bold text-gray-900">Base</div>
                         </div>
 
                         <div className="bg-gray-50 rounded-lg p-4">

@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
         // Get query parameters
         const searchParams = request.nextUrl.searchParams
         const contractAddress = searchParams.get("contract_address")
-        const chainIds = searchParams.get("chain_ids") || "8453"
+        const chainIds = searchParams.get("chain_ids")
         const limit = searchParams.get("limit")
         const offset = searchParams.get("offset")
 
@@ -57,9 +57,9 @@ export async function GET(request: NextRequest) {
             )
         }
 
-        // Fetch token info from Dune
+        // Fetch token info from Dune - use "all" for chain_ids if not specified
         const response = await duneClient.getTokenInfo(contractAddress, {
-            chain_ids: chainIds,
+            chain_ids: chainIds || "all",
             limit: limit ? parseInt(limit) : undefined,
             offset: offset || undefined,
         })
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
             component: "token-info-api",
             metadata: {
                 contractAddress,
-                chainIds,
+                chainIds: chainIds || "all",
                 tokensCount: response?.tokens?.length || 0,
                 duration: `${duration}ms`,
                 hasNextOffset: !!response?.next_offset,
@@ -96,6 +96,7 @@ export async function GET(request: NextRequest) {
                 stack: error instanceof Error ? error.stack : undefined,
                 duration: `${duration}ms`,
                 contractAddress: request.nextUrl.searchParams.get("contract_address"),
+                chainIds: request.nextUrl.searchParams.get("chain_ids"),
             },
         })
 
