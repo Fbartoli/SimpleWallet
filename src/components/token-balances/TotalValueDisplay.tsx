@@ -5,12 +5,14 @@ import { useTranslations } from "@/hooks/useTranslations"
 interface TotalValueDisplayProps {
     totalValue: number
     stablecoinValue: number
+    vaultValue?: number
     isLoading?: boolean
 }
 
 export const TotalValueDisplay = memo(({
     totalValue,
     stablecoinValue,
+    vaultValue = 0,
     isLoading = false,
 }: TotalValueDisplayProps) => {
     const { wallet } = useTranslations()
@@ -41,6 +43,16 @@ export const TotalValueDisplay = memo(({
                             <>
                                 <span className="text-xs text-gray-500">Stablecoins</span>
                                 <span className="text-sm text-gray-600">${stablecoinValue.toFixed(2)}</span>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Show vault positions breakdown if there are vault investments */}
+                    <div className="flex justify-between items-center mt-1" style={{ minHeight: "20px" }}>
+                        {vaultValue > 0 && (
+                            <>
+                                <span className="text-xs text-gray-500">Vault Positions</span>
+                                <span className="text-sm text-gray-600">${vaultValue.toFixed(2)}</span>
                             </>
                         )}
                     </div>

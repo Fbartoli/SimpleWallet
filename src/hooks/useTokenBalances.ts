@@ -4,6 +4,7 @@ import { useCallback, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { fetchBalances, queryKeys } from "@/app/api/queries"
 import { useTokenStore } from "@/stores/useTokenStore"
+import { useVaultPositions } from "@/hooks/useVaultPositions"
 import { BALANCE_REFETCH_INTERVAL, BALANCE_STALE_TIME } from "@/config/constants"
 
 export function useTokenBalances(address: string) {
@@ -12,15 +13,21 @@ export function useTokenBalances(address: string) {
     balanceLoadingState,
     optimisticUpdate,
     updateBalances,
+    updateVaultPositions,
     setBalanceLoading,
     setBalanceError,
     clearErrors,
     getTotalUSDValue,
+    getTotalUSDValueIncludingVaults,
+    getVaultPositionsValue,
     getTokensWithBalance,
     applyOptimisticSwap,
     revertOptimisticSwap,
     confirmOptimisticSwap,
   } = useTokenStore()
+
+  // Fetch vault positions
+  const vaultPositions = useVaultPositions(address)
 
   // React Query for data fetching
   const query = useQuery({
@@ -58,10 +65,19 @@ export function useTokenBalances(address: string) {
     }
   }, [query.data, updateBalances])
 
+  // Update vault positions when they change
+  useEffect(() => {
+    if (vaultPositions.positions.length > 0 || !vaultPositions.isLoading) {
+      updateVaultPositions(vaultPositions.positions)
+    }
+  }, [vaultPositions.positions, vaultPositions.isLoading, updateVaultPositions])
+
   const refresh = useCallback(() => {
     clearErrors()
+    // Refresh both token balances and vault positions
+    vaultPositions.refetch()
     return query.refetch()
-  }, [query, clearErrors])
+  }, [query, clearErrors, vaultPositions])
 
   // Convert store balances to the expected format for backward compatibility
   const legacyBalances = Object.values(balances)
@@ -80,11 +96,15 @@ export function useTokenBalances(address: string) {
     storeBalances: balances,
 
     // Loading states
-    isLoading: balanceLoadingState.isLoading,
-    error: balanceLoadingState.error ? new Error(balanceLoadingState.error) : null,
+    isLoading: balanceLoadingState.isLoading || vaultPositions.isLoading,
+    error: balanceLoadingState.error ? new Error(balanceLoadingState.error) :
+      vaultPositions.error ? new Error(vaultPositions.error) : null,
 
     // Computed values
     totalUSDValue: getTotalUSDValue(),
+    totalUSDValueIncludingVaults: getTotalUSDValueIncludingVaults(),
+    vaultPositionsValue: getVaultPositionsValue(),
+    vaultPositions: vaultPositions.positions,
     tokensWithBalance: getTokensWithBalance(),
 
     // Optimistic updates

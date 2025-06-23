@@ -203,8 +203,29 @@ export class DuneClient {
     return allBalances
   }
 
-  async getTokenInfo(address: string, chainId: number) {
-    const url = `${this.baseUrl}v1/evm/token-info/${address}?chain_id=${chainId}`
+  /**
+   * Get token information for a given contract address
+   * @param contractAddress - Contract address or 'native' for native token
+   * @param params - Optional query parameters
+   * @returns Promise with token info data
+   */
+  async getTokenInfo(
+    contractAddress: string,
+    params?: DuneTokenInfoParams
+  ): Promise<DuneTokenInfoResponse> {
+    const queryParams = new URLSearchParams()
+
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString())
+        }
+      })
+    }
+
+    const queryString = queryParams.toString()
+    const url = `${this.baseUrl}v1/evm/token-info/${contractAddress}${queryString ? `?${queryString}` : ""}`
+
     const response = await fetch(url, {
       method: "GET",
       headers: {
@@ -281,4 +302,28 @@ export class DuneClient {
 
     return allActivity
   }
+}
+
+export interface DuneTokenInfoParams {
+  chain_ids?: string
+  limit?: number
+  offset?: string
+}
+
+export interface DuneTokenInfo {
+  chain: string
+  chain_id: number
+  symbol: string
+  name: string | null
+  decimals: number | null
+  price_usd: number | null
+  total_supply: string | null
+  market_cap: number | null
+  logo: string | null
+}
+
+export interface DuneTokenInfoResponse {
+  contract_address: string
+  tokens: DuneTokenInfo[]
+  next_offset: string | null
 } 

@@ -147,6 +147,36 @@ export async function fetchAllActivity(address: string, params?: {
     return data.activity || []
 }
 
+export async function fetchTokenInfo(contractAddress: string, params?: {
+    chain_ids?: string
+    limit?: number
+    offset?: string
+}): Promise<any> {
+    if (!contractAddress) {
+        throw new Error("Contract address is required")
+    }
+
+    const searchParams = new URLSearchParams({
+        contract_address: contractAddress,
+    })
+
+    if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) {
+                searchParams.append(key, value.toString())
+            }
+        })
+    }
+
+    const response = await fetch(`/api/token-info?${searchParams}`)
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Failed to parse error response" }))
+        throw new Error(errorData.error || `HTTP ${response.status}`)
+    }
+
+    return response.json()
+}
+
 // Query Keys for React Query
 export const queryKeys = {
     balances: (address: string) => ["balances", address] as const,
@@ -159,6 +189,11 @@ export const queryKeys = {
     allActivity: (address: string, params?: {
         chain_ids?: string
     }) => ["allActivity", address, params] as const,
+    tokenInfo: (contractAddress: string, params?: {
+        chain_ids?: string
+        limit?: number
+        offset?: string
+    }) => ["tokenInfo", contractAddress, params] as const,
     swapQuote: (params: {
         sellToken: TokenSymbol
         buyToken: TokenSymbol

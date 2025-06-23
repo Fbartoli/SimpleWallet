@@ -102,6 +102,20 @@ export const getSupportedTokensList = (): TokenConfig[] => {
   return Object.values(SUPPORTED_TOKENS)
 }
 
+// Local logo paths for optimized loading
+export const getTokenLogoPath = (symbol: TokenSymbol): string => {
+  const token = SUPPORTED_TOKENS[symbol]
+  if (!token) return "/file.svg" // fallback
+
+  // Special case for CBBTC which uses .webp
+  if (symbol === "CBBTC") {
+    return "/cbbtc.webp"
+  }
+
+  // Use lowercase address for other tokens
+  return `/${token.address.toLowerCase()}.png`
+}
+
 // API Configuration
 if (!process.env.NEXT_PUBLIC_FEE_RECIPIENT) {
   throw new Error("NEXT_PUBLIC_FEE_RECIPIENT is not set")

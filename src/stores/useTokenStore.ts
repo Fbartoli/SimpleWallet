@@ -3,6 +3,7 @@ import { subscribeWithSelector } from "zustand/middleware"
 import { formatUnits } from "viem"
 import { SUPPORTED_TOKENS, type TokenConfig, type TokenSymbol } from "@/config/constants"
 import { DuneBalance } from "@/types/dune"
+import type { VaultPosition } from "@/hooks/useVaultPositions"
 
 export { SUPPORTED_TOKENS as TOKENS, type TokenSymbol, type TokenConfig as Token }
 
@@ -32,6 +33,10 @@ interface TokenStore {
     lastFetch: number
   }
 
+  // Vault positions state
+  vaultPositions: VaultPosition[]
+  vaultPositionsValue: number
+
   // Price state
   prices: Record<TokenSymbol, TokenPrice>
   priceLoadingState: {
@@ -49,6 +54,7 @@ interface TokenStore {
 
   // Actions
   updateBalances: (balances: DuneBalance[]) => void
+  updateVaultPositions: (positions: VaultPosition[]) => void
   updatePrices: (prices: Record<TokenSymbol, { price: string; estimatedGas: string; decimals: number }>) => void
   setBalanceLoading: (loading: boolean) => void
   setBalanceError: (error: string | null) => void
@@ -63,6 +69,8 @@ interface TokenStore {
 
   // Computed getters
   getTotalUSDValue: () => number
+  getTotalUSDValueIncludingVaults: () => number
+  getVaultPositionsValue: () => number
   getBalanceBySymbol: (symbol: TokenSymbol) => TokenBalance | null
   getTokensWithBalance: () => TokenBalance[]
   getStablecoinBalance: () => number
@@ -105,6 +113,8 @@ export const useTokenStore = create<TokenStore>()(
       error: null,
       lastFetch: 0,
     },
+    vaultPositions: [],
+    vaultPositionsValue: 0,
     prices: createInitialPrices(),
     priceLoadingState: {
       isLoading: false,
@@ -256,10 +266,30 @@ export const useTokenStore = create<TokenStore>()(
         priceLoadingState: { ...state.priceLoadingState, error: null },
       })),
 
+    // Vault position actions
+    updateVaultPositions: (positions: VaultPosition[]) => {
+      const totalValue = positions.reduce((total, position) => total + Number(position.assetsUsd), 0)
+      set({
+        vaultPositions: positions,
+        vaultPositionsValue: totalValue,
+      })
+    },
+
     // Computed getters
     getTotalUSDValue: () => {
       const { balances } = get()
       return Object.values(balances).reduce((total, balance) => total + balance.usdValue, 0)
+    },
+
+    getTotalUSDValueIncludingVaults: () => {
+      const { balances, vaultPositionsValue } = get()
+      const tokenBalancesValue = Object.values(balances).reduce((total, balance) => total + balance.usdValue, 0)
+      return tokenBalancesValue + vaultPositionsValue
+    },
+
+    getVaultPositionsValue: () => {
+      const { vaultPositionsValue } = get()
+      return vaultPositionsValue
     },
 
     getBalanceBySymbol: (symbol: TokenSymbol) => {

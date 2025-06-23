@@ -33,7 +33,8 @@ function TokenBalancesContent() {
     isLoading: balancesLoading,
     error: balancesError,
     refresh: refreshBalances,
-    totalUSDValue,
+    totalUSDValueIncludingVaults,
+    vaultPositionsValue,
     optimisticUpdate,
   } = useTokenBalances(walletAddress || "")
 
@@ -55,7 +56,8 @@ function TokenBalancesContent() {
         balancesLoading={balancesLoading}
         balancesError={balancesError?.message || null}
         refreshBalances={refreshBalances}
-        totalUSDValue={totalUSDValue}
+        totalUSDValue={totalUSDValueIncludingVaults}
+        vaultPositionsValue={vaultPositionsValue}
       />
     </>
   )
@@ -68,6 +70,7 @@ function TokenBalancesMainContent({
   balancesError,
   refreshBalances,
   totalUSDValue,
+  vaultPositionsValue,
 }: {
   user: ReturnType<typeof usePrivy>["user"]
   storeBalances: Record<TokenSymbol, TokenBalance>
@@ -75,6 +78,7 @@ function TokenBalancesMainContent({
   balancesError: string | null
   refreshBalances: () => void
   totalUSDValue: number
+  vaultPositionsValue: number
 }) {
   const { wallet } = useTranslations()
 
@@ -117,6 +121,7 @@ function TokenBalancesMainContent({
       <TotalValueDisplay
         totalValue={totalUSDValue}
         stablecoinValue={stablecoinValue}
+        vaultValue={vaultPositionsValue}
         isLoading={isLoading}
       />
       <TokenGrid
