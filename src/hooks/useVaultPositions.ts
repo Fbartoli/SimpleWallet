@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { BALANCE_REFETCH_INTERVAL } from "@/config/constants"
 
@@ -18,6 +18,21 @@ export interface VaultPositionsResponse {
     isLoading: boolean
     error: string | null
     refetch: () => void
+}
+
+interface GraphQLError {
+    message: string
+    status?: string
+}
+
+interface GraphQLVaultPosition {
+    vault: {
+        address: string
+        name: string
+    }
+    assets?: string
+    assetsUsd?: string
+    shares?: string
 }
 
 const fetchVaultPositions = async (userAddress: string): Promise<VaultPosition[]> => {
@@ -56,13 +71,25 @@ const fetchVaultPositions = async (userAddress: string): Promise<VaultPosition[]
 
     const data = await response.json()
 
+    // Handle GraphQL errors, but treat "NOT_FOUND" as valid empty result
     if (data.errors) {
-        throw new Error(`GraphQL errors: ${data.errors.map((e: any) => e.message).join(", ")}`)
+        const notFoundError = data.errors.find((error: GraphQLError) =>
+            error.message === "No results matching given parameters" &&
+            error.status === "NOT_FOUND"
+        )
+
+        // If it's just a "NOT_FOUND" error, return empty array (user has no positions)
+        if (notFoundError && data.errors.length === 1) {
+            return []
+        }
+
+        // For other errors, throw
+        throw new Error(`GraphQL errors: ${data.errors.map((e: GraphQLError) => e.message).join(", ")}`)
     }
 
-    const positions = data.data?.userByAddress?.vaultPositions || []
+    const positions: GraphQLVaultPosition[] = data.data?.userByAddress?.vaultPositions || []
 
-    return positions.map((position: any) => ({
+    return positions.map((position: GraphQLVaultPosition) => ({
         vaultAddress: position.vault.address.toLowerCase(),
         vaultName: position.vault.name,
         assets: position.assets || "0",
@@ -98,9 +125,16 @@ export function useVaultPositions(userAddress: string): VaultPositionsResponse {
         }
     }, [query.error])
 
-    const totalUsdValue = query.data?.reduce((total, position) => {
-        return total + Number(position.assetsUsd)
-    }, 0) || 0
+    // Memoize positions to prevent new array references when data hasn't changed
+    const positions = useMemo(() => {
+        return query.data || []
+    }, [query.data])
+
+    const totalUsdValue = useMemo(() => {
+        return positions.reduce((total, position) => {
+            return total + Number(position.assetsUsd)
+        }, 0)
+    }, [positions])
 
     const refetch = useCallback(() => {
         setError(null)
@@ -108,7 +142,7 @@ export function useVaultPositions(userAddress: string): VaultPositionsResponse {
     }, [query])
 
     return {
-        positions: query.data || [],
+        positions,
         totalUsdValue,
         isLoading: query.isLoading,
         error,

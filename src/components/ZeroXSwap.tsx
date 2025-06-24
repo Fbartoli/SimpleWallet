@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets"
 import { useToast } from "@/components/ui/use-toast"
@@ -49,29 +49,48 @@ const publicClient = createPublicClient({
 function TokenSelect({
   name,
   label,
-  filterPositiveBalance = false,
   storeBalances,
+  tokensToDisplay,
 }: {
   name: "sellToken" | "buyToken",
   label: string,
-  filterPositiveBalance?: boolean,
   balances?: { address: string; amount: string; decimals: number }[]
   storeBalances?: Record<TokenSymbol, { value: bigint; formatted: string }>
+  tokensToDisplay?: Array<[string, Token]>
 }) {
   const { swap } = useTranslations()
 
-  // Get tokens to display, filtering by balance if needed
-  const tokensToDisplay = filterPositiveBalance && storeBalances
-    ? Object.entries(TOKENS).filter(([symbol]) => {
+  // Memoize the fallback tokens to prevent new array creation
+  const fallbackTokens = useMemo(() => Object.entries(TOKENS), [])
+
+  // Use provided memoized tokens or fallback to memoized all tokens
+  const displayTokens = tokensToDisplay || fallbackTokens
+
+  // Memoize the token items to prevent recreation on every render
+  const tokenItems = useMemo(() => {
+    return displayTokens.map(([symbol, token]) => {
       const tokenSymbol = symbol as TokenSymbol
-      const storeBalance = storeBalances[tokenSymbol]
-      return storeBalance && storeBalance.value > 0n
+      const storeBalance = storeBalances?.[tokenSymbol]
+      const displayBalance = storeBalance?.formatted || "0.00"
+
+      return (
+        <SelectItem key={symbol} value={symbol} className="hover:bg-muted">
+          <div className="flex items-center justify-between w-full">
+            <span className="font-medium">{token.displaySymbol}</span>
+            {storeBalance && storeBalance.value > 0n && (
+              <span className="ml-2 text-sm text-gray-500 font-mono">
+                {displayBalance}
+              </span>
+            )}
+          </div>
+        </SelectItem>
+      )
     })
-    : Object.entries(TOKENS)
+  }, [displayTokens, storeBalances])
 
   return (
     <FormField
-      name={name}
+      name={name as keyof SwapFormValues}
       render={({ field }) => (
         <FormItem>
           <FormLabel>{label}</FormLabel>
@@ -82,24 +101,7 @@ function TokenSelect({
               </SelectTrigger>
             </FormControl>
             <SelectContent className="bg-background border rounded-md shadow-md max-h-60 overflow-y-auto">
-              {tokensToDisplay.map(([symbol, token]) => {
-                const tokenSymbol = symbol as TokenSymbol
-                const storeBalance = storeBalances?.[tokenSymbol]
-                const displayBalance = storeBalance?.formatted || "0.00"
-
-                return (
-                  <SelectItem key={symbol} value={symbol} className="hover:bg-muted">
-                    <div className="flex items-center justify-between w-full">
-                      <span className="font-medium">{token.displaySymbol}</span>
-                      {storeBalance && storeBalance.value > 0n && (
-                        <span className="ml-2 text-sm text-gray-500 font-mono">
-                          {displayBalance}
-                        </span>
-                      )}
-                    </div>
-                  </SelectItem>
-                )
-              })}
+              {tokenItems}
             </SelectContent>
           </Select>
           <FormMessage />
@@ -124,7 +126,7 @@ function AmountInput({
 
   return (
     <FormField
-      name="amount"
+      name={"amount" as const}
       render={({ field }) => (
         <FormItem>
           <FormLabel>{swap("enterAmount")}</FormLabel>
@@ -178,6 +180,8 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   const [isSwapLoading, setIsSwapLoading] = useState(false)
   const [shouldFetchQuote, setShouldFetchQuote] = useState(false)
   const { swap, common } = useTranslations()
+
+  // Re-enable useTokenBalances with proper memoization
   const {
     balances,
     storeBalances,
@@ -203,7 +207,9 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
   const amount = watch("amount")
 
   // Format the amount to ensure it's a valid number
-  const formattedAmount = amount && !isNaN(Number(amount)) ? amount : "0"
+  const formattedAmount = useMemo(() => {
+    return amount && !isNaN(Number(amount)) ? amount : "0"
+  }, [amount])
 
   // Get quote for the swap
   const { data: quote, isLoading: isQuoteLoading } = useSwapQuote({
@@ -215,21 +221,36 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
     enabled: Boolean(sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken),
   })
 
+  // Memoize the tokens to display to prevent unnecessary re-renders
+  const tokensToDisplay = useMemo(() => {
+    return Object.entries(TOKENS)
+  }, [])
+
+  // Memoize tokens with positive balance
+  const tokensWithPositiveBalance = useMemo(() => {
+    return Object.entries(TOKENS).filter(([symbol]) => {
+      const tokenSymbol = symbol as TokenSymbol
+      const storeBalance = storeBalances[tokenSymbol]
+      return storeBalance && storeBalance.value > 0n
+    })
+  }, [storeBalances])
+
+  // Memoize the selected token balance to prevent repeated access
+  const selectedTokenBalance = useMemo(() => {
+    return sellToken ? storeBalances[sellToken] : null
+  }, [sellToken, storeBalances])
+
   // Auto-select first available token with positive balance when user connects
   useEffect(() => {
-    if (storeBalances && Object.keys(storeBalances).length > 0) {
-      const currentSellBalance = storeBalances[sellToken]
+    if (storeBalances && Object.keys(storeBalances).length > 0 && !sellToken) {
+      // Only run this logic if no sellToken is selected
+      const firstAvailableToken = Object.entries(storeBalances).find(([_, balance]) =>
+        balance.value > 0n
+      )
 
-      // If current sellToken is empty, has no balance, or is not available, find first token with positive balance
-      if (!sellToken || !currentSellBalance || currentSellBalance.value <= 0n) {
-        const firstAvailableToken = Object.entries(storeBalances).find(([_, balance]) =>
-          balance.value > 0n
-        )
-
-        if (firstAvailableToken) {
-          const [tokenSymbol] = firstAvailableToken
-          setValue("sellToken", tokenSymbol as TokenSymbol, { shouldValidate: true })
-        }
+      if (firstAvailableToken) {
+        const [tokenSymbol] = firstAvailableToken
+        setValue("sellToken", tokenSymbol as TokenSymbol, { shouldValidate: true })
       }
     }
   }, [storeBalances, setValue, sellToken])
@@ -241,25 +262,27 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
     }
   }, [sellToken, buyToken, formattedAmount])
 
-  const handleMaxClick = () => {
-    const storeBalance = storeBalances[sellToken]
-    if (storeBalance && storeBalance.value > 0n) {
-      setValue("amount", storeBalance.formatted)
+  // Memoize handleMaxClick to prevent recreation
+  const handleMaxClick = useCallback(() => {
+    if (selectedTokenBalance && selectedTokenBalance.value > 0n) {
+      setValue("amount", selectedTokenBalance.formatted)
       setShouldFetchQuote(true)
     }
-  }
+  }, [selectedTokenBalance, setValue])
 
-  const handleSwapTokens = () => {
+  // Memoize handleSwapTokens to prevent recreation
+  const handleSwapTokens = useCallback(() => {
     const currentSellToken = getValues("sellToken")
     const currentBuyToken = getValues("buyToken")
     setValue("sellToken", currentBuyToken, { shouldValidate: true })
     setValue("buyToken", currentSellToken, { shouldValidate: true })
     setShouldFetchQuote(true)
-  }
+  }, [getValues, setValue])
 
-  const handleAmountBlur = () => {
+  // Memoize handleAmountBlur to prevent recreation
+  const handleAmountBlur = useCallback(() => {
     setShouldFetchQuote(true)
-  }
+  }, [])
 
   // Reset quote fetch flag after quote is loaded
   useEffect(() => {
@@ -268,8 +291,8 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
     }
   }, [quote])
 
-  // Manual fetch function for the Get Quote button
-  const fetchQuote = () => {
+  // Memoize fetchQuote function
+  const fetchQuote = useCallback(() => {
     if (sellToken && buyToken && formattedAmount && Number(formattedAmount) > 0 && sellToken !== buyToken) {
       setShouldFetchQuote(true)
     } else {
@@ -279,7 +302,7 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
         variant: "destructive",
       })
     }
-  }
+  }, [sellToken, buyToken, formattedAmount, toast, swap])
 
   async function executeSwap() {
     if (!client || !quote) return
@@ -392,16 +415,16 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
             <TokenSelect
               name="sellToken"
               label={swap("from")}
-              filterPositiveBalance={true}
               balances={balances}
               storeBalances={storeBalances}
+              tokensToDisplay={tokensWithPositiveBalance}
             />
 
             <AmountInput
               onBlur={handleAmountBlur}
               onMaxClick={handleMaxClick}
               isBalanceLoading={isBalanceLoading}
-              balance={storeBalances[sellToken]?.formatted}
+              balance={selectedTokenBalance?.formatted}
             />
 
             <div className="flex justify-center -my-1">
@@ -417,7 +440,12 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
               </Button>
             </div>
 
-            <TokenSelect name="buyToken" label={swap("to")} />
+            <TokenSelect
+              name="buyToken"
+              label={swap("to")}
+              storeBalances={storeBalances}
+              tokensToDisplay={tokensToDisplay}
+            />
 
             <div className="p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border border-green-100 min-h-[100px]">
               {/* Reserve space for optimistic update notification */}

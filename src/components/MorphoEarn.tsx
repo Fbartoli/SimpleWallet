@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets"
 import { useToast } from "@/components/ui/use-toast"
@@ -133,6 +133,41 @@ interface AllVaultsData {
     }
 }
 
+interface MorphoVaultPosition {
+    vault: {
+        address: string
+    }
+    assets?: string
+    assetsUsd?: string
+    shares?: string
+}
+
+interface MorphoVaultData {
+    address: string
+    asset?: {
+        yield?: {
+            apr?: number
+        }
+    }
+    state: {
+        apy?: number
+        netApy?: number
+        netApyWithoutRewards?: number
+        dailyApy?: number
+        dailyNetApy?: number
+        totalAssets?: string
+        totalAssetsUsd?: string
+        sharePrice?: string
+        sharePriceUsd?: string
+        rewards?: Array<{
+            asset: {
+                address: string
+            }
+            supplyApr: number
+            yearlySupplyTokens: string
+        }>
+    }
+}
 
 export function MorphoEarn({ userAddress }: { userAddress: string }) {
     const { client } = useSmartWallets()
@@ -196,7 +231,7 @@ export function MorphoEarn({ userAddress }: { userAddress: string }) {
     }>>({})
 
     // Fetch user vault positions from Morpho GraphQL API
-    const fetchUserVaultPositions = async () => {
+    const fetchUserVaultPositions = useCallback(async () => {
         try {
             const response = await fetch("https://api.morpho.org/graphql", {
                 method: "POST",
@@ -238,7 +273,7 @@ export function MorphoEarn({ userAddress }: { userAddress: string }) {
                     shares: string
                 }> = {}
 
-                positions.forEach((position: any) => {
+                positions.forEach((position: MorphoVaultPosition) => {
                     positionsLookup[position.vault.address.toLowerCase()] = {
                         assets: position.assets || "0",
                         assetsUsd: position.assetsUsd || "0",
@@ -251,7 +286,7 @@ export function MorphoEarn({ userAddress }: { userAddress: string }) {
         } catch (error) {
             console.error("Error fetching user vault positions:", error)
         }
-    }
+    }, [userAddress])
 
     // Get current user position for selected vault
     const currentUserPosition = userVaultPositions[vaultAddress.toLowerCase()]
@@ -270,7 +305,7 @@ export function MorphoEarn({ userAddress }: { userAddress: string }) {
     })
 
     // Fetch all vaults data from Morpho GraphQL API
-    const fetchAllVaultsData = async () => {
+    const fetchAllVaultsData = useCallback(async () => {
         const addresses = Object.values(MORPHO_VAULTS).map(vault => vault.address.toLowerCase())
 
         try {
@@ -322,7 +357,7 @@ export function MorphoEarn({ userAddress }: { userAddress: string }) {
 
                 // Update all vaults data
                 const newAllVaultsData: AllVaultsData = {}
-                vaults.forEach((vault: any) => {
+                vaults.forEach((vault: MorphoVaultData) => {
                     const vaultKey = Object.entries(MORPHO_VAULTS).find(
                         ([_, config]) => config.address.toLowerCase() === vault.address.toLowerCase()
                     )?.[0]
@@ -338,7 +373,7 @@ export function MorphoEarn({ userAddress }: { userAddress: string }) {
                 setAllVaultsData(newAllVaultsData)
 
                 // Update selected vault detailed data
-                const selectedVault = vaults.find((vault: any) =>
+                const selectedVault = vaults.find((vault: MorphoVaultData) =>
                     vault.address.toLowerCase() === vaultAddress.toLowerCase()
                 )
                 if (selectedVault) {
@@ -360,7 +395,7 @@ export function MorphoEarn({ userAddress }: { userAddress: string }) {
         } catch (error) {
             console.error("Error fetching vaults data:", error)
         }
-    }
+    }, [vaultAddress])
 
 
     // Initialize vault data loading states
@@ -380,7 +415,7 @@ export function MorphoEarn({ userAddress }: { userAddress: string }) {
     useEffect(() => {
         fetchAllVaultsData()
         fetchUserVaultPositions()
-    }, [selectedVault, userAddress])
+    }, [selectedVault, userAddress, fetchAllVaultsData, fetchUserVaultPositions])
 
     const handleMaxClick = () => {
         if (action === "deposit") {

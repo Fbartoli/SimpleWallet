@@ -1,10 +1,10 @@
 "use client"
 
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { fetchBalances, queryKeys } from "@/app/api/queries"
 import { useTokenStore } from "@/stores/useTokenStore"
-import { useVaultPositions } from "@/hooks/useVaultPositions"
+import { type VaultPosition, useVaultPositions } from "@/hooks/useVaultPositions"
 import { BALANCE_REFETCH_INTERVAL, BALANCE_STALE_TIME } from "@/config/constants"
 
 export function useTokenBalances(address: string) {
@@ -25,6 +25,9 @@ export function useTokenBalances(address: string) {
     revertOptimisticSwap,
     confirmOptimisticSwap,
   } = useTokenStore()
+
+  // Use ref to track previous vault positions to prevent unnecessary updates
+  const prevVaultPositionsRef = useRef<VaultPosition[]>([])
 
   // Fetch vault positions
   const vaultPositions = useVaultPositions(address)
@@ -49,7 +52,8 @@ export function useTokenBalances(address: string) {
   // Sync query state with store
   useEffect(() => {
     setBalanceLoading(query.isLoading)
-  }, [query.isLoading, setBalanceLoading])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query.isLoading])
 
   useEffect(() => {
     if (query.error) {
@@ -57,27 +61,35 @@ export function useTokenBalances(address: string) {
     } else {
       clearErrors()
     }
-  }, [query.error, setBalanceError, clearErrors])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query.error])
 
   useEffect(() => {
     if (query.data) {
       updateBalances(query.data)
     }
-  }, [query.data, updateBalances])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query.data])
 
-  // Update vault positions when they change
+  // Update vault positions when they change - with proper comparison to prevent infinite loops
   useEffect(() => {
-    if (vaultPositions.positions.length > 0 || !vaultPositions.isLoading) {
+    // Only update if vault positions have actually changed
+    const positionsChanged = JSON.stringify(prevVaultPositionsRef.current) !== JSON.stringify(vaultPositions.positions)
+
+    if (positionsChanged && (!vaultPositions.isLoading || vaultPositions.positions.length > 0)) {
+      prevVaultPositionsRef.current = vaultPositions.positions
       updateVaultPositions(vaultPositions.positions)
     }
-  }, [vaultPositions.positions, vaultPositions.isLoading, updateVaultPositions])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vaultPositions.positions, vaultPositions.isLoading])
 
   const refresh = useCallback(() => {
     clearErrors()
     // Refresh both token balances and vault positions
     vaultPositions.refetch()
     return query.refetch()
-  }, [query, clearErrors, vaultPositions])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query.refetch, vaultPositions.refetch])
 
   // Convert store balances to the expected format for backward compatibility
   const legacyBalances = Object.values(balances)

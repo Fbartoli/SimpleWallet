@@ -386,9 +386,9 @@ export default function AssetPage() {
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {activities.map((activity, index) => (
+                                {activities.map((activity) => (
                                     <ActivityItem
-                                        key={`${activity.tx_hash}-${activity.block_number}-${activity.token_address || "native"}-${index}`}
+                                        key={`${activity.tx_hash}-${activity.block_number}-${activity.token_address || "native"}-${activity.value}`}
                                         activity={activity}
                                         tokenSymbol={token.displaySymbol}
                                     />

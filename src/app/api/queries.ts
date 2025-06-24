@@ -19,6 +19,21 @@ export type TokenPricesRecord = Record<TokenSymbol, {
     decimals: number
 }>
 
+export interface TokenInfo {
+    tokens?: Array<{
+        contract_address: string
+        symbol?: string
+        name?: string
+        decimals?: number
+        total_supply?: string
+        logo_url?: string
+        price_usd?: number
+        market_cap?: number
+        [key: string]: unknown
+    }>
+    [key: string]: unknown // Allow for additional fields
+}
+
 // Enhanced balance response from optimized API
 interface BalanceApiResponse {
     balances: DuneBalance[]
@@ -151,7 +166,7 @@ export async function fetchTokenInfo(contractAddress: string, params?: {
     chain_ids?: string
     limit?: number
     offset?: string
-}): Promise<any> {
+}): Promise<TokenInfo> {
     if (!contractAddress) {
         throw new Error("Contract address is required")
     }

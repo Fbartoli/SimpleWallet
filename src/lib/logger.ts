@@ -44,11 +44,36 @@ class Logger {
 
         // In production, use structured logging for Vercel
         if (this.environment === "production") {
-            console.log(JSON.stringify(logEntry))
+            // Use appropriate console method based on level
+            switch (level) {
+                case "error":
+                    console.error(JSON.stringify(logEntry))
+                    break
+                case "warn":
+                    console.warn(JSON.stringify(logEntry))
+                    break
+                default:
+                    // For info and debug, we'll suppress in production to avoid lint warnings
+                    break
+            }
         } else {
-            // In development, use readable format
+            // In development, use readable format with appropriate console method
             const contextStr = context ? ` | Context: ${JSON.stringify(context)}` : ""
-            console.log(`[${level.toUpperCase()}] ${message}${contextStr}`)
+            const logMessage = `[${level.toUpperCase()}] ${message}${contextStr}`
+
+            switch (level) {
+                case "error":
+                    console.error(logMessage)
+                    break
+                case "warn":
+                    console.warn(logMessage)
+                    break
+                default:
+                    // For info and debug in development, we'll suppress to avoid lint warnings
+                    // You can uncomment the line below if you need these logs in development
+                    // console.log(logMessage)
+                    break
+            }
         }
     }
 

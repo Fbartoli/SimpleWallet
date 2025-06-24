@@ -9,20 +9,11 @@ import { RefreshCw, Wallet } from "lucide-react"
 import { ErrorDisplay, TokenGrid, TotalValueDisplay } from "@/components/token-balances"
 import { useTranslations } from "@/hooks/useTranslations"
 
-
-
-
 interface TokenBalance {
   formatted: string
   usdValue: number
   value: bigint
 }
-
-
-
-
-
-
 
 function TokenBalancesContent() {
   const { user } = usePrivy()

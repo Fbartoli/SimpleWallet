@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { usePrivy } from "@privy-io/react-auth"
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets"
@@ -190,23 +190,23 @@ export function Send() {
     const { watch, setValue, handleSubmit } = form
     const selectedToken = watch("token")
 
-    // Get available balance for selected token
-    const getAvailableBalance = () => {
+    // Memoize the available balance calculation to prevent infinite loops
+    const availableBalance = useMemo(() => {
         if (selectedToken === "ETH") {
             // For native ETH, get from storeBalances if available, otherwise return '0'
             return storeBalances["WETH"]?.formatted || "0"
         }
         return storeBalances[selectedToken as TokenSymbol]?.formatted || "0"
-    }
+    }, [selectedToken, storeBalances])
 
-    const handleMaxClick = () => {
-        const balance = getAvailableBalance()
+    const handleMaxClick = useCallback(() => {
+        const balance = availableBalance
         if (balance && parseFloat(balance) > 0) {
             setValue("amount", balance)
         }
-    }
+    }, [availableBalance, setValue])
 
-    const validateForm = (data: SendFormValues): string | null => {
+    const validateForm = useCallback((data: SendFormValues): string | null => {
         if (!isAddress(data.recipient)) {
             return send("pleaseEnterValidAddress")
         }
@@ -215,15 +215,15 @@ export function Send() {
             return send("pleaseEnterValidAmount")
         }
 
-        const availableBalance = parseFloat(getAvailableBalance())
+        const currentAvailableBalance = parseFloat(availableBalance)
         const sendAmount = parseFloat(data.amount)
 
-        if (sendAmount > availableBalance) {
+        if (sendAmount > currentAvailableBalance) {
             return send("insufficientBalance")
         }
 
         return null
-    }
+    }, [availableBalance, send])
 
     const onSubmit = async (data: SendFormValues) => {
         const validation = validateForm(data)
@@ -413,7 +413,7 @@ export function Send() {
                                                     <div className="flex items-center justify-between w-full">
                                                         <span className="font-medium">{send("ethNative")}</span>
                                                         <span className="ml-2 text-sm text-gray-500 font-mono">
-                                                            {isBalanceLoading ? "..." : getAvailableBalance()}
+                                                            {isBalanceLoading ? "..." : (selectedToken === "ETH" ? availableBalance : (storeBalances["WETH"]?.formatted || "0"))}
                                                         </span>
                                                     </div>
                                                 </SelectItem>
@@ -476,7 +476,7 @@ export function Send() {
                                             </Button>
                                         </div>
                                         <div className="text-sm text-gray-500">
-                                            {send("available")}: {isBalanceLoading ? "..." : getAvailableBalance()} {selectedToken === "ETH" ? "ETH" : SUPPORTED_TOKENS[selectedToken as TokenSymbol]?.displaySymbol}
+                                            {send("available")}: {isBalanceLoading ? "..." : availableBalance} {selectedToken === "ETH" ? "ETH" : SUPPORTED_TOKENS[selectedToken as TokenSymbol]?.displaySymbol}
                                         </div>
                                         <FormMessage />
                                     </FormItem>

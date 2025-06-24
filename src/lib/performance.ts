@@ -7,6 +7,22 @@ interface PerformanceMetrics {
     metadata?: Record<string, unknown>
 }
 
+// Interface for Vercel Analytics window extension
+interface VercelWebVitals {
+    reportCustomMetric: (metric: {
+        name: string
+        value: number
+        label: string
+        [key: string]: unknown
+    }) => void
+}
+
+declare global {
+    interface Window {
+        webVitals?: VercelWebVitals
+    }
+}
+
 class PerformanceMonitor {
     private static instance: PerformanceMonitor
     private measurements = new Map<string, number>()
@@ -117,10 +133,10 @@ class PerformanceMonitor {
      */
     private reportToVercel(metrics: PerformanceMetrics): void {
         // Report to Vercel Speed Insights if available
-        if ("webVitals" in window) {
+        if (typeof window !== "undefined" && window.webVitals) {
             // This integrates with Vercel's Speed Insights
             try {
-                ; (window as any).webVitals.reportCustomMetric({
+                window.webVitals.reportCustomMetric({
                     name: metrics.name,
                     value: metrics.duration,
                     label: "custom",
