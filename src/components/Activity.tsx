@@ -315,7 +315,7 @@ export function Activity() {
                     <>
                         {activities.map((activity) => (
                             <ActivityItem
-                                key={`${activity.tx_hash}-${activity.block_time}`}
+                                key={`${activity.tx_hash}-${activity.type}-${activity.block_time}`}
                                 activity={activity}
                             />
                         ))}

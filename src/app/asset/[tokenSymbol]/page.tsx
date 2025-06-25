@@ -139,13 +139,15 @@ export default function AssetPage() {
 
     const walletAddress = user?.smartWallet?.address as `0x${string}`
 
+
+    const tokenAddress = token?.address === "0x4200000000000000000000000000000000000006" ? "native" : token?.address
     // Fetch token info
     const {
         data: tokenInfo,
         isLoading: tokenInfoLoading,
         error: tokenInfoError,
     } = useTokenInfo(
-        token?.address || "native",
+        tokenAddress!,
         "8453" // Filter by Base chain ID
     )
 
@@ -158,6 +160,7 @@ export default function AssetPage() {
     } = useTokenActivity(walletAddress || "", {
         tokenAddress: token?.address,
         tokenSymbol: token?.symbol,
+        chain_ids: "8453",
         // No longer filtering by specific chain - will use "all" by default
     })
 
@@ -388,7 +391,7 @@ export default function AssetPage() {
                             <div className="space-y-4">
                                 {activities.map((activity) => (
                                     <ActivityItem
-                                        key={`${activity.tx_hash}-${activity.block_number}-${activity.token_address || "native"}-${activity.value}`}
+                                        key={`${activity.tx_hash}-${activity.type}-${activity.block_number}`}
                                         activity={activity}
                                         tokenSymbol={token.displaySymbol}
                                     />

@@ -112,6 +112,10 @@ export const getTokenLogoPath = (symbol: TokenSymbol): string => {
     return "/cbbtc.webp"
   }
 
+  if (symbol === "WETH") {
+    return "/native.png"
+  }
+
   // Use lowercase address for other tokens
   return `/${token.address.toLowerCase()}.png`
 }

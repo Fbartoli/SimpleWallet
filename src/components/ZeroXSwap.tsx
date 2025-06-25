@@ -468,14 +468,14 @@ export function ZeroXSwap({ userAddress }: ZeroXSwapProps) {
                 ) : quote ? (
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-green-800">
-                      {swap("estimatedOutput")} {(Number(quote.buyAmount) / 10 ** buyTokenInfo.decimals).toFixed(6)} {buyTokenInfo.symbol}
+                      {swap("estimatedOutput")} {(Number(quote.buyAmount) / 10 ** buyTokenInfo.decimals).toFixed(6)} {buyTokenInfo.displaySymbol}
                     </p>
                     {quote.fees?.integratorFee && (() => {
                       const feeToken = findTokenByAddress(quote.fees.integratorFee.token)
                       if (!feeToken) return null
                       return (
                         <p className="text-sm text-green-600">
-                          {swap("platformFee")} {formatUnits(BigInt(quote.fees.integratorFee.amount), feeToken.decimals).toString()} {feeToken.symbol}
+                          {swap("platformFee")} {formatUnits(BigInt(quote.fees.integratorFee.amount), feeToken.decimals).toString()} {feeToken.displaySymbol}
                         </p>
                       )
                     })()}

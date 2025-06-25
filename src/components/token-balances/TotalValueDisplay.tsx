@@ -37,9 +37,22 @@ export const TotalValueDisplay = memo(({
                         <span className="font-semibold text-lg">${totalValue.toFixed(2)}</span>
                     </div>
 
+                    {totalValue !== 0 && (
+                        <div className="flex justify-between items-center mt-1" style={{ minHeight: "20px" }}>
+                            <span className="text-xs text-gray-500">Crypto positions</span>
+                            <span className="text-sm text-gray-600">${(totalValue - stablecoinValue - vaultValue).toFixed(2)}</span>
+                        </div>
+                    )}
+
                     {/* Show stablecoin breakdown if there are stablecoins */}
                     <div className="flex justify-between items-center mt-1" style={{ minHeight: "20px" }}>
                         {stablecoinValue > 0 && (
+                            <>
+                                <span className="text-xs text-gray-500">Stablecoins</span>
+                                <span className="text-sm text-gray-600">${stablecoinValue.toFixed(2)}</span>
+                            </>
+                        )}
+                        {stablecoinValue === 0 && (
                             <>
                                 <span className="text-xs text-gray-500">Stablecoins</span>
                                 <span className="text-sm text-gray-600">${stablecoinValue.toFixed(2)}</span>
