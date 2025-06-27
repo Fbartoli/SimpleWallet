@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@0x/0x-parser": "^2.8.0",
+    "@ambire/signature-validator": "^1.4.1",
     "@coinbase/onchainkit": "^0.37.0",
     "@cowprotocol/widget-react": "^0.13.0",
     "@duneanalytics/hooks": "^1.1.2",
@@ -40,6 +41,7 @@
     "@trpc/next": "^10.45.2",
     "@types/better-sqlite3": "^7.6.12",
     "@vercel/analytics": "^1.5.0",
+    "@vercel/edge-config": "^1.4.0",
     "@vercel/speed-insights": "^1.2.0",
     "@wagmi/core": "^2.16.4",
     "better-sqlite3": "^11.8.1",

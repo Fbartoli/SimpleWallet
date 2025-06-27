@@ -226,6 +226,7 @@ export class DuneClient {
     const queryString = queryParams.toString()
     const url = `${this.baseUrl}v1/evm/token-info/${contractAddress}${queryString ? `?${queryString}` : ""}`
 
+    console.log("url", url)
     const response = await fetch(url, {
       method: "GET",
       headers: {

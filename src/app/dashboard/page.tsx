@@ -7,6 +7,8 @@ import { ActivityProvider } from "@/contexts/ActivityContext"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 import { useTranslations } from "@/hooks/useTranslations"
+import { MoneriumAuth } from "@/components/MoneriumAuth"
+import { FeatureFlag, FeatureFlagDebugger } from "@/components/FeatureFlag"
 
 
 // Lazy load heavy components
@@ -238,6 +240,9 @@ const ConnectScreen = ({ onConnect }: { onConnect: () => void }) => {
                     </Button>
                 </div>
             </main>
+
+            {/* Development feature flag debugger */}
+            <FeatureFlagDebugger />
         </div>
     )
 }
@@ -286,7 +291,9 @@ export default function Dashboard() {
                         <TokenBalances />
                     </Suspense>
 
-                    {/* <MoneriumAuth /> */}
+                    <FeatureFlag flag="monerium-auth">
+                        <MoneriumAuth />
+                    </FeatureFlag>
 
                     <ActivityProvider>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

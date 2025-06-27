@@ -52,6 +52,9 @@ class Logger {
                 case "warn":
                     console.warn(JSON.stringify(logEntry))
                     break
+                case "info":
+                    console.log(JSON.stringify(logEntry))
+                    break
                 default:
                     // For info and debug, we'll suppress in production to avoid lint warnings
                     break

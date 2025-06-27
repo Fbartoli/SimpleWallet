@@ -140,14 +140,14 @@ export default function AssetPage() {
     const walletAddress = user?.smartWallet?.address as `0x${string}`
 
 
-    const tokenAddress = token?.address === "0x4200000000000000000000000000000000000006" ? "native" : token?.address
+    // const tokenAddress = token?.address === "0x4200000000000000000000000000000000000006" ? "native" : token?.address
     // Fetch token info
     const {
         data: tokenInfo,
         isLoading: tokenInfoLoading,
         error: tokenInfoError,
     } = useTokenInfo(
-        tokenAddress!,
+        token?.address || "native",
         "8453" // Filter by Base chain ID
     )
 

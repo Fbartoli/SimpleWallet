@@ -3,6 +3,8 @@
 import { type IBAN as MoneriumIBAN, useAuth, useIBANs } from "@monerium/sdk-react-provider"
 import { usePrivy, useWallets } from "@privy-io/react-auth"
 import { Button } from "@/components/ui/button"
+import { useSmartWallets } from "@privy-io/react-auth/smart-wallets"
+
 import {
     CheckCircle,
     ExternalLink,
@@ -11,12 +13,13 @@ import {
     XCircle,
 } from "lucide-react"
 
-import { Hex, createWalletClient, custom } from "viem"
-import { gnosisChiado } from "viem/chains"
+import { Hex, createWalletClient, custom, publicActions } from "viem"
+import { sepolia } from "viem/chains"
 
 export function MoneriumAuth() {
     const { user } = usePrivy()
     const { wallets } = useWallets()
+    const { client } = useSmartWallets()
     const {
         authorize,
         isAuthorized,
@@ -42,15 +45,23 @@ export function MoneriumAuth() {
         const provider = await wallet.getEthereumProvider()
         const walletClient = createWalletClient({
             account: wallet.address as Hex,
-            chain: gnosisChiado,
+            chain: sepolia,
             transport: custom(provider),
-        })
-
+        }).extend(publicActions)
+        const signaturePrivy = await client!.signMessage({ message: "I hereby declare that I am the address owner." })
+        if (!await client!.account.isDeployed()) {
+            const deployTx = await client!.sendTransaction({
+                to: user?.smartWallet?.address as `0x${string}`,
+                data: "0x",
+                value: 0n,
+            })
+            await walletClient.waitForTransactionReceipt({ hash: deployTx as `0x${string}` })
+        }
         authorize({
             email: user?.email?.address as string,
-            address: user?.wallet?.address as `0x${string}`,
-            chain: gnosisChiado.id,
-            signature: await walletClient.signMessage({ message: "I hereby declare that I am the address owner." }),
+            address: user?.smartWallet?.address as `0x${string}`,
+            chain: sepolia.id,
+            signature: signaturePrivy,
         })
 
     }
