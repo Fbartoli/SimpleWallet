@@ -31,7 +31,7 @@ export default function Home() {
               <PiggyBank className="h-5 w-5 text-white" />
             </div>
             <span className="font-bold text-xl bg-gradient-to-r from-green-600 to-teal-600 text-transparent bg-clip-text">
-              Simple Savings
+              Simple Wallet
             </span>
           </Link>
           <nav className="ml-auto flex items-center gap-6">
@@ -132,7 +132,7 @@ export default function Home() {
           <div className="container px-4 md:px-6">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                Why Choose <span className="bg-gradient-to-r from-green-600 to-teal-600 text-transparent bg-clip-text">Simple Savings</span>?
+                Why Choose <span className="bg-gradient-to-r from-green-600 to-teal-600 text-transparent bg-clip-text">Simple Wallet</span>?
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                 We combine the best of traditional finance with cutting-edge DeFi to offer competitive returns while maintaining security.
@@ -543,7 +543,7 @@ export default function Home() {
                 <div className="h-8 w-8 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center">
                   <PiggyBank className="h-5 w-5 text-white" />
                 </div>
-                <span className="font-bold text-xl">Simple Savings</span>
+                <span className="font-bold text-xl">Simple Wallet</span>
               </div>
               <p className="text-gray-400">
                 Access competitive yields on your savings with self-custodial DeFi solutions.
@@ -563,7 +563,7 @@ export default function Home() {
           <div className="border-t border-gray-800 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-gray-400 text-sm">
-                © 2025 Simple Savings. All rights reserved.
+                © 2025 Simple Wallet. All rights reserved.
               </p>
               <div className="flex space-x-6 mt-4 md:mt-0">
                 <Link href="#" className="text-gray-400 hover:text-white text-sm transition-colors">

@@ -56,7 +56,7 @@ export default function Header() {
           <div className="flex items-center space-x-2">
             <Link href="/" className="flex items-center space-x-2">
               <PiggyBank className="h-6 w-6" />
-              <span className="text-xl font-bold">Simple Savings</span>
+              <span className="text-xl font-bold">Simple Wallet</span>
             </Link>
           </div>
           <div className="flex items-center space-x-2">

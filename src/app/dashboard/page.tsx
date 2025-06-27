@@ -207,7 +207,7 @@ const LoadingScreen = () => (
                 <Loader2 className="h-8 w-8 text-green-600 animate-spin" />
             </div>
             <div className="space-y-2">
-                <h2 className="text-xl font-semibold text-gray-900">Loading Simple Savings</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Loading Simple Wallet</h2>
                 <p className="text-gray-600">Initializing your wallet connection...</p>
             </div>
         </div>
@@ -227,7 +227,7 @@ const ConnectScreen = ({ onConnect }: { onConnect: () => void }) => {
             <Header />
             <main className="container mx-auto px-4 py-16">
                 <div className="max-w-md mx-auto text-center space-y-6">
-                    <h1 className="text-3xl font-bold tracking-tight">Welcome to Simple Savings</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">Welcome to Simple Wallet</h1>
                     <p className="text-muted-foreground">
                         {wallet("connectWallet")} to access your vault dashboard and start managing your finances.
                     </p>

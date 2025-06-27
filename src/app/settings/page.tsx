@@ -168,7 +168,7 @@ export default function SettingsPage() {
                 {/* Footer */}
                 <div className="mt-12 pt-8 border-t border-gray-200">
                     <div className="text-center text-sm text-gray-500">
-                        <p>Simple Savings • Version 1.0.0 Beta</p>
+                        <p>Simple Wallet • Version 1.0.0 Beta</p>
                         <p className="mt-1">
                             {settings("footer.feedback")} {" "}
                             <a href="mailto:support@simplesavings.com" className="text-green-600 hover:text-green-700">
