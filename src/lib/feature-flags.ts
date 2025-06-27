@@ -8,18 +8,10 @@
 // Define all available feature flags
 export type FeatureFlag =
     | "monerium-auth"
-    | "morpho-earn"
-    | "zero-x-swap"
-    | "activity-tracking"
-    | "multi-language"
 
 // Default flag states (fallback when env vars are not set)
 const DEFAULT_FLAGS: Record<FeatureFlag, boolean> = {
     "monerium-auth": false,
-    "morpho-earn": true,
-    "zero-x-swap": true,
-    "activity-tracking": true,
-    "multi-language": true,
 }
 
 /**
@@ -33,18 +25,6 @@ function getEnvFlag(flag: FeatureFlag): boolean | undefined {
     switch (flag) {
         case "monerium-auth":
             envValue = process.env.NEXT_PUBLIC_FEATURE_MONERIUM_AUTH
-            break
-        case "morpho-earn":
-            envValue = process.env.NEXT_PUBLIC_FEATURE_MORPHO_EARN
-            break
-        case "zero-x-swap":
-            envValue = process.env.NEXT_PUBLIC_FEATURE_ZERO_X_SWAP
-            break
-        case "activity-tracking":
-            envValue = process.env.NEXT_PUBLIC_FEATURE_ACTIVITY_TRACKING
-            break
-        case "multi-language":
-            envValue = process.env.NEXT_PUBLIC_FEATURE_MULTI_LANGUAGE
             break
         default:
             envValue = undefined

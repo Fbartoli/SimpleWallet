@@ -52,10 +52,6 @@ export function FeatureFlagDebugger() {
 
     const flags: FeatureFlag[] = [
         "monerium-auth",
-        "morpho-earn",
-        "zero-x-swap",
-        "activity-tracking",
-        "multi-language",
     ]
 
     return (
