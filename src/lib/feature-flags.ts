@@ -98,10 +98,3 @@ export function getAllFeatureFlags(): Record<FeatureFlag, boolean> {
 export function useFeatureFlag(flag: FeatureFlag): boolean {
     return isFeatureEnabled(flag)
 }
-
-// Development utilities
-if (process.env.NODE_ENV === "development") {
-    // Log feature flag states in development
-    const flags = getAllFeatureFlags()
-    console.log("🚩 Feature Flags:", flags)
-} 

@@ -67,7 +67,6 @@ export async function GET(request: NextRequest) {
         const duration = Date.now() - startTime
 
         // Log successful response
-        console.log("response", response)
         logger.info("Token info API success", {
             component: "token-info-api",
             metadata: {

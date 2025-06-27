@@ -52,9 +52,6 @@ class Logger {
                 case "warn":
                     console.warn(JSON.stringify(logEntry))
                     break
-                case "info":
-                    console.log(JSON.stringify(logEntry))
-                    break
                 default:
                     // For info and debug, we'll suppress in production to avoid lint warnings
                     break
@@ -74,7 +71,6 @@ class Logger {
                 default:
                     // For info and debug in development, we'll suppress to avoid lint warnings
                     // You can uncomment the line below if you need these logs in development
-                    // console.log(logMessage)
                     break
             }
         }
