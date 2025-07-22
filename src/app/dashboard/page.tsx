@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react"
 import { useTranslations } from "@/hooks/useTranslations"
 import { MoneriumAuth } from "@/components/MoneriumAuth"
 import { FeatureFlag, FeatureFlagDebugger } from "@/components/FeatureFlag"
+import { PortfolioHistory } from "@/components/PortfolioHistoryChart"
 
 
 // Lazy load heavy components
@@ -287,6 +288,11 @@ export default function Dashboard() {
                 </header>
 
                 <div className="lg:col-span-2 flex flex-col gap-6">
+
+
+                    <div className='mt-8'>
+                        <PortfolioHistory />
+                    </div>
                     <Suspense fallback={<TokenBalancesSkeleton />}>
                         <TokenBalances />
                     </Suspense>
@@ -294,6 +300,7 @@ export default function Dashboard() {
                     <FeatureFlag flag="monerium-auth">
                         <MoneriumAuth />
                     </FeatureFlag>
+
 
                     <ActivityProvider>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

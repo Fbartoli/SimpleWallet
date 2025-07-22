@@ -510,9 +510,6 @@ export default function Home() {
                     Start Earning Today <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-green-600">
-                  Learn More
-                </Button>
               </div>
 
               <div className="flex items-center space-x-8 pt-8 text-sm">
