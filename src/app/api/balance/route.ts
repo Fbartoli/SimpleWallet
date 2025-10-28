@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { DuneClient } from "@/lib/DuneClient"
 import { getWhitelistedAddresses } from "@/config/constants"
 import { logger } from "@/lib/logger"
+import { duneRateLimiter } from "@/lib/rate-limiter"
 
 if (!process.env.DUNE_API_KEY) {
     throw new Error("DUNE_API_KEY environment variable is not set")
@@ -74,10 +75,13 @@ function setCachedData(cacheKey: string, data: BalanceData): void {
 }
 
 async function fetchBalanceData(address: string, chainIds?: string, limit?: number) {
-    const response = await duneClient.getTokenBalances(address, {
-        chain_ids: chainIds || undefined,
-        limit: limit || undefined,
-    })
+    // Fetch with rate limiting
+    const response = await duneRateLimiter.execute(async () => {
+        return duneClient.getTokenBalances(address, {
+            chain_ids: chainIds || undefined,
+            limit: limit || undefined,
+        })
+    }, "dune-balance")
 
     if (!response.balances) {
         throw new Error("No balance data received")

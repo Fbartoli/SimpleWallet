@@ -8,10 +8,12 @@
 // Define all available feature flags
 export type FeatureFlag =
     | "monerium-auth"
+    | "zerox-swap"
 
 // Default flag states (fallback when env vars are not set)
 const DEFAULT_FLAGS: Record<FeatureFlag, boolean> = {
     "monerium-auth": false,
+    "zerox-swap": true,
 }
 
 /**
@@ -25,6 +27,9 @@ function getEnvFlag(flag: FeatureFlag): boolean | undefined {
     switch (flag) {
         case "monerium-auth":
             envValue = process.env.NEXT_PUBLIC_FEATURE_MONERIUM_AUTH
+            break
+        case "zerox-swap":
+            envValue = process.env.NEXT_PUBLIC_FEATURE_ZEROX_SWAP
             break
         default:
             envValue = undefined

@@ -26,24 +26,40 @@ Don8 is a modern web3 application built on Base that enables seamless token swap
 ## Getting Started
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/don8.git
 cd don8
 ```
 
 2. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
 3. Set up environment variables:
-Create a `.env.local` file with the following variables:
+   Create a `.env.local` file with the following variables:
+
 ```
-NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id
-NEXT_PUBLIC_0X_API_KEY=your_0x_api_key
+# Privy Configuration
+NEXT_PUBLIC_APP_ID=your_privy_app_id
+NEXT_PUBLIC_CLIENT_ID=your_privy_client_id
+
+# Fee Configuration
+NEXT_PUBLIC_FEE_RECIPIENT=your_fee_recipient_address
+
+# API Keys
+DUNE_API_KEY=your_dune_api_key
+ZEROX_API_KEY=your_0x_api_key
+
+# Feature Flags (optional)
+NEXT_PUBLIC_FEATURE_MONERIUM_AUTH=false
+NEXT_PUBLIC_FEATURE_ZEROX_SWAP=true
 ```
 
 4. Run the development server:
+
 ```bash
 pnpm dev
 ```

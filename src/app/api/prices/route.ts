@@ -60,7 +60,7 @@ export async function GET() {
                     url,
                     {
                         headers: {
-                            "0x-api-key": process.env.OX_API_KEY || "",
+                            "0x-api-key": process.env.ZEROX_API_KEY || "",
                             "0x-version": "v2",
                         },
                     }

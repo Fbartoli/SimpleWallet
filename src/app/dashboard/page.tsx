@@ -4,249 +4,23 @@ import { Suspense, lazy } from "react"
 import Header from "@/components/Header"
 import { usePrivy } from "@privy-io/react-auth"
 import { ActivityProvider } from "@/contexts/ActivityContext"
-import { Button } from "@/components/ui/button"
-import { Loader2 } from "lucide-react"
 import { useTranslations } from "@/hooks/useTranslations"
 import { MoneriumAuth } from "@/components/MoneriumAuth"
-import { FeatureFlag, FeatureFlagDebugger } from "@/components/FeatureFlag"
-import { PortfolioHistory } from "@/components/PortfolioHistoryChart"
-
+import { FeatureFlag } from "@/components/FeatureFlag"
+import {
+    ConnectScreen,
+    LoadingScreen,
+    MorphoEarnSkeleton,
+    SendSkeleton,
+    SwapSkeleton,
+    TokenBalancesSkeleton,
+} from "@/components/skeletons"
 
 // Lazy load heavy components
 const ZeroXSwap = lazy(() => import("@/components/ZeroXSwap").then(mod => ({ default: mod.ZeroXSwap })))
 const TokenBalances = lazy(() => import("@/components/TokenBalances").then(mod => ({ default: mod.TokenBalances })))
 const MorphoEarn = lazy(() => import("@/components/MorphoEarn").then(mod => ({ default: mod.MorphoEarn })))
 const Send = lazy(() => import("@/components/Send").then(mod => ({ default: mod.Send })))
-
-// Improved skeleton loaders with consistent dimensions
-const TokenBalancesSkeleton = () => (
-    <div className="p-6 border rounded-lg shadow-md bg-card relative overflow-hidden min-h-[400px]">
-        <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-teal-50 opacity-50 pointer-events-none" />
-        <div className="relative">
-            <div className="flex items-center gap-3 mb-6">
-                <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
-                <div className="h-6 w-24 bg-gray-200 rounded animate-pulse" />
-            </div>
-
-            {/* Total value section skeleton */}
-            <div className="mb-4 p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border border-green-100">
-                <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                        <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
-                        <div className="h-6 w-24 bg-gray-200 rounded animate-pulse" />
-                    </div>
-                    <div className="h-px bg-gray-200" />
-                    <div className="h-8 w-full bg-gray-200 rounded animate-pulse" />
-                </div>
-            </div>
-
-            {/* Token cards skeleton - consistent with actual content */}
-            <div className="grid gap-3">
-                {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="flex justify-between items-center p-3 rounded-lg border bg-gray-50 animate-pulse">
-                        <div className="flex items-center gap-2">
-                            <div className="h-5 w-5 bg-gray-200 rounded" />
-                            <div className="flex flex-col gap-1">
-                                <div className="h-4 w-12 bg-gray-200 rounded" />
-                                <div className="h-3 w-16 bg-gray-200 rounded" />
-                            </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                            <div className="h-4 w-16 bg-gray-200 rounded" />
-                            <div className="h-3 w-12 bg-gray-200 rounded" />
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    </div>
-)
-
-const SwapSkeleton = () => (
-    <div className="p-6 border rounded-lg shadow-md bg-card relative overflow-hidden min-h-[500px] flex flex-col">
-        <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-teal-50 opacity-50 pointer-events-none" />
-        <div className="relative flex-1 flex flex-col">
-            <div className="flex items-center gap-3 mb-6">
-                <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
-                <div className="h-6 w-24 bg-gray-200 rounded animate-pulse" />
-            </div>
-
-            <div className="space-y-5 flex-1">
-                {/* Form fields skeleton */}
-                <div className="space-y-2">
-                    <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
-                </div>
-
-                <div className="space-y-2">
-                    <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
-                </div>
-
-                <div className="flex justify-center">
-                    <div className="h-10 w-10 bg-gray-200 rounded-full animate-pulse" />
-                </div>
-
-                <div className="space-y-2">
-                    <div className="h-4 w-12 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
-                </div>
-
-                {/* Quote section skeleton */}
-                <div className="p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border border-green-100 min-h-[80px]">
-                    <div className="space-y-2">
-                        <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
-                        <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
-                    </div>
-                </div>
-
-                <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
-            </div>
-        </div>
-    </div>
-)
-
-const SendSkeleton = () => (
-    <div className="p-6 border rounded-lg shadow-md bg-card relative overflow-hidden min-h-[500px] flex flex-col">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-50 pointer-events-none" />
-        <div className="relative flex-1 flex flex-col">
-            <div className="flex items-center gap-3 mb-6">
-                <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
-                <div className="h-6 w-16 bg-gray-200 rounded animate-pulse" />
-            </div>
-
-            <div className="space-y-5 flex-1">
-                {/* Form fields skeleton */}
-                <div className="space-y-2">
-                    <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
-                </div>
-
-                <div className="space-y-2">
-                    <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
-                </div>
-
-                <div className="space-y-2">
-                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
-                </div>
-
-                <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
-            </div>
-        </div>
-    </div>
-)
-
-const MorphoEarnSkeleton = () => (
-    <div className="p-6 border rounded-lg shadow-md bg-card relative overflow-hidden min-h-[600px] flex flex-col">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-blue-50 opacity-50 pointer-events-none" />
-        <div className="relative flex-1 flex flex-col">
-            <div className="flex items-center gap-3 mb-6">
-                <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
-                <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
-            </div>
-
-            <div className="space-y-6 flex-1">
-                {/* Vault selection skeleton */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
-                        <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
-                    </div>
-                    <div className="space-y-2">
-                        <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
-                        <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
-                    </div>
-                </div>
-
-                {/* Vault info card skeleton */}
-                <div className="bg-white/80 rounded-lg p-4 border border-purple-100">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="space-y-1">
-                                <div className="h-3 w-8 bg-gray-200 rounded animate-pulse" />
-                                <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Amount input skeleton */}
-                <div className="space-y-2">
-                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
-                </div>
-
-                {/* Action button skeleton */}
-                <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
-
-                {/* Info section skeleton */}
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-                    <div className="space-y-2">
-                        <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
-                        <div className="h-3 w-48 bg-gray-200 rounded animate-pulse" />
-                        <div className="h-3 w-40 bg-gray-200 rounded animate-pulse" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-)
-
-
-
-// Optimized loading screen component
-const LoadingScreen = () => (
-    <div className="min-h-screen bg-green-50/40 relative flex items-center justify-center">
-        {/* Background gradient elements */}
-        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-green-100/30 to-teal-100/30 rounded-full blur-3xl -z-10 transform translate-x-1/4 -translate-y-1/4" />
-        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-green-100/30 to-teal-100/30 rounded-full blur-3xl -z-10 transform -translate-x-1/4 translate-y-1/4" />
-
-        <div className="text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-lg">
-                <Loader2 className="h-8 w-8 text-green-600 animate-spin" />
-            </div>
-            <div className="space-y-2">
-                <h2 className="text-xl font-semibold text-gray-900">Loading Simple Wallet</h2>
-                <p className="text-gray-600">Initializing your wallet connection...</p>
-            </div>
-        </div>
-    </div>
-)
-
-// Optimized connect screen component
-const ConnectScreen = ({ onConnect }: { onConnect: () => void }) => {
-    const { wallet } = useTranslations()
-
-    return (
-        <div className="min-h-screen bg-green-50/40 relative">
-            {/* Background gradient elements */}
-            <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-green-100/30 to-teal-100/30 rounded-full blur-3xl -z-10 transform translate-x-1/4 -translate-y-1/4" />
-            <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-green-100/30 to-teal-100/30 rounded-full blur-3xl -z-10 transform -translate-x-1/4 translate-y-1/4" />
-
-            <Header />
-            <main className="container mx-auto px-4 py-16">
-                <div className="max-w-md mx-auto text-center space-y-6">
-                    <h1 className="text-3xl font-bold tracking-tight">Welcome to Simple Wallet</h1>
-                    <p className="text-muted-foreground">
-                        {wallet("connectWallet")} to access your vault dashboard and start managing your finances.
-                    </p>
-                    <Button
-                        size="lg"
-                        onClick={onConnect}
-                        className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all animate-pulse"
-                    >
-                        {wallet("connectWallet")}
-                    </Button>
-                </div>
-            </main>
-
-            {/* Development feature flag debugger */}
-            <FeatureFlagDebugger />
-        </div>
-    )
-}
 
 export default function Dashboard() {
     const { user, login, ready } = usePrivy()
@@ -290,9 +64,6 @@ export default function Dashboard() {
                 <div className="lg:col-span-2 flex flex-col gap-6">
 
 
-                    <div className='mt-8'>
-                        <PortfolioHistory />
-                    </div>
                     <Suspense fallback={<TokenBalancesSkeleton />}>
                         <TokenBalances />
                     </Suspense>

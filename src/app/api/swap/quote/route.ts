@@ -9,7 +9,7 @@ const SWAP_FEE_CONFIG = {
 }
 
 export async function GET(request: Request) {
-  if (!process.env.OX_API_KEY) {
+  if (!process.env.ZEROX_API_KEY) {
     return NextResponse.json({ error: "0x API key is not set" }, { status: 500 })
   }
 
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
 
   const headers = {
     "Content-Type": "application/json",
-    "0x-api-key": process.env.OX_API_KEY,
+    "0x-api-key": process.env.ZEROX_API_KEY,
     "0x-version": "v2",
   }
 

@@ -52,6 +52,7 @@ export function FeatureFlagDebugger() {
 
     const flags: FeatureFlag[] = [
         "monerium-auth",
+        "zerox-swap",
     ]
 
     return (

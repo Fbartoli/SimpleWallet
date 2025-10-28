@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { DuneClient } from "@/lib/DuneClient"
 import { logger } from "@/lib/logger"
+import { duneRateLimiter } from "@/lib/rate-limiter"
 
 if (!process.env.DUNE_API_KEY) {
     throw new Error("DUNE_API_KEY environment variable is not set")
@@ -9,6 +10,15 @@ if (!process.env.DUNE_API_KEY) {
 const duneClient = new DuneClient({
     apiKey: process.env.DUNE_API_KEY,
 })
+
+// In-memory cache for token info
+interface TokenInfoCache {
+    data: unknown
+    timestamp: number
+}
+
+const tokenInfoCache = new Map<string, TokenInfoCache>()
+const CACHE_DURATION = 300_000 // 5 minutes (token info doesn't change often)
 
 export async function GET(request: NextRequest) {
     const startTime = Date.now()
@@ -57,12 +67,48 @@ export async function GET(request: NextRequest) {
             )
         }
 
-        // Fetch token info from Dune - use "all" for chain_ids if not specified
-        const response = await duneClient.getTokenInfo(contractAddress, {
-            chain_ids: chainIds || "all",
-            limit: limit ? parseInt(limit) : undefined,
-            offset: offset || undefined,
+        // Generate cache key
+        const cacheKey = `token-info:${contractAddress}:${chainIds || "all"}:${limit || "default"}:${offset || "0"}`
+        
+        // Check cache first
+        const cached = tokenInfoCache.get(cacheKey)
+        if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+            const headers = new Headers()
+            headers.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=600")
+            headers.set("X-Cache-Status", "HIT")
+            
+            logger.info("Token info API cache hit", {
+                component: "token-info-api",
+                metadata: { contractAddress, chainIds: chainIds || "all" },
+            })
+            
+            return NextResponse.json(cached.data, { headers })
+        }
+
+        // Fetch token info from Dune with rate limiting - use "all" for chain_ids if not specified
+        const response = await duneRateLimiter.execute(async () => {
+            return duneClient.getTokenInfo(contractAddress, {
+                chain_ids: chainIds || "all",
+                limit: limit ? parseInt(limit) : undefined,
+                offset: offset || undefined,
+            })
+        }, "dune-token-info")
+
+        // Cache the response
+        tokenInfoCache.set(cacheKey, {
+            data: response,
+            timestamp: Date.now(),
         })
+
+        // Clean up old cache entries
+        if (tokenInfoCache.size > 100) {
+            const entries = Array.from(tokenInfoCache.entries())
+            const oldestEntry = entries
+                .sort(([, a], [, b]) => a.timestamp - b.timestamp)[0]
+            if (oldestEntry) {
+                tokenInfoCache.delete(oldestEntry[0])
+            }
+        }
 
         const duration = Date.now() - startTime
 
@@ -83,6 +129,7 @@ export async function GET(request: NextRequest) {
         headers.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=600") // 5 min cache, 10 min stale
         headers.set("CDN-Cache-Control", "public, s-maxage=300")
         headers.set("Vercel-CDN-Cache-Control", "public, s-maxage=300")
+        headers.set("X-Cache-Status", "MISS")
 
         return NextResponse.json(response, { headers })
 
@@ -111,7 +158,13 @@ export async function GET(request: NextRequest) {
             if (error.message.includes("HTTP error! status: 429")) {
                 return NextResponse.json(
                     { error: "Rate limit exceeded. Please try again later." },
-                    { status: 429 }
+                    {
+                        status: 429,
+                        headers: {
+                            "Cache-Control": "no-cache",
+                            "Retry-After": "60",
+                        },
+                    }
                 )
             }
             if (error.message.includes("HTTP error! status: 404")) {

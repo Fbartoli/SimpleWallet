@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { DuneClient } from "@/lib/DuneClient"
 import { logger } from "@/lib/logger"
+import { duneRateLimiter } from "@/lib/rate-limiter"
 
 if (!process.env.DUNE_API_KEY) {
     throw new Error("DUNE_API_KEY environment variable is not set")
@@ -9,6 +10,15 @@ if (!process.env.DUNE_API_KEY) {
 const duneClient = new DuneClient({
     apiKey: process.env.DUNE_API_KEY,
 })
+
+// In-memory cache for activity data
+interface ActivityCache {
+    data: unknown
+    timestamp: number
+}
+
+const activityCache = new Map<string, ActivityCache>()
+const CACHE_DURATION = 30_000 // 30 seconds
 
 export async function GET(request: NextRequest) {
     try {
@@ -35,32 +45,42 @@ export async function GET(request: NextRequest) {
             )
         }
 
-        // Fetch activity from Dune
-        if (fetchAll === "true") {
-            // Fetch all activities using pagination
-            const allActivities = await duneClient.getAllActivity(address, {
-                chain_ids: chainIds || undefined,
-            })
-
-            const response = {
-                activity: allActivities,
-                next_offset: null,
-            }
-
-            // Add cache headers for better performance
+        // Generate cache key
+        const cacheKey = `activity:${address}:${chainIds || "all"}:${limit || "default"}:${offset || "0"}:${fetchAll || "false"}`
+        
+        // Check cache first
+        const cached = activityCache.get(cacheKey)
+        if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
             const headers = new Headers()
             headers.set("Cache-Control", "public, s-maxage=30, stale-while-revalidate=120")
-            headers.set("CDN-Cache-Control", "public, s-maxage=30")
-            headers.set("Vercel-CDN-Cache-Control", "public, s-maxage=30")
+            headers.set("X-Cache-Status", "HIT")
+            return NextResponse.json(cached.data, { headers })
+        }
 
-            return NextResponse.json(response, { headers })
+        // Fetch activity from Dune with rate limiting
+        let response
+        
+        if (fetchAll === "true") {
+            // Fetch all activities using pagination with rate limiting
+            response = await duneRateLimiter.execute(async () => {
+                const allActivities = await duneClient.getAllActivity(address, {
+                    chain_ids: chainIds || undefined,
+                })
+
+                return {
+                    activity: allActivities,
+                    next_offset: null,
+                }
+            }, "dune-activity")
         } else {
-            // Fetch single page of activities
-            const response = await duneClient.getActivity(address, {
-                limit: limit ? parseInt(limit) : undefined,
-                offset: offset || undefined,
-                chain_ids: chainIds || undefined,
-            })
+            // Fetch single page of activities with rate limiting
+            response = await duneRateLimiter.execute(async () => {
+                return duneClient.getActivity(address, {
+                    limit: limit ? parseInt(limit) : undefined,
+                    offset: offset || undefined,
+                    chain_ids: chainIds || undefined,
+                })
+            }, "dune-activity")
 
             if (!response.activity) {
                 return NextResponse.json(
@@ -68,15 +88,32 @@ export async function GET(request: NextRequest) {
                     { status: 500 }
                 )
             }
-
-            // Add cache headers for better performance
-            const headers = new Headers()
-            headers.set("Cache-Control", "public, s-maxage=10, stale-while-revalidate=60")
-            headers.set("CDN-Cache-Control", "public, s-maxage=10")
-            headers.set("Vercel-CDN-Cache-Control", "public, s-maxage=10")
-
-            return NextResponse.json(response, { headers })
         }
+
+        // Cache the response
+        activityCache.set(cacheKey, {
+            data: response,
+            timestamp: Date.now(),
+        })
+
+        // Clean up old cache entries (simple LRU cleanup)
+        if (activityCache.size > 50) {
+            const entries = Array.from(activityCache.entries())
+            const oldestEntry = entries
+                .sort(([, a], [, b]) => a.timestamp - b.timestamp)[0]
+            if (oldestEntry) {
+                activityCache.delete(oldestEntry[0])
+            }
+        }
+
+        // Add cache headers for better performance
+        const headers = new Headers()
+        headers.set("Cache-Control", "public, s-maxage=30, stale-while-revalidate=120")
+        headers.set("CDN-Cache-Control", "public, s-maxage=30")
+        headers.set("Vercel-CDN-Cache-Control", "public, s-maxage=30")
+        headers.set("X-Cache-Status", "MISS")
+
+        return NextResponse.json(response, { headers })
 
     } catch (error) {
         logger.error("Error fetching activity", {
