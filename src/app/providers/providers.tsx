@@ -93,7 +93,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           <SmartWalletsProvider>
             <WagmiProvider config={config}>
               <MoneriumProvider
-                clientId="4636fc62-fe8f-11ef-8ea8-d600b28158e8"
+                clientId={process.env.NEXT_PUBLIC_MONERIUM_CLIENT_ID || ""}
                 redirectUri={typeof window !== "undefined" ? `${window.location.origin}/dashboard` : "http://localhost:3000/dashboard"}
                 environment="sandbox"
               >

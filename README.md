@@ -110,6 +110,9 @@ Create a `.env.local` file in the root directory:
 NEXT_PUBLIC_APP_ID=your_privy_app_id
 NEXT_PUBLIC_CLIENT_ID=your_privy_client_id
 
+# Monerium Configuration (Optional - for fiat on/off ramp)
+NEXT_PUBLIC_MONERIUM_CLIENT_ID=your_monerium_client_id
+
 # Fee Configuration
 NEXT_PUBLIC_FEE_RECIPIENT=your_fee_recipient_address
 
