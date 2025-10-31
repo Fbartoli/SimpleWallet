@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { subscribeWithSelector } from "zustand/middleware"
 import { formatUnits } from "viem"
-import { SUPPORTED_TOKENS, type TokenConfig, type TokenSymbol } from "@/config/constants"
+import { SUPPORTED_TOKENS, type TokenConfig, type TokenSymbol, getTokenSymbolForVault } from "@/config/constants"
 import { DuneBalance } from "@/types/dune"
 import type { VaultPosition } from "@/hooks/useVaultPositions"
 
@@ -9,12 +9,14 @@ export { SUPPORTED_TOKENS as TOKENS, type TokenSymbol, type TokenConfig as Token
 
 interface TokenBalance {
   symbol: TokenSymbol
-  value: bigint
-  formatted: string
+  value: bigint // Total value including vault positions
+  walletValue: bigint // Value in wallet only
+  vaultValue: bigint // Value in vaults only
+  formatted: string // Formatted total (wallet + vault)
   decimals: number
   loading: boolean
   error: boolean
-  usdValue: number
+  usdValue: number // Total USD value including vaults
   lastUpdated: number
 }
 
@@ -83,6 +85,8 @@ const createInitialBalances = (): Record<TokenSymbol, TokenBalance> => {
     [symbol]: {
       symbol: symbol as TokenSymbol,
       value: 0n,
+      walletValue: 0n,
+      vaultValue: 0n,
       formatted: "0.00",
       decimals: token.decimals,
       loading: false,
@@ -134,16 +138,19 @@ export const useTokenStore = create<TokenStore>()(
       set((state) => {
         const updatedBalances = { ...state.balances }
 
-        // Reset all balances to 0 first
+        // Reset all wallet balances to 0 first (keep vault values)
         Object.keys(updatedBalances).forEach(symbol => {
           const tokenSymbol = symbol as TokenSymbol
           const existingBalance = updatedBalances[tokenSymbol]
           if (existingBalance) {
             updatedBalances[tokenSymbol] = {
+              ...existingBalance,
               symbol: tokenSymbol,
               decimals: existingBalance.decimals,
               loading: existingBalance.loading,
-              value: 0n,
+              walletValue: 0n,
+              // Keep vaultValue as is
+              value: existingBalance.vaultValue, // Will be recalculated below
               formatted: "0.00",
               usdValue: 0,
               lastUpdated: timestamp,
@@ -152,7 +159,7 @@ export const useTokenStore = create<TokenStore>()(
           }
         })
 
-        // Update with actual balances
+        // Update with actual wallet balances from Dune
         duneBalances.forEach(balance => {
           const token = Object.values(SUPPORTED_TOKENS).find(
             t => t.address.toLowerCase() === balance.address.toLowerCase()
@@ -164,15 +171,19 @@ export const useTokenStore = create<TokenStore>()(
             ) as TokenSymbol
 
             if (symbol && updatedBalances[symbol]) {
-              const value = BigInt(balance.amount)
-              const formatted = Number(formatUnits(value, token.decimals)).toFixed(6)
+              const walletValue = BigInt(balance.amount)
+              const existingBalance = updatedBalances[symbol]!
+              const vaultValue = existingBalance.vaultValue
+              const totalValue = walletValue + vaultValue
+              const formatted = Number(formatUnits(totalValue, token.decimals)).toFixed(6)
               const price = state.prices[symbol]?.price || 0
               const usdValue = price * Number(formatted)
-              const existingBalance = updatedBalances[symbol]!
 
               updatedBalances[symbol] = {
                 ...existingBalance,
-                value,
+                walletValue,
+                vaultValue,
+                value: totalValue,
                 formatted,
                 usdValue,
                 lastUpdated: timestamp,
@@ -269,9 +280,90 @@ export const useTokenStore = create<TokenStore>()(
     // Vault position actions
     updateVaultPositions: (positions: VaultPosition[]) => {
       const totalValue = positions.reduce((total, position) => total + Number(position.assetsUsd), 0)
-      set({
-        vaultPositions: positions,
-        vaultPositionsValue: totalValue,
+      
+      set((state) => {
+        const updatedBalances = { ...state.balances }
+        
+        // First, reset all vault values to 0
+        Object.keys(updatedBalances).forEach(symbol => {
+          const tokenSymbol = symbol as TokenSymbol
+          const existingBalance = updatedBalances[tokenSymbol]
+          if (existingBalance) {
+            updatedBalances[tokenSymbol] = {
+              ...existingBalance,
+              vaultValue: 0n,
+            }
+          }
+        })
+        
+        // Aggregate vault positions by token symbol
+        const vaultBalancesByToken: Record<string, bigint> = {}
+        
+        positions.forEach(position => {
+          const tokenSymbol = getTokenSymbolForVault(position.vaultAddress)
+          if (tokenSymbol && SUPPORTED_TOKENS[tokenSymbol]) {
+            // Convert assets string to bigint (assets are already in token's smallest unit)
+            const vaultAssets = BigInt(position.assets || "0")
+            
+            if (!vaultBalancesByToken[tokenSymbol]) {
+              vaultBalancesByToken[tokenSymbol] = 0n
+            }
+            vaultBalancesByToken[tokenSymbol] += vaultAssets
+          }
+        })
+        
+        // Update token balances with vault positions
+        Object.entries(vaultBalancesByToken).forEach(([symbol, vaultValue]) => {
+          const tokenSymbol = symbol as TokenSymbol
+          const existingBalance = updatedBalances[tokenSymbol]
+          const token = SUPPORTED_TOKENS[tokenSymbol]
+          
+          if (existingBalance && token) {
+            const totalValue = existingBalance.walletValue + vaultValue
+            const formatted = Number(formatUnits(totalValue, token.decimals)).toFixed(6)
+            const price = state.prices[tokenSymbol]?.price || 0
+            const usdValue = price * Number(formatted)
+            
+            updatedBalances[tokenSymbol] = {
+              ...existingBalance,
+              vaultValue,
+              value: totalValue,
+              formatted,
+              usdValue,
+              lastUpdated: Date.now(),
+            }
+          }
+        })
+        
+        // Recalculate balances for tokens with no vault positions (to update totals)
+        Object.keys(updatedBalances).forEach(symbol => {
+          const tokenSymbol = symbol as TokenSymbol
+          if (!vaultBalancesByToken[tokenSymbol]) {
+            const existingBalance = updatedBalances[tokenSymbol]
+            const token = SUPPORTED_TOKENS[tokenSymbol]
+            if (existingBalance && token) {
+              const totalValue = existingBalance.walletValue // No vault value
+              const formatted = Number(formatUnits(totalValue, token.decimals)).toFixed(6)
+              const price = state.prices[tokenSymbol]?.price || 0
+              const usdValue = price * Number(formatted)
+              
+              updatedBalances[tokenSymbol] = {
+                ...existingBalance,
+                vaultValue: 0n,
+                value: totalValue,
+                formatted,
+                usdValue,
+              }
+            }
+          }
+        })
+        
+        return {
+          ...state,
+          vaultPositions: positions,
+          vaultPositionsValue: totalValue,
+          balances: updatedBalances,
+        }
       })
     },
 
@@ -282,9 +374,10 @@ export const useTokenStore = create<TokenStore>()(
     },
 
     getTotalUSDValueIncludingVaults: () => {
-      const { balances, vaultPositionsValue } = get()
-      const tokenBalancesValue = Object.values(balances).reduce((total, balance) => total + balance.usdValue, 0)
-      return tokenBalancesValue + vaultPositionsValue
+      // Note: Individual token balances now already include vault positions
+      // So we just return the total of all token balances (no need to add vaultPositionsValue separately)
+      const { balances } = get()
+      return Object.values(balances).reduce((total, balance) => total + balance.usdValue, 0)
     },
 
     getVaultPositionsValue: () => {
@@ -320,32 +413,36 @@ export const useTokenStore = create<TokenStore>()(
         const buyTokenConfig = SUPPORTED_TOKENS[buyToken]
 
         if (sellTokenConfig && buyTokenConfig) {
-          // Update sell token balance (subtract)
+          // Update sell token balance (subtract from wallet value only)
           const currentSellBalance = updatedBalances[sellToken]
           if (currentSellBalance) {
-            const newSellValue = currentSellBalance.value - sellAmount
-            const newSellFormatted = Number(formatUnits(newSellValue, sellTokenConfig.decimals)).toFixed(6)
+            const newWalletValue = currentSellBalance.walletValue - sellAmount
+            const newTotalValue = newWalletValue + currentSellBalance.vaultValue
+            const newSellFormatted = Number(formatUnits(newTotalValue, sellTokenConfig.decimals)).toFixed(6)
             const sellPrice = state.prices[sellToken]?.price || 0
 
             updatedBalances[sellToken] = {
               ...currentSellBalance,
-              value: newSellValue,
+              walletValue: newWalletValue,
+              value: newTotalValue,
               formatted: newSellFormatted,
               usdValue: sellPrice * Number(newSellFormatted),
               lastUpdated: Date.now(),
             }
           }
 
-          // Update buy token balance (add)
+          // Update buy token balance (add to wallet value only)
           const currentBuyBalance = updatedBalances[buyToken]
           if (currentBuyBalance) {
-            const newBuyValue = currentBuyBalance.value + buyAmount
-            const newBuyFormatted = Number(formatUnits(newBuyValue, buyTokenConfig.decimals)).toFixed(6)
+            const newWalletValue = currentBuyBalance.walletValue + buyAmount
+            const newTotalValue = newWalletValue + currentBuyBalance.vaultValue
+            const newBuyFormatted = Number(formatUnits(newTotalValue, buyTokenConfig.decimals)).toFixed(6)
             const buyPrice = state.prices[buyToken]?.price || 0
 
             updatedBalances[buyToken] = {
               ...currentBuyBalance,
-              value: newBuyValue,
+              walletValue: newWalletValue,
+              value: newTotalValue,
               formatted: newBuyFormatted,
               usdValue: buyPrice * Number(newBuyFormatted),
               lastUpdated: Date.now(),

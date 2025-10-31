@@ -5,7 +5,7 @@ import { useTranslations } from "@/hooks/useTranslations"
 interface TotalValueDisplayProps {
     totalValue: number
     stablecoinValue: number
-    vaultValue?: number
+    vaultValue?: number // Deprecated: Now included in totalValue and token balances
     isLoading?: boolean
 }
 
@@ -37,18 +37,19 @@ export const TotalValueDisplay = memo(({
                         <span className="font-semibold text-lg">${totalValue.toFixed(2)}</span>
                     </div>
 
+                    {/* Show breakdown of crypto vs stablecoin positions */}
                     {totalValue !== 0 && (
                         <div className="flex justify-between items-center mt-1" style={{ minHeight: "20px" }}>
                             <span className="text-xs text-gray-500">Crypto positions</span>
-                            <span className="text-sm text-gray-600">${(totalValue - stablecoinValue - vaultValue).toFixed(2)}</span>
+                            <span className="text-sm text-gray-600">${(totalValue - stablecoinValue).toFixed(2)}</span>
                         </div>
                     )}
 
-                    {/* Show stablecoin breakdown if there are stablecoins */}
+                    {/* Show stablecoin breakdown - now includes vault positions */}
                     <div className="flex justify-between items-center mt-1" style={{ minHeight: "20px" }}>
                         {stablecoinValue > 0 && (
                             <>
-                                <span className="text-xs text-gray-500">Stablecoins</span>
+                                <span className="text-xs text-gray-500">Stablecoins (wallet + vaults)</span>
                                 <span className="text-sm text-gray-600">${stablecoinValue.toFixed(2)}</span>
                             </>
                         )}
@@ -56,16 +57,6 @@ export const TotalValueDisplay = memo(({
                             <>
                                 <span className="text-xs text-gray-500">Stablecoins</span>
                                 <span className="text-sm text-gray-600">${stablecoinValue.toFixed(2)}</span>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Show vault positions breakdown if there are vault investments */}
-                    <div className="flex justify-between items-center mt-1" style={{ minHeight: "20px" }}>
-                        {vaultValue > 0 && (
-                            <>
-                                <span className="text-xs text-gray-500">Vault Positions</span>
-                                <span className="text-sm text-gray-600">${vaultValue.toFixed(2)}</span>
                             </>
                         )}
                     </div>

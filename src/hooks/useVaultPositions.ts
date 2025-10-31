@@ -51,11 +51,9 @@ const fetchVaultPositions = async (userAddress: string): Promise<VaultPosition[]
                                 address
                                 name
                             }
-                            state {
-                                assets
-                                assetsUsd
-                                shares
-                            }
+                            assets
+                            assetsUsd
+                            shares
                         }
                     }
                 }
@@ -71,7 +69,7 @@ const fetchVaultPositions = async (userAddress: string): Promise<VaultPosition[]
     }
 
     const data = await response.json()
-    console.log("data", data)
+    console.log("Vault positions response:", data)
     // Handle GraphQL errors, but treat "NOT_FOUND" as valid empty result
     if (data.errors) {
         const notFoundError = data.errors.find((error: GraphQLError) =>
@@ -89,6 +87,14 @@ const fetchVaultPositions = async (userAddress: string): Promise<VaultPosition[]
     }
 
     const positions: GraphQLVaultPosition[] = data.data?.userByAddress?.vaultPositions || []
+    
+    console.log("Parsed vault positions:", positions.map((position: GraphQLVaultPosition) => ({
+        vaultAddress: position.vault.address.toLowerCase(),
+        vaultName: position.vault.name,
+        assets: position.assets || "0",
+        assetsUsd: position.assetsUsd || "0",
+        shares: position.shares || "0",
+    })))
 
     return positions.map((position: GraphQLVaultPosition) => ({
         vaultAddress: position.vault.address.toLowerCase(),

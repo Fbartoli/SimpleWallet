@@ -57,6 +57,19 @@ export const SUPPORTED_TOKENS: Record<string, TokenConfig> = {
 
 export type TokenSymbol = keyof typeof SUPPORTED_TOKENS
 
+// Morpho Vault Address to Token Symbol Mapping
+// Maps vault addresses to their underlying token symbols for balance aggregation
+export const VAULT_TO_TOKEN_MAP: Record<string, TokenSymbol> = {
+  // Morpho USDC Vault
+  "0xc1256ae5ff1cf2719d4937adb3bbccab2e00a2ca": "USDC",
+  // Morpho EURC Vault
+  "0xbeef086b8807dc5e5a1740c5e3a7c4c366ea6ab5": "EURC",
+} as const
+
+export const getTokenSymbolForVault = (vaultAddress: string): TokenSymbol | undefined => {
+  return VAULT_TO_TOKEN_MAP[vaultAddress.toLowerCase()]
+}
+
 // Pre-computed lookups for better performance
 const tokensByAddress = new Map<string, TokenConfig>()
 const whitelistedAddresses = new Set<string>()
